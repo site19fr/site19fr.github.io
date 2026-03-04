@@ -724,6 +724,158 @@
       0%, 100% { opacity: 0.3; transform: scaleY(1); }
       50% { opacity: 1; transform: scaleY(1.1); }
     }
+
+    /* INTRANET */
+    .intranet-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .intranet-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+      .intranet-grid { grid-template-columns: 1fr; }
+    }
+
+    .intranet-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 28px 24px 20px;
+      position: relative;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.25s ease;
+      overflow: hidden;
+    }
+
+    .intranet-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(232,200,74,0.03), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .intranet-card:hover {
+      border-color: rgba(232,200,74,0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .intranet-card:hover::after { opacity: 1; }
+    .intranet-card:hover .intranet-arrow { color: var(--accent); letter-spacing: 0.2em; }
+
+    .intranet-wide {
+      grid-column: span 4;
+      flex-direction: row;
+      align-items: center;
+      gap: 32px;
+      padding: 24px 32px;
+    }
+
+    @media (max-width: 900px) {
+      .intranet-wide { grid-column: span 2; flex-direction: column; align-items: flex-start; }
+    }
+
+    .intranet-wide .intranet-desc { flex: 1; }
+    .intranet-wide .intranet-footer { margin-top: 0; min-width: 160px; flex-direction: column; align-items: flex-end; }
+
+    .intranet-clearance {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      padding: 3px 10px;
+      border: 1px solid;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .lvl-1 { color: #27ae60; border-color: #27ae60; }
+    .lvl-2 { color: #e67e22; border-color: #e67e22; }
+    .lvl-3 { color: #c0392b; border-color: #c0392b; }
+    .lvl-4 { color: #8e44ad; border-color: #8e44ad; }
+    .lvl-5 { color: var(--accent); border-color: var(--accent); }
+
+    .intranet-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .intranet-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .intranet-code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .intranet-desc {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .intranet-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .intranet-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+    }
+
+    .intranet-status.online { color: var(--safe); }
+    .intranet-status.alert { color: var(--euclid); animation: pulse 1.5s ease-in-out infinite; }
+
+    .intranet-arrow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+
+    .intranet-notice {
+      border: 1px solid rgba(192,57,43,0.3);
+      background: rgba(192,57,43,0.05);
+      padding: 14px 20px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .intranet-notice .t-prompt {
+      color: var(--danger);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
   </style>
 </head>
 <body>
@@ -735,6 +887,7 @@
       <li><a href="#scps">Dossiers SCP</a></li>
       <li><a href="#factions">Factions</a></li>
       <li><a href="#regles">Règles</a></li>
+      <li><a href="#intranet">Intranet</a></li>
       <li><a href="#rejoindre">Rejoindre</a></li>
     </ul>
     <div class="nav-status">
@@ -974,6 +1127,88 @@
     </div>
   </section>
 
+  <div class="sep">
+    <div class="sep-line"></div>
+    <span class="sep-label">ACCÈS INTRANET</span>
+    <div class="sep-line"></div>
+  </div>
+
+  <!-- INTRANET -->
+  <section id="intranet">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">// Portail Interne — Site-19</div>
+        <h2 class="section-title">Sélectionnez<br>Votre Département</h2>
+      </div>
+
+      <div class="intranet-grid">
+        <a href="administration/index.html" class="intranet-card reveal">
+          <div class="intranet-clearance lvl-3">NIVEAU 3</div>
+          <div class="intranet-icon">🏛️</div>
+          <div class="intranet-name">Administration</div>
+          <div class="intranet-code">DEPT-ADM // O5-ADVISORY</div>
+          <p class="intranet-desc">Gestion des ressources humaines, budgets, autorisations de confinement et directives du Conseil O5.</p>
+          <div class="intranet-footer">
+            <span class="intranet-status online">● EN LIGNE</span>
+            <span class="intranet-arrow">ACCÉDER →</span>
+          </div>
+        </a>
+
+        <a href="medical/index.html" class="intranet-card reveal">
+          <div class="intranet-clearance lvl-2">NIVEAU 2</div>
+          <div class="intranet-icon">⚕️</div>
+          <div class="intranet-name">Medical</div>
+          <div class="intranet-code">DEPT-MED // BIO-HAZARD</div>
+          <p class="intranet-desc">Protocoles médicaux, rapports d'exposition, traitement des agents contaminés et autopsies d'entités.</p>
+          <div class="intranet-footer">
+            <span class="intranet-status online">● EN LIGNE</span>
+            <span class="intranet-arrow">ACCÉDER →</span>
+          </div>
+        </a>
+
+        <a href="scientific/index.html" class="intranet-card reveal">
+          <div class="intranet-clearance lvl-3">NIVEAU 3</div>
+          <div class="intranet-icon">🔬</div>
+          <div class="intranet-name">Scientific</div>
+          <div class="intranet-code">DEPT-SCI // RESEARCH-ALPHA</div>
+          <p class="intranet-desc">Études anomaliques, expérimentations sur SCP-914, rapports de recherche et publications internes.</p>
+          <div class="intranet-footer">
+            <span class="intranet-status online">● EN LIGNE</span>
+            <span class="intranet-arrow">ACCÉDER →</span>
+          </div>
+        </a>
+
+        <a href="security/index.html" class="intranet-card reveal">
+          <div class="intranet-clearance lvl-2">NIVEAU 2</div>
+          <div class="intranet-icon">🔒</div>
+          <div class="intranet-name">Security</div>
+          <div class="intranet-code">DEPT-SEC // MTF-PRIORITY</div>
+          <p class="intranet-desc">Protocoles de brèche, déploiement MTF, rapports d'incidents et gestion des zones de confinement.</p>
+          <div class="intranet-footer">
+            <span class="intranet-status alert">● ALERTE ACTIVE</span>
+            <span class="intranet-arrow">ACCÉDER →</span>
+          </div>
+        </a>
+
+        <a href="staff/index.html" class="intranet-card reveal intranet-wide">
+          <div class="intranet-clearance lvl-1">NIVEAU 1</div>
+          <div class="intranet-icon">👤</div>
+          <div class="intranet-name">Staff</div>
+          <div class="intranet-code">DEPT-STAFF // PERSONNEL-GENERAL</div>
+          <p class="intranet-desc">Espace du personnel général. Plannings, annonces internes, demandes de mutation et fiches de poste.</p>
+          <div class="intranet-footer">
+            <span class="intranet-status online">● EN LIGNE</span>
+            <span class="intranet-arrow">ACCÉDER →</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="intranet-notice reveal">
+        <span class="t-prompt">⚠ AVERTISSEMENT :</span> Tout accès non autorisé à un département supérieur à votre niveau d'accréditation constitue une violation du Protocole Sigma-7 et sera sanctionné immédiatement.
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section id="rejoindre" class="cta-section">
     <div class="cta-bg"></div>
@@ -990,17 +1225,16 @@
         Des milliers d'agents comptent sur vous. Le monde ignore leur existence. Votre mission commence maintenant.
       </p>
       <div class="hero-actions reveal">
-        <a href="#" class="btn btn-primary">▶ Jouer sur Roblox</a>
-        <a href="#" class="btn btn-secondary">Rejoindre le Discord</a>
+        <a href="https://discord.com/invite/VAw5DuZyHq" class="btn btn-secondary">Rejoindre le Discord</a>
       </div>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-logo">SCP // ROBLOX ROLEPLAY — FR</div>
+    <div class="footer-logo">Site-19 — FR</div>
     <div class="footer-copy">
-      Ce serveur est un projet fan non-officiel. SCP appartient à la SCP Foundation Wiki Community.
+      Ce serveur est un projet non-affilié à © MetaMethods ou SCP Roleplay.
     </div>
   </footer>
 
