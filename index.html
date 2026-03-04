@@ -850,6 +850,7 @@
     }
 
     .intranet-status.online { color: var(--safe); }
+    .intranet-status.offline { color: var(--accent); }
     .intranet-status.alert { color: var(--euclid); animation: pulse 1.5s ease-in-out infinite; }
 
     .intranet-arrow {
@@ -1185,19 +1186,19 @@
           <div class="intranet-code">DEPT-SEC // MTF-PRIORITY</div>
           <p class="intranet-desc">Protocoles de brèche, déploiement MTF, rapports d'incidents et gestion des zones de confinement.</p>
           <div class="intranet-footer">
-            <span class="intranet-status alert">● ALERTE ACTIVE</span>
+            <span class="intranet-status online">● EN LIGNE</span>
             <span class="intranet-arrow">ACCÉDER →</span>
           </div>
         </a>
 
-        <a href="staff/" class="intranet-card reveal intranet-wide">
+        <a href="#" class="intranet-card reveal intranet-wide">
           <div class="intranet-clearance lvl-1">NIVEAU 1</div>
           <div class="intranet-icon">👤</div>
           <div class="intranet-name">Staff</div>
           <div class="intranet-code">DEPT-STAFF // PERSONNEL-GENERAL</div>
           <p class="intranet-desc">Espace du personnel général. Plannings, annonces internes, demandes de mutation et fiches de poste.</p>
           <div class="intranet-footer">
-            <span class="intranet-status online">● EN LIGNE</span>
+            <span class="intranet-status offline">● HORS LIGNE</span>
             <span class="intranet-arrow">ACCÉDER →</span>
           </div>
         </a>
