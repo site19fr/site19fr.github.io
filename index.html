@@ -1,2350 +1,1042 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>SCP FOUNDATION — SITE-19 // SYSTÈME DE COMMANDEMENT</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-/* ╔══════════════════════════════════════════════════════╗
-   ║  SCP FOUNDATION — SITE-19 COMMAND INTERFACE         ║
-   ║  CLEARANCE: LEVEL 5 — CLASSIFIED                   ║
-   ╚══════════════════════════════════════════════════════╝ */
-
-:root {
-  /* Deep navy base */
-  --bg0: #020508;
-  --bg1: #050c14;
-  --bg2: #080f1a;
-  --bg3: #0c1520;
-  --bg4: #101d2a;
-  --bg5: #142030;
-
-  /* Steel borders */
-  --b0: #0d1e2e;
-  --b1: #152537;
-  --b2: #1e3348;
-  --b3: #2a4460;
-  --b4: #3a5878;
-
-  /* Text */
-  --t0: #e8f4ff;
-  --t1: #b8d4ee;
-  --t2: #7fa8c8;
-  --t3: #4a7298;
-  --t4: #2a4a68;
-
-  /* Primary: electric cyan */
-  --cyan: #00c8ff;
-  --cyan2: #00a8d8;
-  --cyan3: #007aaa;
-  --cyan-glow: rgba(0,200,255,0.2);
-  --cyan-glow2: rgba(0,200,255,0.08);
-
-  /* Accent: steel blue */
-  --blue: #3a8eff;
-  --blue2: #2070d0;
-  --blue-glow: rgba(58,142,255,0.2);
-
-  /* Status colors */
-  --green: #00e676;
-  --green-glow: rgba(0,230,118,0.15);
-  --amber: #ffaa00;
-  --amber-glow: rgba(255,170,0,0.15);
-  --red: #ff3355;
-  --red-glow: rgba(255,51,85,0.15);
-  --purple: #aa66ff;
-
-  /* Misc */
-  --r: 3px;
-  --font-display: 'Orbitron', sans-serif;
-  --font-ui: 'Rajdhani', sans-serif;
-  --font-mono: 'Share Tech Mono', monospace;
-}
-
-/* ── RESET ── */
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-
-body {
-  font-family: var(--font-ui);
-  background: var(--bg0);
-  color: var(--t1);
-  min-height: 100vh;
-  overflow-x: hidden;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Animated grid background */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: 0;
-  animation: grid-drift 60s linear infinite;
-}
-@keyframes grid-drift {
-  0%{background-position:0 0}
-  100%{background-position:48px 48px}
-}
-
-/* Vignette overlay */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(2,5,8,0.7) 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg1)}
-::-webkit-scrollbar-thumb{background:var(--b3);border-radius:2px}
-::-webkit-scrollbar-thumb:hover{background:var(--cyan3)}
-
-button{font-family:var(--font-ui);cursor:pointer}
-input,select,textarea{
-  font-family:var(--font-mono);
-  background:var(--bg1);
-  border:1px solid var(--b2);
-  color:var(--t1);
-  border-radius:var(--r);
-  padding:7px 10px;
-  font-size:12px;
-  outline:none;
-  width:100%;
-  transition:border-color .15s,box-shadow .15s;
-}
-input:focus,select:focus,textarea:focus{
-  border-color:var(--cyan2);
-  box-shadow:0 0 0 2px var(--cyan-glow2),inset 0 0 8px rgba(0,200,255,0.04);
-}
-select option{background:var(--bg2)}
-textarea{resize:vertical;min-height:80px}
-
-/* ══ LAYOUT SHELL ══ */
-.app{
-  position:relative;
-  z-index:1;
-  display:grid;
-  grid-template-rows:auto auto 1fr;
-  min-height:100vh;
-}
-
-/* ══ TOPBAR ══ */
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:200;
-  background:var(--bg1);
-  border-bottom:1px solid var(--b2);
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  align-items:center;
-  gap:0;
-  height:60px;
-  padding:0 0 0 24px;
-  box-shadow:0 2px 20px rgba(0,0,0,0.8);
-}
-
-/* Left accent stripe */
-.topbar::before{
-  content:'';
-  position:absolute;
-  left:0;top:0;bottom:0;
-  width:3px;
-  background:linear-gradient(180deg,var(--cyan),var(--blue));
-  box-shadow:0 0 12px var(--cyan-glow);
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding-right:32px;
-  border-right:1px solid var(--b2);
-  height:100%;
-}
-
-.brand-logo{
-  width:40px;height:40px;
-  flex-shrink:0;
-  position:relative;
-}
-.brand-logo svg{width:100%;height:100%}
-
-.brand-text{display:flex;flex-direction:column;gap:1px}
-.brand-text .t1{
-  font-family:var(--font-display);
-  font-size:16px;
-  font-weight:700;
-  color:var(--t0);
-  letter-spacing:0.12em;
-  line-height:1;
-}
-.brand-text .t2{
-  font-family:var(--font-mono);
-  font-size:9px;
-  color:var(--cyan2);
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-}
-.brand-text .t3{
-  font-size:9px;
-  color:var(--t4);
-  letter-spacing:0.1em;
-}
-
-.topbar-mid{
-  display:flex;
-  align-items:center;
-  gap:20px;
-  padding:0 24px;
-}
-
-.sys-status{
-  display:flex;
-  gap:16px;
-  align-items:center;
-}
-.sys-stat{
-  display:flex;
-  flex-direction:column;
-  gap:1px;
-}
-.sys-stat-label{
-  font-family:var(--font-mono);
-  font-size:8px;
-  color:var(--t4);
-  text-transform:uppercase;
-  letter-spacing:0.15em;
-}
-.sys-stat-val{
-  font-family:var(--font-display);
-  font-size:11px;
-  letter-spacing:0.08em;
-}
-.sys-stat-val.green{color:var(--green)}
-.sys-stat-val.amber{color:var(--amber)}
-.sys-stat-val.cyan{color:var(--cyan)}
-.sys-stat-val.dim{color:var(--t3)}
-
-.stat-divider{width:1px;height:28px;background:var(--b2)}
-
-.topbar-right{
-  display:flex;
-  align-items:center;
-  gap:0;
-  height:100%;
-  border-left:1px solid var(--b2);
-}
-
-.user-panel{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:0 20px;
-  height:100%;
-  border-right:1px solid var(--b2);
-}
-.user-badge{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:1px;
-}
-.user-name{
-  font-family:var(--font-display);
-  font-size:12px;
-  color:var(--t0);
-  letter-spacing:0.1em;
-}
-.user-role{
-  font-family:var(--font-mono);
-  font-size:8px;
-  color:var(--cyan2);
-  letter-spacing:0.15em;
-}
-
-.clearance-badge{
-  padding:4px 10px;
-  border:1px solid;
-  border-radius:var(--r);
-  font-family:var(--font-mono);
-  font-size:9px;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  font-weight:600;
-}
-.clearance-5{
-  border-color:var(--red);
-  color:var(--red);
-  background:rgba(255,51,85,0.08);
-  text-shadow:0 0 8px var(--red-glow);
-}
-
-.topbar-btns{
-  display:flex;
-  align-items:center;
-  gap:0;
-  height:100%;
-}
-.top-btn{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  padding:0 18px;
-  height:100%;
-  border:none;
-  background:transparent;
-  color:var(--t3);
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  border-left:1px solid var(--b1);
-  transition:all .15s;
-}
-.top-btn:hover{background:var(--bg3);color:var(--cyan);border-left-color:var(--b2)}
-.top-btn-icon{font-size:14px;opacity:.7}
-
-/* ══ NAV BAR ══ */
-.nav{
-  background:var(--bg2);
-  border-bottom:1px solid var(--b2);
-  display:flex;
-  align-items:stretch;
-  padding:0 24px;
-  gap:0;
-  overflow-x:auto;
-}
-.nav::-webkit-scrollbar{height:0}
-
-.nav-item{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:0 22px;
-  height:46px;
-  border:none;
-  background:transparent;
-  color:var(--t3);
-  font-family:var(--font-ui);
-  font-size:13px;
-  font-weight:600;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  cursor:pointer;
-  white-space:nowrap;
-  position:relative;
-  transition:color .15s;
-  border-bottom:2px solid transparent;
-}
-.nav-item::after{
-  content:'';
-  position:absolute;
-  bottom:-1px;left:0;right:0;
-  height:2px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-  opacity:0;
-  transition:opacity .2s;
-}
-.nav-item:hover{color:var(--t1)}
-.nav-item.active{color:var(--cyan);border-bottom-color:var(--cyan)}
-.nav-item.active::after{opacity:1}
-.nav-item.nav-danger{color:var(--t3)}
-.nav-item.nav-danger.active{color:var(--red);border-bottom-color:var(--red)}
-.nav-item.nav-danger.active::after{background:linear-gradient(90deg,transparent,var(--red),transparent)}
-.nav-item.nav-purple.active{color:var(--purple);border-bottom-color:var(--purple)}
-.nav-item.nav-purple.active::after{background:linear-gradient(90deg,transparent,var(--purple),transparent)}
-
-.nav-icon{font-size:15px;opacity:.6}
-.nav-sep{width:1px;background:var(--b2);margin:12px 6px;flex-shrink:0}
-.nav-space{flex:1}
-
-/* ══ BODY ══ */
-.body{
-  display:grid;
-  grid-template-columns:1fr 290px;
-  min-height:0;
-}
-.main{
-  overflow-y:auto;
-  padding:24px 28px;
-  border-right:1px solid var(--b1);
-  min-height:calc(100vh - 106px);
-}
-.sidebar{
-  overflow-y:auto;
-  padding:16px;
-  background:var(--bg1);
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-
-/* ══ VIEWS ══ */
-.view{display:none}
-.view.active{display:block}
-
-/* ══ SECTION HEADER ══ */
-.sec-hdr{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  margin-bottom:22px;
-  padding-bottom:16px;
-  border-bottom:1px solid var(--b2);
-  gap:16px;
-}
-.sec-hdr-left{}
-.sec-title{
-  font-family:var(--font-display);
-  font-size:24px;
-  font-weight:700;
-  color:var(--t0);
-  letter-spacing:0.1em;
-  line-height:1;
-}
-.sec-title span{color:var(--cyan)}
-.sec-sub{
-  font-family:var(--font-mono);
-  font-size:10px;
-  color:var(--t4);
-  letter-spacing:0.14em;
-  text-transform:uppercase;
-  margin-top:5px;
-}
-.sec-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-
-/* ══ BUTTONS ══ */
-.btn{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 16px;
-  border:1px solid var(--b3);
-  border-radius:var(--r);
-  background:var(--bg3);
-  color:var(--t2);
-  font-family:var(--font-ui);
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:all .15s;
-  white-space:nowrap;
-}
-.btn:hover{border-color:var(--b4);color:var(--t1);background:var(--bg4)}
-
-.btn-cyan{
-  border-color:var(--cyan3);
-  color:var(--cyan);
-  background:rgba(0,200,255,0.06);
-}
-.btn-cyan:hover{background:rgba(0,200,255,0.12);box-shadow:0 0 12px var(--cyan-glow);border-color:var(--cyan2)}
-
-.btn-blue{
-  border-color:var(--blue2);
-  color:var(--blue);
-  background:rgba(58,142,255,0.06);
-}
-.btn-blue:hover{background:rgba(58,142,255,0.12);box-shadow:0 0 10px var(--blue-glow)}
-
-.btn-green{
-  border-color:rgba(0,230,118,0.4);
-  color:var(--green);
-  background:rgba(0,230,118,0.06);
-}
-.btn-green:hover{background:rgba(0,230,118,0.12);box-shadow:0 0 10px var(--green-glow)}
-
-.btn-amber{
-  border-color:rgba(255,170,0,0.4);
-  color:var(--amber);
-  background:rgba(255,170,0,0.06);
-}
-.btn-amber:hover{background:rgba(255,170,0,0.12);box-shadow:0 0 10px var(--amber-glow)}
-
-.btn-red{
-  border-color:rgba(255,51,85,0.4);
-  color:var(--red);
-  background:rgba(255,51,85,0.06);
-}
-.btn-red:hover{background:rgba(255,51,85,0.12);box-shadow:0 0 10px var(--red-glow)}
-
-.btn-ghost{
-  background:transparent;
-  border-color:var(--b2);
-  color:var(--t3);
-}
-.btn-ghost:hover{color:var(--t2);border-color:var(--b3)}
-
-.btn-sm{padding:5px 12px;font-size:11px}
-.btn-xs{padding:3px 9px;font-size:10px;letter-spacing:0.06em}
-
-/* ══ PILLS / FILTERS ══ */
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
-.pill{
-  padding:4px 13px;
-  border:1px solid var(--b2);
-  border-radius:2px;
-  background:transparent;
-  color:var(--t3);
-  font-family:var(--font-ui);
-  font-size:11px;
-  font-weight:600;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:all .15s;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-}
-.pill:hover{border-color:var(--b3);color:var(--t2)}
-.pill.active{
-  border-color:var(--cyan2);
-  color:var(--cyan);
-  background:var(--cyan-glow2);
-  box-shadow:0 0 8px var(--cyan-glow);
-}
-.pill-n{
-  background:var(--bg3);
-  border:1px solid var(--b2);
-  border-radius:2px;
-  padding:0 5px;
-  font-size:9px;
-  color:var(--t4);
-  font-family:var(--font-mono);
-}
-
-/* ══ SEARCH ══ */
-.searchbar{display:flex;gap:8px;margin-bottom:16px}
-.searchbar input{background:var(--bg2);border-color:var(--b2);font-size:12px}
-.searchbar input:focus{border-color:var(--cyan2)}
-.search-icon{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:36px;
-  border:1px solid var(--b2);
-  border-radius:var(--r);
-  background:var(--bg3);
-  color:var(--t3);
-  font-size:14px;
-  flex-shrink:0;
-}
-
-/* ══ PROTOCOL ITEMS ══ */
-.proto-list{display:flex;flex-direction:column;gap:6px}
-
-.proto-item{
-  background:var(--bg2);
-  border:1px solid var(--b1);
-  border-left:3px solid var(--b2);
-  border-radius:var(--r);
-  padding:12px 16px;
-  transition:border-color .15s,box-shadow .15s,background .15s;
-  position:relative;
-  overflow:hidden;
-}
-.proto-item::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,200,255,0.1),transparent);
-  opacity:0;
-  transition:opacity .2s;
-}
-.proto-item:hover{
-  background:var(--bg3);
-  border-color:var(--b2);
-  border-left-color:var(--cyan2);
-  box-shadow:-3px 0 12px rgba(0,200,255,0.1);
-}
-.proto-item:hover::before{opacity:1}
-.proto-item.cat-emergency{border-left-color:rgba(255,51,85,0.5)}
-.proto-item.cat-emergency:hover{border-left-color:var(--red);box-shadow:-3px 0 12px var(--red-glow)}
-.proto-item.cat-containment{border-left-color:rgba(255,170,0,0.5)}
-.proto-item.cat-containment:hover{border-left-color:var(--amber);box-shadow:-3px 0 12px var(--amber-glow)}
-.proto-item.cat-security{border-left-color:rgba(0,200,255,0.4)}
-.proto-item.cat-anomalous{border-left-color:rgba(170,102,255,0.5)}
-.proto-item.cat-anomalous:hover{border-left-color:var(--purple);box-shadow:-3px 0 12px rgba(170,102,255,0.15)}
-
-.proto-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:5px}
-.proto-title{
-  font-family:var(--font-ui);
-  font-size:13px;
-  font-weight:700;
-  color:var(--t0);
-  letter-spacing:0.06em;
-  text-transform:uppercase;
-  line-height:1.2;
-}
-.proto-tags{display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0}
-
-.tag{
-  padding:2px 8px;
-  border:1px solid var(--b3);
-  border-radius:2px;
-  font-family:var(--font-mono);
-  font-size:8px;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  color:var(--t3);
-}
-.tag-em{border-color:rgba(255,51,85,0.5);color:var(--red)}
-.tag-co{border-color:rgba(255,170,0,0.5);color:var(--amber)}
-.tag-se{border-color:rgba(0,200,255,0.4);color:var(--cyan2)}
-.tag-an{border-color:rgba(170,102,255,0.5);color:var(--purple)}
-.tag-lrc{
-  border-color:rgba(255,51,85,0.6);
-  color:var(--red);
-  background:rgba(255,51,85,0.08);
-  font-weight:700;
-}
-
-.proto-meta{
-  font-family:var(--font-mono);
-  font-size:9px;
-  color:var(--t4);
-  margin-bottom:6px;
-  letter-spacing:0.06em;
-}
-.proto-snippet{
-  font-family:var(--font-mono);
-  font-size:10px;
-  color:var(--t3);
-  line-height:1.6;
-  margin-bottom:8px;
-}
-.proto-actions{display:flex;gap:5px;flex-wrap:wrap}
-
-/* ══ LRC CARDS ══ */
-.lrc-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:12px;
-}
-
-.lrc-card{
-  background:var(--bg2);
-  border:1px solid var(--b1);
-  border-left:4px solid var(--b2);
-  border-radius:var(--r);
-  padding:14px 16px;
-  transition:all .15s;
-  position:relative;
-}
-.lrc-card:hover{background:var(--bg3);border-color:var(--b2)}
-.lrc-card--amber  {border-left-color:#ffa500}
-.lrc-card--blue   {border-left-color:#4cc3ff}
-.lrc-card--superblue{border-left-color:#4466ff}
-.lrc-card--green  {border-left-color:#00e676}
-.lrc-card--red    {border-left-color:#ff3355}
-.lrc-card--black  {border-left-color:#445566}
-.lrc-card--white  {border-left-color:#cce0ff}
-.lrc-card--gray   {border-left-color:#7090b0}
-.lrc-card--magenta{border-left-color:#cc55ff}
-.lrc-card--blank  {border-left-color:#334455}
-.lrc-card--superblank{border-left-color:#223344}
-.lrc-card--coldsilver{border-left-color:#90a0b8}
-
-.lrc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.lrc-code{
-  font-family:var(--font-display);
-  font-size:15px;
-  font-weight:700;
-  color:var(--t0);
-  letter-spacing:0.08em;
-}
-.lrc-pri{
-  font-family:var(--font-mono);
-  font-size:8px;
-  padding:3px 9px;
-  border:1px solid;
-  border-radius:2px;
-  text-transform:uppercase;
-  letter-spacing:0.1em;
-}
-.lrc-pri.critical{border-color:rgba(255,51,85,0.6);color:var(--red);background:rgba(255,51,85,0.08)}
-.lrc-pri.high{border-color:rgba(255,170,0,0.6);color:var(--amber);background:rgba(255,170,0,0.06)}
-.lrc-pri.medium{border-color:rgba(0,200,255,0.4);color:var(--cyan2);background:rgba(0,200,255,0.04)}
-
-.lrc-desc{font-family:var(--font-mono);font-size:10px;color:var(--t2);line-height:1.6;margin-bottom:5px}
-.lrc-guid{font-family:var(--font-mono);font-size:10px;color:var(--t3);line-height:1.5;font-style:italic;margin-bottom:6px}
-.lrc-mtf{font-family:var(--font-mono);font-size:9px;color:var(--cyan3);letter-spacing:0.05em;margin-bottom:8px}
-.lrc-acts{display:flex;gap:5px}
-
-/* ══ FORM PANEL ══ */
-.form-panel{
-  background:var(--bg2);
-  border:1px solid var(--b2);
-  border-top:2px solid var(--cyan2);
-  border-radius:var(--r);
-  padding:20px;
-  margin-bottom:22px;
-  position:relative;
-  overflow:hidden;
-}
-.form-panel::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:40px;
-  background:linear-gradient(180deg,rgba(0,200,255,0.04),transparent);
-  pointer-events:none;
-}
-.form-panel-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:18px;
-  padding-bottom:12px;
-  border-bottom:1px solid var(--b2);
-}
-.form-panel-title{
-  font-family:var(--font-display);
-  font-size:16px;
-  font-weight:700;
-  color:var(--cyan);
-  letter-spacing:0.1em;
-}
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:14px;
-  margin-bottom:16px;
-}
-.form-field{display:flex;flex-direction:column;gap:5px}
-.form-field label{
-  font-family:var(--font-mono);
-  font-size:9px;
-  text-transform:uppercase;
-  letter-spacing:0.15em;
-  color:var(--t4);
-}
-.form-field--full{grid-column:1/-1}
-.form-actions{
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-  margin-top:16px;
-  padding-top:14px;
-  border-top:1px solid var(--b1);
-}
-
-/* ══ CARDS (rapports, etc.) ══ */
-.card-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(295px,1fr));
-  gap:12px;
-}
-.card{
-  background:var(--bg2);
-  border:1px solid var(--b1);
-  border-radius:var(--r);
-  padding:14px 16px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  transition:border-color .15s,background .15s;
-}
-.card:hover{border-color:var(--b2);background:var(--bg3)}
-
-.card-hdr{display:flex;justify-content:space-between;align-items:center}
-.card-id{
-  font-family:var(--font-mono);
-  font-size:10px;
-  color:var(--cyan2);
-  letter-spacing:0.15em;
-  font-weight:700;
-}
-.card-sev{
-  font-family:var(--font-mono);
-  font-size:8px;
-  padding:2px 8px;
-  border:1px solid currentColor;
-  border-radius:2px;
-  text-transform:uppercase;
-  letter-spacing:0.1em;
-}
-.card-type{
-  font-family:var(--font-mono);
-  font-size:9px;
-  color:var(--t4);
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-}
-.card-title{
-  font-family:var(--font-ui);
-  font-size:13px;
-  font-weight:700;
-  color:var(--t0);
-  line-height:1.3;
-}
-.card-meta{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  font-family:var(--font-mono);
-  font-size:9px;
-  color:var(--t3);
-}
-.card-excerpt{
-  font-family:var(--font-mono);
-  font-size:10px;
-  color:var(--t4);
-  line-height:1.6;
-  padding-left:10px;
-  border-left:2px solid var(--b2);
-}
-.card-acts{display:flex;gap:5px;margin-top:4px}
-
-/* ══ MODAL OVERLAY ══ */
-.modal-ov{
-  position:fixed;
-  inset:0;
-  background:rgba(2,5,8,0.94);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-  padding:20px;
-  backdrop-filter:blur(4px);
-}
-.modal-ov.open{display:flex}
-
-.modal-box{
-  background:var(--bg2);
-  border:1px solid var(--b3);
-  border-top:2px solid var(--cyan2);
-  border-radius:var(--r);
-  max-width:700px;
-  width:100%;
-  max-height:88vh;
-  overflow-y:auto;
-  box-shadow:0 0 60px rgba(0,0,0,0.9),0 0 30px rgba(0,200,255,0.1);
-}
-.modal-mhead{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px 20px;
-  border-bottom:1px solid var(--b2);
-  position:sticky;top:0;
-  background:var(--bg2);
-  z-index:2;
-}
-.modal-mtitle{
-  font-family:var(--font-display);
-  font-size:16px;
-  color:var(--cyan);
-  letter-spacing:0.1em;
-}
-.modal-close-x{
-  width:28px;height:28px;
-  border:1px solid var(--b2);
-  border-radius:var(--r);
-  background:transparent;
-  color:var(--t3);
-  font-size:16px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .15s;
-}
-.modal-close-x:hover{border-color:var(--red);color:var(--red)}
-
-/* login/protocol modal */
-.modal-back{
-  position:fixed;inset:0;
-  background:rgba(2,5,8,0.9);
-  display:none;align-items:center;justify-content:center;
-  z-index:500;padding:20px;
-}
-.modal-back.open{display:flex}
-.modal-inner{
-  background:var(--bg2);
-  border:1px solid var(--b3);
-  border-top:2px solid var(--cyan2);
-  border-radius:var(--r);
-  width:100%;max-width:460px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.8);
-}
-
-/* rapport view modal specifics */
-.rmv-id{font-family:var(--font-mono);font-size:11px;color:var(--cyan);letter-spacing:0.15em;font-weight:700;margin-bottom:3px}
-.rmv-type{font-family:var(--font-mono);font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:0.1em}
-.rmv-title{font-family:var(--font-display);font-size:20px;color:var(--t0);letter-spacing:0.08em;margin-bottom:14px}
-.meta-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:8px;background:var(--bg3);border:1px solid var(--b2);
-  border-radius:var(--r);padding:12px;margin-bottom:16px;
-}
-.meta-item label{
-  font-family:var(--font-mono);font-size:8px;text-transform:uppercase;
-  letter-spacing:0.14em;color:var(--t4);display:block;margin-bottom:2px;
-}
-.meta-item span{font-family:var(--font-mono);font-size:11px;color:var(--t1)}
-.msec{margin-bottom:14px}
-.msec-lbl{
-  font-family:var(--font-mono);font-size:9px;text-transform:uppercase;
-  letter-spacing:0.14em;color:var(--cyan2);margin-bottom:6px;
-  padding-bottom:4px;border-bottom:1px solid var(--b2);
-}
-.msec-content{
-  font-family:var(--font-mono);font-size:11px;
-  color:var(--t2);line-height:1.7;white-space:pre-wrap;
-}
-
-/* ══ SIDEBAR WIDGETS ══ */
-.widget{
-  background:var(--bg2);
-  border:1px solid var(--b2);
-  border-radius:var(--r);
-  overflow:hidden;
-}
-.widget-hdr{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 14px;
-  border-bottom:1px solid var(--b1);
-  background:var(--bg3);
-  position:relative;
-}
-.widget-hdr::before{
-  content:'';
-  position:absolute;left:0;top:0;bottom:0;
-  width:2px;
-  background:var(--cyan);
-}
-.widget-hdr.amber::before{background:var(--amber)}
-.widget-hdr.green::before{background:var(--green)}
-.widget-title{
-  font-family:var(--font-ui);
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.14em;
-  text-transform:uppercase;
-  color:var(--t2);
-}
-
-/* Morph widget */
-.mtabs{
-  display:flex;flex-wrap:wrap;gap:4px;
-  padding:8px 12px;border-bottom:1px solid var(--b1);
-}
-.mtab{
-  padding:3px 9px;
-  border:1px solid var(--b2);
-  border-radius:2px;
-  background:transparent;
-  color:var(--t3);
-  font-family:var(--font-ui);
-  font-size:10px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  cursor:pointer;transition:all .15s;
-}
-.mtab:hover{border-color:var(--b3);color:var(--t2)}
-.mtab.active{border-color:var(--cyan3);color:var(--cyan);background:var(--cyan-glow2)}
-
-.mlist{padding:8px 12px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-.mgroup-lbl{
-  font-family:var(--font-mono);font-size:8px;text-transform:uppercase;
-  letter-spacing:0.14em;color:var(--t4);
-  padding:5px 0 4px;border-bottom:1px solid var(--b1);
-  margin-bottom:3px;display:flex;justify-content:space-between;
-}
-.mcard{
-  background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);
-  padding:8px 10px;transition:border-color .12s;
-}
-.mcard:hover{border-color:var(--b2)}
-.mcard-name{font-family:var(--font-ui);font-size:12px;font-weight:700;color:var(--t1);margin-bottom:1px}
-.mcard-rank{font-family:var(--font-mono);font-size:9px;color:var(--t4);margin-bottom:2px}
-.mcard-user{font-family:var(--font-mono);font-size:9px;color:var(--cyan3)}
-.mcard-prev{
-  font-family:var(--font-mono);font-size:8px;color:var(--t4);
-  margin:4px 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
-  background:var(--bg1);padding:2px 5px;border-radius:2px;border:1px solid var(--b1);
-}
-.mcopy{
-  width:100%;padding:4px 8px;
-  border:1px solid var(--b2);border-radius:2px;background:transparent;
-  color:var(--t3);font-family:var(--font-mono);font-size:8px;
-  text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:all .15s;
-}
-.mcopy:hover{border-color:rgba(0,230,118,0.5);color:var(--green)}
-.mcopy.done{border-color:var(--green)!important;color:var(--green)!important}
-
-/* History log */
-.hlog{padding:8px 12px;max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
-.hline{
-  font-family:var(--font-mono);font-size:9px;color:var(--t4);
-  display:flex;gap:8px;line-height:1.4;
-}
-.hts{color:var(--cyan3);flex-shrink:0}
-
-/* Conn status */
-.conn-line{
-  padding:8px 12px;
-  font-family:var(--font-mono);font-size:9px;
-  color:var(--t4);letter-spacing:0.08em;
-  text-transform:uppercase;
-  border-top:1px solid var(--b1);
-}
-
-/* ══ EVAL SECTION ══ */
-.eval-form-panel{
-  background:var(--bg2);
-  border:1px solid var(--b2);
-  border-top:2px solid var(--purple);
-  border-radius:var(--r);
-  padding:20px;margin-bottom:22px;
-}
-.eval-form-title{
-  font-family:var(--font-display);
-  font-size:16px;font-weight:700;
-  color:var(--purple);letter-spacing:0.1em;
-  margin-bottom:16px;padding-bottom:12px;
-  border-bottom:1px solid var(--b2);
-}
-.eval-form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:14px}
-.eval-field{display:flex;flex-direction:column;gap:5px}
-.eval-field label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--t4)}
-.eval-field input:focus,.eval-field select:focus,.eval-field textarea:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(170,102,255,0.15)}
-
-.eval-crit-title{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--t4);margin-bottom:10px}
-.eval-crit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:14px}
-.eval-crit label{font-size:11px;color:var(--t2);display:block;margin-bottom:5px}
-.eval-score-row{display:flex;align-items:center;gap:8px}
-.eval-score-row input[type=range]{flex:1;accent-color:var(--purple)}
-.eval-score-val{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--purple);min-width:20px;text-align:center}
-
-.eval-total{
-  display:flex;align-items:center;gap:16px;
-  background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);
-  padding:12px 18px;margin-bottom:12px;
-}
-.eval-total-lbl{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--t4)}
-.eval-total-score{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--t0)}
-.eval-total-mention{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.1em}
-
-.eval-cmd-sec{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:10px;margin-top:10px}
-.eval-cmd-lbl{font-family:var(--font-mono);font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:var(--t4);margin-bottom:5px}
-.eval-cmd-box{font-family:var(--font-mono);font-size:9px;color:var(--green);background:var(--bg1);padding:6px 8px;border-radius:2px;border:1px solid var(--b2);word-break:break-all;line-height:1.6}
-.eval-form-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-
-.eval-pill{padding:4px 13px;border:1px solid var(--b2);border-radius:2px;background:transparent;color:var(--t3);font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .15s}
-.eval-pill:hover{border-color:var(--purple);color:var(--purple)}
-.eval-pill.active{border-color:var(--purple);color:var(--purple);background:rgba(170,102,255,0.08)}
-
-.eval-hlist{display:flex;flex-direction:column;gap:8px}
-.eval-card{
-  background:var(--bg2);border:1px solid var(--b1);border-left:3px solid var(--b2);
-  border-radius:var(--r);padding:12px 14px;transition:box-shadow .15s,border-color .15s;
-}
-.eval-card:hover{box-shadow:-3px 0 10px rgba(170,102,255,0.15);border-left-color:var(--purple)}
-.eval-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-.eval-card-name{font-family:var(--font-ui);font-size:14px;font-weight:700;color:var(--t0);letter-spacing:0.04em}
-.eval-card-meta{font-family:var(--font-mono);font-size:9px;color:var(--t4);margin-top:2px}
-.eval-card-score{font-family:var(--font-display);font-size:20px;font-weight:700;text-align:right}
-.eval-card-mention{font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-align:right}
-.eval-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
-.ebadge{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border:1px solid var(--b2);border-radius:2px;color:var(--t3);text-transform:uppercase;letter-spacing:0.05em}
-.eval-card-comments{font-family:var(--font-mono);font-size:10px;color:var(--t3);font-style:italic;margin-bottom:6px;line-height:1.4}
-.eval-card-cmd{font-family:var(--font-mono);font-size:8px;color:var(--green);background:var(--bg1);padding:3px 6px;border-radius:2px;border:1px solid var(--b1);margin-bottom:5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.eval-card-acts{display:flex;gap:5px;margin-top:8px}
-.eval-act-btn{padding:3px 10px;border:1px solid var(--b2);border-radius:2px;background:transparent;color:var(--t3);font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:0.06em}
-.eval-act-btn:hover{border-color:var(--purple);color:var(--purple)}
-.eval-act-btn.danger:hover{border-color:var(--red);color:var(--red)}
-.eval-act-btn.print{border-color:rgba(0,230,118,0.4);color:var(--green)}
-.eval-act-btn.print:hover{background:var(--green-glow)}
-.eval-empty{font-family:var(--font-mono);font-size:11px;color:var(--t4);text-align:center;padding:30px}
-
-/* ══ EMPTY STATE ══ */
-.empty-st{
-  text-align:center;padding:40px 20px;
-  border:1px dashed var(--b2);border-radius:var(--r);
-}
-.empty-ico{font-size:32px;margin-bottom:10px;opacity:.3}
-.empty-txt{font-family:var(--font-mono);font-size:11px;color:var(--t4);letter-spacing:0.1em}
-
-/* hist header */
-.hist-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.hist-lbl{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--t3)}
-.hist-cnt{
-  background:var(--bg3);border:1px solid var(--b2);border-radius:2px;
-  padding:1px 8px;font-family:var(--font-mono);font-size:9px;color:var(--cyan);
-}
-
-/* Loading */
-.loading-ov{
-  position:fixed;inset:0;background:var(--bg0);
-  display:flex;align-items:center;justify-content:center;
-  z-index:9000;flex-direction:column;gap:16px;
-}
-.loading-ring{
-  width:44px;height:44px;
-  border:2px solid var(--b2);
-  border-top-color:var(--cyan);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-  box-shadow:0 0 20px var(--cyan-glow);
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-family:var(--font-mono);font-size:10px;color:var(--cyan3);letter-spacing:0.2em;text-transform:uppercase}
-
-/* keyboard help */
-#kbHelp{
-  position:fixed;inset:0;
-  background:rgba(2,5,8,0.95);
-  display:none;align-items:center;justify-content:center;z-index:5000;
-}
-#kbHelp.open{display:flex}
-.kh-box{
-  background:var(--bg2);border:1px solid var(--b3);
-  border-top:2px solid var(--cyan2);border-radius:var(--r);
-  padding:24px;max-width:420px;width:90%;
-  box-shadow:0 0 40px rgba(0,200,255,0.1);
-}
-.kh-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:0.1em;margin-bottom:16px}
-.kh-table{width:100%}
-.kh-table td{
-  padding:7px 10px;
-  border-bottom:1px solid var(--b1);
-  font-family:var(--font-mono);font-size:11px;
-}
-.kh-table td:first-child{color:var(--cyan);font-weight:700;width:70px}
-.kh-table td:last-child{color:var(--t3)}
-.kh-foot{margin-top:16px;display:flex;justify-content:flex-end}
-
-/* admin */
-.admin-list-items{display:flex;flex-direction:column;gap:6px;margin-top:14px}
-.admin-row{
-  background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r);
-  padding:10px 14px;display:flex;justify-content:space-between;align-items:center;
-  transition:border-color .15s;
-}
-.admin-row:hover{border-color:var(--b2)}
-
-/* responsive */
-@media(max-width:900px){
-  .body{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .topbar{grid-template-columns:auto 1fr}
-  .topbar-mid{display:none}
-}
-
-/* Rapport list grid */
-.rapport-list-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(295px,1fr));
-  gap:12px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCP — Roblox Roleplay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080a0c;
+      --surface: #0d1014;
+      --border: #1c2228;
+      --accent: #e8c84a;
+      --danger: #c0392b;
+      --safe: #27ae60;
+      --euclid: #e67e22;
+      --keter: #c0392b;
+      --text: #b0bec5;
+      --text-dim: #546e7a;
+      --white: #eceff1;
+      --scan: rgba(232, 200, 74, 0.04);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      cursor: crosshair;
+      overflow-x: hidden;
+    }
+
+    /* SCANLINES */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* NOISE OVERLAY */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 40px;
+      background: rgba(8,10,12,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--safe);
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--safe);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 120px 40px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(232,200,74,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,200,74,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridScroll 20s linear infinite;
+    }
+
+    @keyframes gridScroll {
+      from { background-position: 0 0; }
+      to { background-position: 60px 60px; }
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,200,74,0.06) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .clearance-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 6px 20px;
+      margin-bottom: 48px;
+      animation: fadeInDown 0.8s ease both;
+    }
+
+    .hero-logo {
+      position: relative;
+      margin-bottom: 32px;
+      animation: fadeInDown 0.8s ease 0.1s both;
+    }
+
+    .scp-emblem {
+      width: 120px; height: 120px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+
+    .scp-emblem svg {
+      width: 100%; height: 100%;
+      animation: rotate 30s linear infinite;
+      filter: drop-shadow(0 0 12px rgba(232,200,74,0.3));
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(60px, 10vw, 120px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      color: var(--white);
+      text-transform: uppercase;
+      animation: fadeInDown 0.8s ease 0.2s both;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 16px;
+      animation: fadeInDown 0.8s ease 0.3s both;
+    }
+
+    .hero-desc {
+      max-width: 520px;
+      margin: 32px auto;
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.8;
+      border-left: 2px solid var(--accent);
+      padding-left: 20px;
+      text-align: left;
+      animation: fadeInDown 0.8s ease 0.4s both;
+    }
+
+    .hero-desc::before {
+      content: '// BRIEFING CONFIDENTIEL';
+      display: block;
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      letter-spacing: 0.15em;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 48px;
+      animation: fadeInDown 0.8s ease 0.5s both;
+    }
+
+    .btn {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 32px;
+      border: 1px solid;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn:hover::before { opacity: 0.08; }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(232,200,74,0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* SEPARATOR */
+    .sep {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 40px;
+      margin: 0 auto;
+      max-width: 1200px;
+    }
+
+    .sep-line { flex: 1; height: 1px; background: var(--border); }
+    .sep-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* SECTIONS */
+    section { padding: 100px 40px; }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .section-header {
+      margin-bottom: 60px;
+    }
+
+    .section-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 900;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    /* SCP FILES GRID */
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2px;
+    }
+
+    .file-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .file-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+
+    .file-card.safe::before { background: var(--safe); }
+    .file-card.euclid::before { background: var(--euclid); }
+    .file-card.keter::before { background: var(--keter); }
+
+    .file-card:hover {
+      border-color: rgba(232,200,74,0.2);
+      transform: translateY(-2px);
+    }
+
+    .file-card:hover .file-scan {
+      opacity: 1;
+    }
+
+    .file-scan {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(transparent 40%, var(--scan) 50%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      animation: scan 2s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      from { background-position: 0 -100%; }
+      to { background-position: 0 200%; }
+    }
+
+    .file-class {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .file-card.safe .file-class { color: var(--safe); border-color: var(--safe); }
+    .file-card.euclid .file-class { color: var(--euclid); border-color: var(--euclid); }
+    .file-card.keter .file-class { color: var(--keter); border-color: var(--keter); }
+
+    .file-number {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .file-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    .file-desc {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    .file-redacted {
+      background: var(--text-dim);
+      color: var(--text-dim);
+      padding: 0 4px;
+      font-size: 10px;
+      user-select: none;
+    }
+
+    /* FACTIONS */
+    .factions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .faction-card {
+      border: 1px solid var(--border);
+      padding: 28px;
+      position: relative;
+      background: linear-gradient(135deg, var(--surface), var(--bg));
+      transition: border-color 0.3s;
+    }
+
+    .faction-card:hover { border-color: rgba(232,200,74,0.3); }
+
+    .faction-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .faction-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .faction-role {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .faction-desc {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* RULES */
+    .rules-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .rules-container { grid-template-columns: 1fr; }
+    }
+
+    .rules-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .rule-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: border-color 0.2s;
+    }
+
+    .rule-item:hover { border-color: rgba(232,200,74,0.2); }
+
+    .rule-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      min-width: 30px;
+    }
+
+    .rule-text {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .terminal {
+      background: #050708;
+      border: 1px solid var(--border);
+      padding: 28px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .terminal-dot.red { background: #c0392b; }
+    .terminal-dot.yellow { background: #f39c12; }
+    .terminal-dot.green { background: #27ae60; }
+
+    .terminal-title {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.2em;
+      margin-left: 8px;
+    }
+
+    .t-line { color: var(--text-dim); }
+    .t-line .t-prompt { color: var(--accent); }
+    .t-line .t-output { color: var(--safe); }
+    .t-line .t-warn { color: var(--euclid); }
+    .t-line .t-error { color: var(--danger); }
+    .cursor {
+      display: inline-block;
+      width: 8px; height: 14px;
+      background: var(--accent);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 120px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 50%, rgba(232,200,74,0.05) 0%, transparent 70%);
+    }
+
+    .cta-border {
+      position: absolute;
+      inset: 40px;
+      border: 1px solid var(--border);
+      pointer-events: none;
+    }
+
+    .cta-corner {
+      position: absolute;
+      width: 20px; height: 20px;
+      border-color: var(--accent);
+      border-style: solid;
+    }
+
+    .cta-corner.tl { top: 40px; left: 40px; border-width: 2px 0 0 2px; }
+    .cta-corner.tr { top: 40px; right: 40px; border-width: 2px 2px 0 0; }
+    .cta-corner.bl { bottom: 40px; left: 40px; border-width: 0 0 2px 2px; }
+    .cta-corner.br { bottom: 40px; right: 40px; border-width: 0 2px 2px 0; }
+
+    .cta-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .cta-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .cta-sub {
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 48px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.2em;
+    }
+
+    .footer-copy {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      animation: fadeInDown 1s ease 1s both;
+    }
+
+    .scroll-hint span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.1); }
+    }
+  </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div class="loading-ov" id="loadingOv" style="display:none">
-  <div class="loading-ring"></div>
-  <div class="loading-txt">Initialisation Site-19...</div>
-</div>
-
-<div class="app">
-
-  <!-- ══════════ TOPBAR ══════════ -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-logo">
-        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="18" stroke="#00c8ff" stroke-width="1.5" opacity=".6"/>
-          <circle cx="20" cy="20" r="10" stroke="#00c8ff" stroke-width="1.5"/>
-          <circle cx="20" cy="20" r="4" fill="#00c8ff" opacity=".8"/>
-          <line x1="2" y1="20" x2="38" y2="20" stroke="#00c8ff" stroke-width="1" opacity=".4"/>
-          <line x1="20" y1="2" x2="20" y2="38" stroke="#00c8ff" stroke-width="1" opacity=".4"/>
-          <line x1="7.5" y1="7.5" x2="32.5" y2="32.5" stroke="#00c8ff" stroke-width="1" opacity=".3"/>
-          <line x1="32.5" y1="7.5" x2="7.5" y2="32.5" stroke="#00c8ff" stroke-width="1" opacity=".3"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <span class="t1">SCP FOUNDATION</span>
-        <span class="t2">SYSTÈME DE COMMANDEMENT // SITE-19</span>
-        <span class="t3">Protocole v6.0.0 — Classification Niveau 5</span>
-      </div>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Site-19</div>
+    <ul class="nav-links">
+      <li><a href="#scps">Dossiers SCP</a></li>
+      <li><a href="#factions">Factions</a></li>
+      <li><a href="#regles">Règles</a></li>
+      <li><a href="#rejoindre">Rejoindre</a></li>
+    </ul>
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      SERVEUR EN LIGNE
     </div>
-
-    <div class="topbar-mid">
-      <div class="sys-status">
-        <div class="sys-stat">
-          <div class="sys-stat-label">STATUT SITE</div>
-          <div class="sys-stat-val green">OPÉRATIONNEL</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="sys-stat">
-          <div class="sys-stat-label">CONFINEMENTS</div>
-          <div class="sys-stat-val amber" id="topProtoCount">—</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="sys-stat">
-          <div class="sys-stat-label">OPÉRATEUR</div>
-          <div class="sys-stat-val cyan" id="topUserName">INVITÉ</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="sys-stat">
-          <div class="sys-stat-label">CONNEXION</div>
-          <div class="sys-stat-val dim" id="topAuthStatus">HORS LIGNE</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="topbar-right">
-      <div class="user-panel">
-        <div class="user-badge">
-          <div class="user-name" id="userNameDisp">INVITÉ</div>
-          <div class="user-role" id="userRoleDisp">NON AUTHENTIFIÉ</div>
-        </div>
-        <div class="clearance-badge clearance-5">NIV. 5</div>
-      </div>
-      <div class="topbar-btns">
-        <button class="top-btn" id="btnLogin">
-          <span class="top-btn-icon">◎</span> Connexion
-        </button>
-        <button class="top-btn" id="btnLogout" style="display:none">
-          <span class="top-btn-icon">×</span> Déco.
-        </button>
-        <button class="top-btn" id="btnShortcuts">
-          <span class="top-btn-icon">?</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- ══════════ NAV ══════════ -->
-  <nav class="nav">
-    <button class="nav-item active" data-view="database">
-      <span class="nav-icon">▢</span> Base Protocoles
-    </button>
-    <button class="nav-item" data-view="lrc">
-      <span class="nav-icon">⚠</span> Codes LRC
-    </button>
-    <div class="nav-sep"></div>
-    <button class="nav-item nav-danger" data-view="admin">
-      <span class="nav-icon">⚙</span> Admin
-    </button>
-    <button class="nav-item nav-purple" data-view="eval">
-      <span class="nav-icon">✦</span> Évaluations
-    </button>
-    <button class="nav-item" data-view="rapport">
-      <span class="nav-icon">📋</span> Rapports
-    </button>
-    <div class="nav-space"></div>
-    <button class="nav-item" id="btnShortcutsNav" style="font-size:11px;color:var(--t4)">
-      Raccourcis <span class="nav-icon">⌨</span>
-    </button>
   </nav>
 
-  <!-- ══════════ BODY ══════════ -->
-  <div class="body">
-    <main class="main">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
 
-      <!-- ▸ DATABASE -->
-      <section class="view active" id="view-database">
-        <div class="sec-hdr">
-          <div class="sec-hdr-left">
-            <div class="sec-title">BASE DE <span>PROTOCOLES</span></div>
-            <div class="sec-sub"><span id="protocolCount">0</span> protocoles actifs — Site-19</div>
-          </div>
-          <div class="sec-actions">
-            <button class="btn btn-cyan" id="btnNewProtocol">+ Nouveau protocole</button>
-          </div>
-        </div>
+    <div class="clearance-tag">// NIVEAU D'ACCRÉDITATION : 5 — ACCÈS AUTORISÉ</div>
 
-        <div class="searchbar">
-          <div class="search-icon">⌕</div>
-          <input id="searchInput" type="text" placeholder="Rechercher par titre ou contenu…" autocomplete="off"/>
-        </div>
-
-        <div class="filter-row" id="filterBar">
-          <button class="pill active" data-category="all">Tous <span class="pill-n" data-count-for="all">0</span></button>
-          <button class="pill" data-category="emergency">Urgence <span class="pill-n" data-count-for="emergency">0</span></button>
-          <button class="pill" data-category="containment">Confinement <span class="pill-n" data-count-for="containment">0</span></button>
-          <button class="pill" data-category="security">Sécurité <span class="pill-n" data-count-for="security">0</span></button>
-          <button class="pill" data-category="site">Statut Site <span class="pill-n" data-count-for="site">0</span></button>
-          <button class="pill" data-category="personnel">Personnel <span class="pill-n" data-count-for="personnel">0</span></button>
-          <button class="pill" data-category="anomalous">Anomalies <span class="pill-n" data-count-for="anomalous">0</span></button>
-          <button class="pill" data-category="admin">Admin <span class="pill-n" data-count-for="admin">0</span></button>
-          <button class="pill" data-category="with-lrc">⚠ LRC <span class="pill-n" data-count-for="with-lrc">0</span></button>
-        </div>
-
-        <div class="proto-list" id="protocolList">
-          <div class="empty-st">
-            <div class="empty-ico">◈</div>
-            <div class="empty-txt">Aucun protocole — Vérifiez la connexion réseau</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ▸ LRC -->
-      <section class="view" id="view-lrc">
-        <div class="sec-hdr">
-          <div class="sec-hdr-left">
-            <div class="sec-title">CODES <span>LRC</span></div>
-            <div class="sec-sub">Lockdown Response Codes — Déploiement MTF & protocoles d'urgence</div>
-          </div>
-        </div>
-        <div class="lrc-grid" id="lrcGrid"></div>
-      </section>
-
-      <!-- ▸ ADMIN -->
-      <section class="view" id="view-admin">
-        <div class="sec-hdr">
-          <div class="sec-hdr-left">
-            <div class="sec-title">PANNEAU <span>ADMIN</span></div>
-            <div class="sec-sub">Gestion des protocoles & opérations critiques — Accès restreint</div>
-          </div>
-          <div class="sec-actions">
-            <button class="btn btn-amber" id="btnRefresh">↺ Sync API</button>
-          </div>
-        </div>
-        <div id="adminList" style="font-family:var(--font-mono);font-size:11px;color:var(--t4)">Chargement…</div>
-      </section>
-
-      <!-- ▸ ÉVALUATIONS -->
-      <section class="view" id="view-eval">
-        <div class="sec-hdr">
-          <div class="sec-hdr-left">
-            <div class="sec-title">ÉVALUATIONS <span>AGENTS</span></div>
-            <div class="sec-sub">Notation & classement — réservé aux administrateurs</div>
-          </div>
-          <div class="sec-actions">
-            <button class="btn btn-sm" style="border-color:rgba(170,102,255,.5);color:var(--purple);background:rgba(170,102,255,.06)" id="btnNewEval">+ Nouvelle évaluation</button>
-          </div>
-        </div>
-
-        <div class="eval-form-panel" id="evalFormPanel" style="display:none">
-          <div class="eval-form-title" id="evalFormTitle">Nouvelle évaluation</div>
-          <div class="eval-form-grid">
-            <div class="eval-field"><label>Nom de l'agent</label><input id="evalAgentName" type="text" placeholder="Ex : M.NOWAK"/></div>
-            <div class="eval-field"><label>Username Roblox</label><input id="evalAgentUsername" type="text" placeholder="Ex : FlofloParis"/></div>
-            <div class="eval-field">
-              <label>Département</label>
-              <select id="evalDept">
-                <option value="Sécurité">Département de la Sécurité</option>
-                <option value="Administratif">Département Administratif</option>
-                <option value="Scientifique">Département Scientifique</option>
-                <option value="Médical">Département Médical</option>
-                <option value="Classe-D">Personnel Classe-D</option>
-              </select>
-            </div>
-            <div class="eval-field"><label>Grade actuel</label><input id="evalRank" type="text" placeholder="Ex : [D.SE] Cadet"/></div>
-            <div class="eval-field"><label>Évaluateur</label><input id="evalAuthor" type="text" placeholder="Votre nom"/></div>
-            <div class="eval-field"><label>Date</label><input id="evalDate" type="date"/></div>
-          </div>
-          <div class="eval-crit-title">Critères de notation <span style="color:var(--t4)">(0 à 10)</span></div>
-          <div class="eval-crit-grid">
-            <div class="eval-crit"><label>Discipline</label><div class="eval-score-row"><input type="range" min="0" max="10" value="5" id="scoreDisc" oninput="updateScore('Disc',this.value)"/><span class="eval-score-val" id="valDisc">5</span></div></div>
-            <div class="eval-crit"><label>Connaissance protocoles</label><div class="eval-score-row"><input type="range" min="0" max="10" value="5" id="scoreProto" oninput="updateScore('Proto',this.value)"/><span class="eval-score-val" id="valProto">5</span></div></div>
-            <div class="eval-crit"><label>Réactivité</label><div class="eval-score-row"><input type="range" min="0" max="10" value="5" id="scoreReact" oninput="updateScore('React',this.value)"/><span class="eval-score-val" id="valReact">5</span></div></div>
-            <div class="eval-crit"><label>Communication</label><div class="eval-score-row"><input type="range" min="0" max="10" value="5" id="scoreComm" oninput="updateScore('Comm',this.value)"/><span class="eval-score-val" id="valComm">5</span></div></div>
-            <div class="eval-crit"><label>Respect hiérarchie</label><div class="eval-score-row"><input type="range" min="0" max="10" value="5" id="scoreHier" oninput="updateScore('Hier',this.value)"/><span class="eval-score-val" id="valHier">5</span></div></div>
-            <div class="eval-crit"><label>Comportement général</label><div class="eval-score-row"><input type="range" min="0" max="10" value="5" id="scoreComp" oninput="updateScore('Comp',this.value)"/><span class="eval-score-val" id="valComp">5</span></div></div>
-          </div>
-          <div class="eval-total">
-            <div class="eval-total-lbl">SCORE TOTAL</div>
-            <div class="eval-total-score" id="evalTotalScore">30 / 60</div>
-            <div class="eval-total-mention" id="evalTotalMention">— SATISFAISANT</div>
-          </div>
-          <div class="eval-field" style="margin-top:10px">
-            <label>Décision</label>
-            <select id="evalDecision">
-              <option value="promu">✅ Promu au grade supérieur</option>
-              <option value="valide" selected>✔ Évaluation validée — maintien du grade</option>
-              <option value="avertissement">⚠ Avertissement — période probatoire</option>
-              <option value="recale">❌ Recalé — réévaluation requise</option>
-              <option value="expulse">🚫 Expulsion du département</option>
-            </select>
-          </div>
-          <div class="eval-field" style="margin-top:12px">
-            <label>Commentaires</label>
-            <textarea id="evalComments" rows="3" placeholder="Observations de l'évaluateur…"></textarea>
-          </div>
-          <div class="eval-cmd-sec" id="evalCmdSection" style="display:none">
-            <div class="eval-cmd-lbl">Commande morph générée</div>
-            <div class="eval-cmd-box" id="evalCmdBox">—</div>
-            <button class="mcopy" id="evalCopyCmdBtn" style="margin-top:6px;width:100%">⧉ Copier la commande</button>
-          </div>
-          <div class="eval-form-acts">
-            <button class="btn btn-ghost btn-sm" id="evalCancelBtn">Annuler</button>
-            <button class="btn btn-sm" style="border-color:rgba(170,102,255,.5);color:var(--purple);background:rgba(170,102,255,.06)" id="evalSaveBtn">💾 Enregistrer</button>
-          </div>
-        </div>
-
-        <div class="hist-hdr">
-          <span class="hist-lbl">Historique des évaluations</span>
-          <span class="hist-cnt" id="evalHistoryCount">0</span>
-        </div>
-        <div class="filter-row">
-          <button class="eval-pill active" data-eval-dept="all">Tous</button>
-          <button class="eval-pill" data-eval-dept="Sécurité">Sécurité</button>
-          <button class="eval-pill" data-eval-dept="Administratif">Admin</button>
-          <button class="eval-pill" data-eval-dept="Scientifique">Science</button>
-          <button class="eval-pill" data-eval-dept="Médical">Médical</button>
-          <button class="eval-pill" data-eval-dept="Classe-D">Classe-D</button>
-        </div>
-        <div id="evalHistoryList" class="eval-hlist">
-          <div class="eval-empty">Aucune évaluation enregistrée.</div>
-        </div>
-      </section>
-
-      <!-- ▸ RAPPORTS -->
-      <section class="view" id="view-rapport">
-        <div class="sec-hdr">
-          <div class="sec-hdr-left">
-            <div class="sec-title">RAPPORTS <span>OPÉRATIONNELS</span></div>
-            <div class="sec-sub">Incidents, brèches, patrouilles & disciplinaires — Site-19</div>
-          </div>
-          <div class="sec-actions">
-            <button class="btn btn-cyan" id="btnNewRapport">+ Nouveau rapport</button>
-          </div>
-        </div>
-
-        <!-- Rapport Form -->
-        <div class="form-panel" id="rapportFormPanel" style="display:none">
-          <div class="form-panel-head">
-            <div class="form-panel-title" id="rapportFormTitle">Nouveau rapport</div>
-            <button class="btn btn-ghost btn-sm" id="rapportCancelBtn">✕ Annuler</button>
-          </div>
-          <form id="rapportForm" onsubmit="return false">
-            <div class="form-grid">
-              <div class="form-field"><label>Titre du rapport *</label><input id="rapportTitle" type="text" placeholder="Ex : Brèche SCP-173 – Zone B" required/></div>
-              <div class="form-field"><label>Type de rapport</label><select id="rapportType"></select></div>
-              <div class="form-field"><label>Sévérité</label><select id="rapportSeverity"></select></div>
-              <div class="form-field"><label>Auteur *</label><input id="rapportAuthor" type="text" placeholder="Ex : A.MAX" required/></div>
-              <div class="form-field"><label>Username Roblox</label><input id="rapportUsername" type="text" placeholder="Ex : mrgraschat"/></div>
-              <div class="form-field">
-                <label>Département</label>
-                <select id="rapportDept">
-                  <option value="Département de la Sécurité">Sécurité</option>
-                  <option value="Département Administratif">Administratif</option>
-                  <option value="Département Scientifique">Scientifique</option>
-                  <option value="Département Médical">Médical</option>
-                  <option value="Direction">Direction</option>
-                </select>
-              </div>
-              <div class="form-field"><label>Date *</label><input id="rapportDate" type="date" required/></div>
-              <div class="form-field">
-                <label>LRC associé</label>
-                <select id="rapportLRC">
-                  <option value="">— Aucun —</option>
-                  <option value="AMBER">CODE: AMBER</option>
-                  <option value="BLUE">CODE: BLUE</option>
-                  <option value="SUPERBLUE">CODE: SUPERBLUE</option>
-                  <option value="GREEN">CODE: GREEN</option>
-                  <option value="RED">CODE: RED</option>
-                  <option value="BLACK">CODE: BLACK</option>
-                  <option value="WHITE">CODE: WHITE</option>
-                  <option value="GRAY">CODE: GRAY</option>
-                  <option value="MAGENTA">CODE: MAGENTA</option>
-                  <option value="BLANK">CODE: BLANK</option>
-                  <option value="SUPERBLANK">CODE: SUPERBLANK</option>
-                  <option value="COLDSILVER">CODE: COLDSILVER</option>
-                </select>
-              </div>
-              <div class="form-field form-field--full"><label>Témoins (séparés par des virgules)</label><input id="rapportWitnesses" type="text" placeholder="Ex : M.NOWAK, E.TERNON"/></div>
-              <div class="form-field form-field--full"><label>Description complète *</label><textarea id="rapportDescription" rows="5" placeholder="Décrivez les événements, personnes impliquées, contexte opérationnel…"></textarea></div>
-              <div class="form-field form-field--full"><label>Conclusion & mesures prises</label><textarea id="rapportConclusion" rows="3" placeholder="Actions entreprises, recommandations, statut final…"></textarea></div>
-            </div>
-          </form>
-          <div class="form-actions">
-            <button class="btn btn-ghost btn-sm" id="rapportCancelBtn2">Annuler</button>
-            <button class="btn btn-cyan btn-sm" id="rapportSaveBtn">💾 Enregistrer le rapport</button>
-          </div>
-        </div>
-
-        <div class="hist-hdr">
-          <span class="hist-lbl">Historique des rapports</span>
-          <span class="hist-cnt" id="rapportHistoryCount">0</span>
-        </div>
-        <div class="filter-row" id="rapportFilterRow">
-          <button class="pill active" data-rapport-type="all">Tous</button>
-          <button class="pill" data-rapport-type="incident">Incident</button>
-          <button class="pill" data-rapport-type="breach">Brèche</button>
-          <button class="pill" data-rapport-type="personnel">Personnel</button>
-          <button class="pill" data-rapport-type="patrol">Patrouille</button>
-          <button class="pill" data-rapport-type="test">Test</button>
-          <button class="pill" data-rapport-type="disciplinary">Disciplinaire</button>
-        </div>
-        <div class="rapport-list-grid" id="rapportHistoryList">
-          <div class="empty-st" style="grid-column:1/-1">
-            <div class="empty-ico">📋</div>
-            <div class="empty-txt">Aucun rapport enregistré</div>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- ══════════ SIDEBAR ══════════ -->
-    <aside class="sidebar">
-
-      <!-- MORPHS -->
-      <div class="widget">
-        <div class="widget-hdr">
-          <span class="widget-title">Commandes Morphs</span>
-        </div>
-        <div class="mtabs" id="morphTabs">
-          <button class="mtab active" data-dept="all">Tous</button>
-          <button class="mtab" data-dept="Sécurité">Sécu.</button>
-          <button class="mtab" data-dept="Administratif">Admin</button>
-          <button class="mtab" data-dept="Scientifique">Sci.</button>
-          <button class="mtab" data-dept="Médical">Méd.</button>
-          <button class="mtab" data-dept="Classe-D">Cl-D</button>
-        </div>
-        <div class="mlist" id="morphList"></div>
-        <div class="conn-line" id="connectionStatus">DÉCONNECTÉ — Authentification requise</div>
+    <div class="hero-logo">
+      <div class="scp-emblem">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="90" stroke="#e8c84a" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <circle cx="100" cy="100" r="70" stroke="#e8c84a" stroke-width="0.5"/>
+          <path d="M100 10 L100 190 M10 100 L190 100" stroke="#e8c84a" stroke-width="0.5" opacity="0.3"/>
+          <path d="M100 30 L118 64 L155 70 L128 97 L135 134 L100 116 L65 134 L72 97 L45 70 L82 64 Z" stroke="#e8c84a" stroke-width="1.5" fill="none"/>
+          <circle cx="100" cy="100" r="15" stroke="#e8c84a" stroke-width="1.5" fill="none"/>
+          <circle cx="100" cy="100" r="4" fill="#e8c84a"/>
+          <text x="100" y="170" text-anchor="middle" font-family="Share Tech Mono" font-size="10" fill="#e8c84a" letter-spacing="8">SCP</text>
+        </svg>
       </div>
+    </div>
 
-      <textarea id="announcementArea" style="display:none"></textarea>
+    <h1 class="hero-title">
+      Sécuriser<br>
+      <span>Contenir</span><br>
+      Protéger
+    </h1>
 
-      <!-- JOURNAL -->
-      <div class="widget">
-        <div class="widget-hdr green">
-          <span class="widget-title">Journal des opérations</span>
-        </div>
-        <div class="hlog" id="historyList">
-          <div class="hline"><span class="hts">[00:00]</span><span>Système initialisé.</span></div>
-          <div class="hline"><span class="hts">[00:01]</span><span>En attente du premier protocole…</span></div>
-        </div>
-      </div>
+    <p class="hero-subtitle">Foundation Roblox Roleplay — Serveur FR</p>
 
-    </aside>
+    <div class="hero-desc">
+      Bienvenue, Agent. Vous êtes désormais affilié à la Fondation SCP.
+      Votre mission : contenir les anomalies, neutraliser les menaces,
+      et protéger l'humanité de ce qu'elle ne doit jamais connaître.
+      Tout manquement au protocole sera sanctionné.
+    </div>
+
+    <div class="hero-actions">
+      <a href="#rejoindre" class="btn btn-primary">Rejoindre le serveur</a>
+      <a href="#scps" class="btn btn-secondary">Voir les dossiers</a>
+    </div>
+
+    <div class="scroll-hint">
+      <span>Défiler</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <div class="sep">
+    <div class="sep-line"></div>
+    <span class="sep-label">DOSSIERS CLASSIFIÉS</span>
+    <div class="sep-line"></div>
   </div>
-</div>
 
-<!-- ══ RAPPORT VIEW MODAL ══ -->
-<div class="modal-ov" id="rapportViewModal">
-  <div class="modal-box">
-    <div class="modal-mhead">
-      <div>
-        <div class="rmv-id" id="rapportViewId">RPT-XXXXX</div>
-        <div class="rmv-type" id="rapportViewType">—</div>
+  <!-- SCP FILES -->
+  <section id="scps">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">// Archives de la Fondation</div>
+        <h2 class="section-title">Anomalies Actives</h2>
       </div>
-      <button class="modal-close-x" id="rapportViewClose">×</button>
-    </div>
-    <div style="padding:20px">
-      <div class="rmv-title" id="rapportViewTitle">—</div>
-      <div class="meta-grid">
-        <div class="meta-item"><label>Sévérité</label><span id="rapportViewSev">—</span></div>
-        <div class="meta-item"><label>Date</label><span id="rapportViewDate">—</span></div>
-        <div class="meta-item"><label>Auteur</label><span id="rapportViewAuthor">—</span></div>
-        <div class="meta-item"><label>Département</label><span id="rapportViewDept">—</span></div>
-        <div class="meta-item"><label>LRC Associé</label><span id="rapportViewLRC">—</span></div>
-        <div class="meta-item"><label>Témoins</label><span id="rapportViewWitnesses">—</span></div>
-      </div>
-      <div class="msec"><div class="msec-lbl">Description</div><div class="msec-content" id="rapportViewDesc">—</div></div>
-      <div class="msec"><div class="msec-lbl">Conclusion & Mesures</div><div class="msec-content" id="rapportViewConclusion">—</div></div>
-    </div>
-    <div style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--b2)">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('rapportViewModal').classList.remove('open')">Fermer</button>
-      <button class="btn btn-sm" id="rapportViewEditBtn" style="margin-left:auto">✎ Modifier</button>
-      <button class="btn btn-amber btn-sm" id="rapportViewExportBtn">⬇ Exporter</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ LOGIN MODAL ══ -->
-<div class="modal-back" id="modalLogin">
-  <div class="modal-inner">
-    <div class="modal-mhead">
-      <div class="modal-mtitle">AUTHENTIFICATION SITE-19</div>
-      <button class="modal-close-x" data-close-login>×</button>
-    </div>
-    <div style="padding:18px;display:flex;flex-direction:column;gap:12px">
-      <p style="font-family:var(--font-mono);font-size:10px;color:var(--t4)">Réseau sécurisé — Clearance Level 5 requis.</p>
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:5px">Identifiant</label><input id="loginUser" type="text" placeholder="ADMIN_USER" autocomplete="username"/></div>
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:5px">Mot de passe</label><input id="loginPass" type="password" autocomplete="current-password"/></div>
-      <div id="loginError" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--red)"></div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--b1)">
-      <button class="btn btn-ghost btn-sm" data-close-login>Annuler</button>
-      <button class="btn btn-cyan btn-sm" id="confirmLogin">Connecter</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PROTOCOL MODAL ══ -->
-<div class="modal-back" id="modalProtocol">
-  <div class="modal-inner" style="max-width:520px">
-    <div class="modal-mhead">
-      <div class="modal-mtitle" id="protocolModalTitle">Nouveau protocole</div>
-      <button class="modal-close-x" data-close-protocol>×</button>
-    </div>
-    <div style="padding:18px;display:flex;flex-direction:column;gap:10px">
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:4px">Titre</label><input id="fieldTitle" type="text"/></div>
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:4px">Catégorie</label>
-        <select id="fieldCategory">
-          <option value="emergency">Urgence</option>
-          <option value="containment">Confinement</option>
-          <option value="security">Sécurité</option>
-          <option value="site">Statut Site</option>
-          <option value="personnel">Personnel</option>
-          <option value="anomalous">Anomalies</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:4px">Code LRC (optionnel)</label>
-        <select id="fieldLRCCode">
-          <option value="">Aucun</option>
-          <option value="AMBER">CODE: AMBER</option><option value="BLUE">CODE: BLUE</option>
-          <option value="SUPERBLUE">CODE: SUPERBLUE</option><option value="GREEN">CODE: GREEN</option>
-          <option value="RED">CODE: RED</option><option value="BLACK">CODE: BLACK</option>
-          <option value="WHITE">CODE: WHITE</option><option value="GRAY">CODE: GRAY</option>
-          <option value="MAGENTA">CODE: MAGENTA</option><option value="BLANK">CODE: BLANK</option>
-          <option value="SUPERBLANK">CODE: SUPERBLANK</option><option value="COLDSILVER">CODE: COLDSILVER</option>
-        </select>
-      </div>
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:4px">Contenu</label><textarea id="fieldContent" rows="8"></textarea></div>
-      <div><label style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--t4);display:block;margin-bottom:4px">Statut</label><input id="fieldStatus" type="text" value="Brouillon"/></div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--b1)">
-      <button class="btn btn-ghost btn-sm" data-close-protocol>Annuler</button>
-      <button class="btn btn-cyan btn-sm" id="saveProtocolBtn">Sauvegarder</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ KEYBOARD HELP ══ -->
-<div id="kbHelp">
-  <div class="kh-box">
-    <div class="kh-title">RACCOURCIS CLAVIER</div>
-    <table class="kh-table">
-      <tr><td>1–5</td><td>Navigation entre les vues</td></tr>
-      <tr><td>L</td><td>Ouvrir la connexion</td></tr>
-      <tr><td>N</td><td>Nouveau protocole</td></tr>
-      <tr><td>/</td><td>Focus sur la recherche</td></tr>
-      <tr><td>?</td><td>Ce panneau d'aide</td></tr>
-      <tr><td>Esc</td><td>Fermer les fenêtres</td></tr>
-    </table>
-    <div class="kh-foot">
-      <button class="btn btn-ghost btn-sm" data-close-shortcuts>Fermer</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════ SCRIPTS ═══════════════════════ -->
-<script>
-// ── LRC DATA ──
-const LRC_CODES=[
-  {code:'AMBER',name:'CODE: AMBER',priority:'high',description:'Menace mémetique, infohazardeuse ou cognitohazardeuse hors confinement.',guidance:'Escorte vers zone sécurisée. Éviter d\'utiliser les sens. Ne pas quitter le site.',mtf:'MTF Eta-10 "See No Evil", MTF Eta-11 "Savage Beasts"',colorClass:'amber'},
-  {code:'BLUE',name:'CODE: BLUE',priority:'medium',description:'Objet sentient inférieur à l\'intelligence humaine hors confinement.',guidance:'Suivre les instructions du personnel de sécurité.',mtf:'MTF Epsilon-11 "Nine-Tailed Fox"',colorClass:'blue'},
-  {code:'SUPERBLUE',name:'CODE: SUPERBLUE',priority:'high',description:'Objet sentient égal ou supérieur à l\'intelligence humaine hors confinement.',guidance:'Suivre les instructions du personnel de sécurité.',mtf:'MTF Epsilon-11 "Nine-Tailed Fox"',colorClass:'superblue'},
-  {code:'GREEN',name:'CODE: GREEN',priority:'critical',description:'Menace biohazardeuse, infectieuse ou de contamination. Micro-organismes hautement infectieux ou réactions anomaliques.',guidance:'Éviter tout contact. Ne pas quitter le site. Quarantaine après recontainment.',mtf:'MTF Beta-7 "Maz Hatters"',colorClass:'green'},
-  {code:'RED',name:'CODE: RED',priority:'critical',description:'Agresseur à Grande Échelle (AGE) hors confinement. Menace sur le site et l\'intégrité du Voile.',guidance:'Suivre les instructions du personnel de sécurité.',mtf:'MTF Nu-7 "Hammer Down", MTF Eta-5 "Jaeger Bombers"',colorClass:'red'},
-  {code:'BLACK',name:'CODE: BLACK',priority:'critical',description:'Menace Non-Terminable (MNT) hors confinement. Personnel incapable de contenir.',guidance:'Éviter l\'affrontement. Ne pas tirer sauf pour ralentir l\'entité.',mtf:'MTF Epsilon-11, MTF Sigma-23',colorClass:'black'},
-  {code:'WHITE',name:'CODE: WHITE',priority:'critical',description:'Installation assaillie par une force hostile hautement organisée.',guidance:'Évacuation du personnel. Sécuriser les SCPs. Bloquer les entrées. Chiffrer les données.',mtf:'AMTF Nu-7 "Hammer Down" (force bataillon)',colorClass:'white'},
-  {code:'GRAY',name:'CODE: GRAY',priority:'critical',description:'Incursion hostile depuis l\'intérieur du site (faux personnel).',guidance:'Plan d\'évacuation identique au CODE: WHITE.',mtf:'AMTF Nu-7 "Hammer Down" (force bataillon)',colorClass:'gray'},
-  {code:'MAGENTA',name:'CODE: MAGENTA',priority:'high',description:'Menace dimensionnelle: altération spatiale/temporelle, entités trans-dimensionnelles.',guidance:'Évacuation sauf si les abris sont inefficaces. Attente prolongée probable.',mtf:'MTF Zeta-9, MTF Lambda-5, MTF Mu-13',colorClass:'magenta'},
-  {code:'BLANK',name:'CODE: BLANK',priority:'high',description:'Menace survenue mais NON DÉCRITE.',guidance:'Suivre les ordres du personnel de sécurité.',mtf:'N/A',colorClass:'blank'},
-  {code:'SUPERBLANK',name:'CODE: SUPERBLANK',priority:'critical',description:'Menace survenue mais NE POUVANT PAS être décrite.',guidance:'Suivre les ordres du personnel de sécurité.',mtf:'N/A',colorClass:'superblank'},
-  {code:'COLDSILVER',name:'CODE: COLDSILVER',priority:'critical',description:'Événement ayant ou allant bientôt endommager fatalement les opérations de la Fondation.',guidance:'Suivre les ordres. Anticiper une liquidation éventuelle de votre département.',mtf:'N/A',colorClass:'coldsilver'}
-];
-
-function renderLRCCodes(){
-  const el=document.getElementById('lrcGrid');if(!el)return;
-  el.innerHTML=LRC_CODES.map(l=>{
-    const pc=l.priority==='critical'?'critical':l.priority==='high'?'high':'medium';
-    return`<div class="lrc-card lrc-card--${l.colorClass}">
-      <div class="lrc-head"><div class="lrc-code">${l.name}</div><div class="lrc-pri ${pc}">${l.priority}</div></div>
-      <div class="lrc-desc">${l.description}</div>
-      <div class="lrc-guid">${l.guidance}</div>
-      <div class="lrc-mtf">MTF: ${l.mtf}</div>
-      <div class="lrc-acts">
-        <button class="btn btn-xs btn-ghost" data-lrc-copy="${l.code}">Copier alerte</button>
-        <button class="btn btn-xs btn-ghost" data-lrc-announce="${l.code}">Annoncer</button>
-        <button class="btn btn-xs btn-ghost" data-lrc-create="${l.code}">Créer protocole</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-</script>
-
-<script>
-// ── MORPH DATA ──
-const MORPH_DATA=[
-  {dept:'Sécurité',label:'Département de la Sécurité',color:'#4cc3ff',entries:[
-    {name:'"ECHO"',username:'alcbasket',rank:'[D.SE-SF] Caporal-Chef',date:'13/02/2026',command:`run team alcbasket Département de la Sécurité F & permntag alcbasket "ECHO" & permrtag alcbasket [D.SE-SF] Caporal-Chef & permmorph alc reset & permhat alc Vest & permhat alc holster & permhat alc kneepads & permhat alc 11515337829,11515333598 & permhat alc 15081386107 & permhat alc helmet & permhat alc 15949578750 & permhat alc 4684658997 & permmorph alcbasket DSF Cadet & startergear alcbasket laser pistol & startergear alcbasket L4 & res alcbasket`},
-    {name:'"X-RAY"',username:'momo907526',rank:'[D.SE-DSI] Cadet',date:'13/02/2026',command:`run team momo907526 Internal D & permntag momo907526 "X-RAY" & permrtag momo907526 [D.SE-DSI] Cadet & startergear momo907526 laser pistol & permmorph momo907526 ISD`},
-    {name:'A.MAX',username:'mrgraschat',rank:'[D.SE-DIR.] Directeur',date:'13/02/2026',command:`run team mrgraschat Département de la Sécurité F & permntag mrgraschat A.MAX & permrtag mrgraschat [D.SE-DIR.] Directeur de la Sécurité & permmorph mrgraschat Commandant & startergear mrgraschat laser pistol & startergear mrgraschat o5 & permscale mrgraschat 1.2`},
-    {name:'M.FRANCOIS',username:'Matheo50534',rank:'[D.SE-DSI] Cadet',date:'13/02/2026',command:`run team Matheo50534 Internal D & permntag Matheo50534 M.FRANCOIS & permrtag Matheo50534 [D.SE-DSI] Cadet & startergear Matheo50534 laser pistol & permmorph Matheo50534 ISD`},
-    {name:'M.NOWAK',username:'FlofloParis',rank:'[D.SE] Cadet',date:'15/02/2026',command:`run team FlofloParis Security & permntag FlofloParis M.NOWAK & permrtag FlofloParis [D.SE] Cadet & startergear FlofloParis laser pistol & permmorph FlofloParis SD`},
-    {name:'D.LUNE',username:'Art_mat246',rank:'[D.SE] Cadet',date:'21/02/2026',command:`run team Art_mat246 Security & permntag Art_mat246 D.LUNE & permrtag Art_mat246 [D.SE] Cadet & startergear Art_mat246 laser pistol & permmorph Art_mat246 SD`},
-    {name:'E.TERNON',username:'sans_argent2',rank:'[D.SE-BSI] Caporal-Chef',date:'22/02/2026',command:`run team sans_argent2 Internal & permntag sans_argent2 E.TERNON & permrtag sans_argent2 [D.SE-BSI] Caporal & startergear sans_argent2 laser pistol & permmorph sans_argent2 ISD`},
-    {name:'J.DEGOBERT',username:'poloman2023',rank:'[D.SE-SC] Agent 2ème cl.',date:'24/02/2026',command:`run team poloman2023 Security & permntag poloman2023 J.DEGOBERT & permrtag poloman2023 [D.SE-SC] Agent de 2ème classe & startergear poloman2023 laser pistol & permmorph poloman2023 SD`},
-     {name:'N.BEDIN',username:'kileurZH_1',rank:'[D.SE] Agent de 2ème Classe',date:'03/03/2026',command:`run team kileurZH_1 Security & permntag kileurZH_1 N.BEDIN & permrtag kileurZH_1 [D.SE] Agent de 2ème Classe & permmorph kileurZH_1 SD & startergear kileurZH_1 laser pistol`},
-  ]},
-  {dept:'Scientifique',label:'Département Scientifique',color:'#aa66ff',entries:[
-    {name:'"Élégant"',username:'gaziakzebibou',rank:'[D.SCI-DIR.] Directeur des recherches',date:'',command:`run permntag gaziakzebibou M.Élégant & permrtag gaziakzebibou [D.SCI-DIR.] Directeur des recherches & startergear gaziakzebibou O & startergear gaziakzebibou clipboard & startergear gaziakzebibou auth & startergear gaziakzebibou det`}
-  ]},
-  {dept:'Médical',label:'Département Médical',color:'#00e676',entries:[
-    {name:'M.KOLIANSKY',username:'mrgraschat',rank:'[D.M-PSY] Psychologue',date:'',command:`run team mrgraschat Medic & permntag mrgraschat M.KOLIANSKY & permrtag mrgraschat [D.M-PSY] Psychologue & permmorph mrgraschat DM & startergear mrgraschat authorize & startergear mrgraschat o5 & startergear mrgraschat clipboard`}
-  ]},
-  {dept:'Classe-D',label:'Personnel Classe-D',color:'#ff8833',entries:[
-    {name:'CD-088',username:'mrgraschat',rank:'[CD] Sujet de test | Classe : III',date:'',command:`run permntag mrgraschat CD-088 & permrtag mrgraschat [CD] Sujet de test | Classe : III & startergear mrgraschat attack`}
-  ]}
-];
-
-let activeMorphDept='all';
-
-function renderMorphs(){
-  const c=document.getElementById('morphList');if(!c)return;
-  const filtered=activeMorphDept==='all'?MORPH_DATA:MORPH_DATA.filter(g=>g.dept===activeMorphDept);
-  if(!filtered.length){c.innerHTML='<div style="font-family:var(--font-mono);font-size:10px;color:var(--t4);padding:10px 0;text-align:center">Aucune commande.</div>';return;}
-  c.innerHTML=filtered.map(g=>`
-    <div class="mgroup-lbl"><span style="color:${g.color}">${g.label}</span><span>${g.entries.length}</span></div>
-    ${g.entries.map((e,i)=>`
-      <div class="mcard">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-          <div class="mcard-name" style="color:${g.color}">${e.name}</div>
-          ${e.date?`<div style="font-family:var(--font-mono);font-size:8px;color:var(--t4)">${e.date}</div>`:''}
+      <div class="files-grid">
+        <div class="file-card safe reveal">
+          <div class="file-scan"></div>
+          <span class="file-class">SAFE</span>
+          <div class="file-number">SCP-173</div>
+          <div class="file-name">La Sculpture</div>
+          <p class="file-desc">
+            Objet sculptural de béton animé. Se déplace à une vitesse <span class="file-redacted">████████</span> lorsqu'il n'est pas observé directement. Procédure de confinement : maintien d'un contact visuel constant.
+          </p>
         </div>
-        <div class="mcard-rank">${e.rank}</div>
-        <div class="mcard-user">@${e.username}</div>
-        <div class="mcard-prev">${e.command.substring(0,60)}…</div>
-        <button class="mcopy" data-morph-dept="${g.dept}" data-morph-i="${i}">⧉ Copier la commande</button>
-      </div>
-    `).join('')}
-  `).join('');
-}
-
-document.addEventListener('click',async e=>{
-  const btn=e.target.closest('[data-morph-dept]');if(!btn)return;
-  const dept=btn.getAttribute('data-morph-dept');
-  const i=parseInt(btn.getAttribute('data-morph-i'),10);
-  const g=MORPH_DATA.find(x=>x.dept===dept);
-  if(!g||!g.entries[i])return;
-  const cmd=g.entries[i].command;
-  try{
-    if(navigator.clipboard)await navigator.clipboard.writeText(cmd);
-    else{const ta=document.createElement('textarea');ta.value=cmd;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
-    btn.textContent='✓ Copié!';btn.classList.add('done');
-    setTimeout(()=>{btn.textContent='⧉ Copier la commande';btn.classList.remove('done');},1500);
-    addHistory('Morph copié: '+g.entries[i].name+' — '+g.label);
-  }catch(err){}
-});
-
-document.addEventListener('click',e=>{
-  const tab=e.target.closest('.mtab');if(!tab)return;
-  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active');
-  activeMorphDept=tab.getAttribute('data-dept');
-  renderMorphs();
-});
-</script>
-
-<script>
-// ── EVAL ──
-let evaluations=JSON.parse(localStorage.getItem('scp19_evals')||'[]');
-let editingEvalId=null;
-let activeEvalDept='all';
-
-function updateScore(key,val){
-  document.getElementById('val'+key).textContent=val;
-  updateEvalTotal();
-}
-function updateEvalTotal(){
-  const ids=['Disc','Proto','React','Comm','Hier','Comp'];
-  const total=ids.reduce((s,id)=>s+parseInt(document.getElementById('score'+id).value||0),0);
-  document.getElementById('evalTotalScore').textContent=total+' / 60';
-  const pct=total/60;
-  let mention='',color='';
-  if(pct>=0.9){mention='— EXCELLENT';color='var(--green)'}
-  else if(pct>=0.75){mention='— TRÈS BON';color='var(--cyan)'}
-  else if(pct>=0.6){mention='— SATISFAISANT';color='var(--blue)'}
-  else if(pct>=0.45){mention='— INSUFFISANT';color='var(--amber)'}
-  else{mention='— RECALÉ';color='var(--red)'}
-  const el=document.getElementById('evalTotalMention');
-  el.textContent=mention;el.style.color=color;
-}
-function getEvalMention(score,max){
-  const p=score/max;
-  if(p>=0.9)return{text:'EXCELLENT',color:'var(--green)'};
-  if(p>=0.75)return{text:'TRÈS BON',color:'var(--cyan)'};
-  if(p>=0.6)return{text:'SATISFAISANT',color:'var(--blue)'};
-  if(p>=0.45)return{text:'INSUFFISANT',color:'var(--amber)'};
-  return{text:'RECALÉ',color:'var(--red)'};
-}
-function saveEvals(){localStorage.setItem('scp19_evals',JSON.stringify(evaluations))}
-
-function renderEvalHistory(){
-  const c=document.getElementById('evalHistoryList');
-  const cnt=document.getElementById('evalHistoryCount');
-  if(!c)return;
-  const filtered=activeEvalDept==='all'?evaluations:evaluations.filter(e=>e.dept===activeEvalDept);
-  cnt.textContent=filtered.length;
-  if(!filtered.length){c.innerHTML='<div class="eval-empty">Aucune évaluation enregistrée.</div>';return;}
-  const decisions={promu:'✅ Promu',valide:'✔ Validé',avertissement:'⚠ Avertissement',recale:'❌ Recalé',expulse:'🚫 Expulsé'};
-  c.innerHTML=[...filtered].reverse().map(ev=>{
-    const m=getEvalMention(ev.total,60);
-    return`<div class="eval-card">
-      <div class="eval-card-hdr">
-        <div><div class="eval-card-name">${ev.agentName}</div><div class="eval-card-meta">@${ev.agentUsername} — ${ev.dept} — ${ev.rank} — Éval: ${ev.author} — ${ev.date}</div></div>
-        <div><div class="eval-card-score" style="color:${m.color}">${ev.total}/60</div><div class="eval-card-mention" style="color:${m.color}">${m.text}</div></div>
-      </div>
-      <div class="eval-badges">
-        <span class="ebadge">${decisions[ev.decision]||ev.decision}</span>
-        <span class="ebadge">Disc:${ev.scores.Disc}</span><span class="ebadge">Proto:${ev.scores.Proto}</span>
-        <span class="ebadge">React:${ev.scores.React}</span><span class="ebadge">Comm:${ev.scores.Comm}</span>
-        <span class="ebadge">Hier:${ev.scores.Hier}</span><span class="ebadge">Comp:${ev.scores.Comp}</span>
-      </div>
-      ${ev.comments?`<div class="eval-card-comments">"${ev.comments}"</div>`:''}
-      ${ev.morphCmd?`<div class="eval-card-cmd">${ev.morphCmd.substring(0,80)}…</div>`:''}
-      <div class="eval-card-acts">
-        <button class="eval-act-btn print" data-eval-copy="${ev.id}">⧉ Copier morph</button>
-        <button class="eval-act-btn" data-eval-edit="${ev.id}">✎ Modifier</button>
-        <button class="eval-act-btn danger" data-eval-delete="${ev.id}">✕ Suppr.</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-document.addEventListener('click',e=>{
-  if(e.target.id==='btnNewEval'){openEvalForm();return}
-  if(e.target.id==='evalCancelBtn'){document.getElementById('evalFormPanel').style.display='none';editingEvalId=null;return}
-  if(e.target.id==='evalSaveBtn'){saveEval();return}
-  const pill=e.target.closest('.eval-pill');
-  if(pill){document.querySelectorAll('.eval-pill').forEach(p=>p.classList.remove('active'));pill.classList.add('active');activeEvalDept=pill.getAttribute('data-eval-dept');renderEvalHistory();return}
-  const cb=e.target.closest('[data-eval-copy]');
-  if(cb){const ev=evaluations.find(x=>x.id===cb.getAttribute('data-eval-copy'));if(ev&&ev.morphCmd){navigator.clipboard&&navigator.clipboard.writeText(ev.morphCmd);cb.textContent='✓ Copié!';setTimeout(()=>cb.textContent='⧉ Copier morph',1500);}return}
-  const eb=e.target.closest('[data-eval-edit]');if(eb){openEvalForm(eb.getAttribute('data-eval-edit'));return}
-  const db=e.target.closest('[data-eval-delete]');
-  if(db){if(!confirm('Supprimer cette évaluation?'))return;evaluations=evaluations.filter(x=>x.id!==db.getAttribute('data-eval-delete'));saveEvals();renderEvalHistory();return}
-});
-
-function openEvalForm(id=null){
-  editingEvalId=id;
-  const panel=document.getElementById('evalFormPanel');
-  if(id){
-    const ev=evaluations.find(x=>x.id===id);if(!ev)return;
-    document.getElementById('evalFormTitle').textContent='Modifier — '+ev.agentName;
-    document.getElementById('evalAgentName').value=ev.agentName;
-    document.getElementById('evalAgentUsername').value=ev.agentUsername;
-    document.getElementById('evalDept').value=ev.dept;
-    document.getElementById('evalRank').value=ev.rank;
-    document.getElementById('evalAuthor').value=ev.author;
-    document.getElementById('evalDate').value=ev.date;
-    ['Disc','Proto','React','Comm','Hier','Comp'].forEach(k=>{document.getElementById('score'+k).value=ev.scores[k];document.getElementById('val'+k).textContent=ev.scores[k]});
-    document.getElementById('evalDecision').value=ev.decision;
-    document.getElementById('evalComments').value=ev.comments||'';
-  }else{
-    document.getElementById('evalFormTitle').textContent='Nouvelle évaluation';
-    ['Disc','Proto','React','Comm','Hier','Comp'].forEach(k=>{document.getElementById('score'+k).value=5;document.getElementById('val'+k).textContent=5});
-    document.getElementById('evalAgentName').value='';document.getElementById('evalAgentUsername').value='';
-    document.getElementById('evalRank').value='';document.getElementById('evalAuthor').value='';
-    document.getElementById('evalDate').value=new Date().toISOString().split('T')[0];
-    document.getElementById('evalDecision').value='valide';document.getElementById('evalComments').value='';
-  }
-  updateEvalTotal();
-  panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function saveEval(){
-  const agentName=document.getElementById('evalAgentName').value.trim();
-  const agentUsername=document.getElementById('evalAgentUsername').value.trim();
-  const dept=document.getElementById('evalDept').value;
-  const rank=document.getElementById('evalRank').value.trim();
-  const author=document.getElementById('evalAuthor').value.trim();
-  const date=document.getElementById('evalDate').value;
-  const decision=document.getElementById('evalDecision').value;
-  const comments=document.getElementById('evalComments').value.trim();
-  if(!agentName||!author||!date){alert('Remplir les champs obligatoires.');return}
-  const scores={};
-  ['Disc','Proto','React','Comm','Hier','Comp'].forEach(k=>scores[k]=parseInt(document.getElementById('score'+k).value));
-  const total=Object.values(scores).reduce((a,b)=>a+b,0);
-  const data={agentName,agentUsername,dept,rank,author,date,decision,comments,scores,total,morphCmd:''};
-  if(editingEvalId){const idx=evaluations.findIndex(x=>x.id===editingEvalId);if(idx!==-1)evaluations[idx]={...evaluations[idx],...data}}
-  else evaluations.push({id:'EVAL-'+Date.now().toString(36).toUpperCase(),...data,createdAt:new Date().toISOString()});
-  saveEvals();renderEvalHistory();
-  document.getElementById('evalFormPanel').style.display='none';editingEvalId=null;
-  addHistory('Évaluation enregistrée: '+agentName);
-}
-</script>
-
-<script>
-// ── RAPPORT ──
-const RAPPORT_TYPES=[
-  {value:'incident',label:'⚠ Rapport d\'Incident'},
-  {value:'breach',label:'🔴 Brèche de Confinement'},
-  {value:'personnel',label:'👤 Rapport de Personnel'},
-  {value:'patrol',label:'🔒 Rapport de Patrouille'},
-  {value:'test',label:'🧪 Rapport de Test'},
-  {value:'disciplinary',label:'📋 Rapport Disciplinaire'}
-];
-const RAPPORT_SEV=[
-  {value:'low',label:'FAIBLE',color:'var(--green)'},
-  {value:'moderate',label:'MODÉRÉE',color:'var(--amber)'},
-  {value:'high',label:'ÉLEVÉE',color:'#ff8800'},
-  {value:'critical',label:'CRITIQUE',color:'var(--red)'}
-];
-
-let rapports=JSON.parse(localStorage.getItem('scp19_rapports')||'[]');
-let activeRapportFilter='all';
-let editingRapportId=null;
-
-function saveRapports(){localStorage.setItem('scp19_rapports',JSON.stringify(rapports))}
-function genRapportId(){return'RPT-'+Date.now().toString(36).toUpperCase()}
-
-function renderRapports(){
-  const c=document.getElementById('rapportHistoryList');
-  const cnt=document.getElementById('rapportHistoryCount');
-  if(!c)return;
-  const filtered=activeRapportFilter==='all'?rapports:rapports.filter(r=>r.type===activeRapportFilter);
-  cnt.textContent=filtered.length;
-  if(!filtered.length){
-    c.innerHTML=`<div class="empty-st" style="grid-column:1/-1"><div class="empty-ico">📋</div><div class="empty-txt">Aucun rapport enregistré</div></div>`;
-    return;
-  }
-  c.innerHTML=[...filtered].reverse().map(r=>{
-    const sev=RAPPORT_SEV.find(s=>s.value===r.severity)||RAPPORT_SEV[0];
-    const typeLabel=(RAPPORT_TYPES.find(t=>t.value===r.type)||{}).label||r.type;
-    return`<div class="card">
-      <div class="card-hdr">
-        <div class="card-id">${r.id}</div>
-        <div class="card-sev" style="color:${sev.color};border-color:${sev.color}">${sev.label}</div>
-      </div>
-      <div class="card-type">${typeLabel}</div>
-      <div class="card-title">${r.title}</div>
-      <div class="card-meta">
-        <span>✦ ${r.author}</span>
-        ${r.username?`<span>@${r.username}</span>`:''}
-        <span>${r.dept}</span>
-        <span>${r.date}</span>
-      </div>
-      <div class="card-excerpt">${r.description.substring(0,120)}${r.description.length>120?'…':''}</div>
-      <div class="card-acts">
-        <button class="btn btn-xs" data-rapport-view="${r.id}">📄 Voir</button>
-        <button class="btn btn-xs btn-amber" data-rapport-export="${r.id}">⬇ Exporter</button>
-        <button class="btn btn-xs btn-ghost" data-rapport-delete="${r.id}">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openRapportForm(id=null){
-  editingRapportId=id;
-  const panel=document.getElementById('rapportFormPanel');
-  const title=document.getElementById('rapportFormTitle');
-  if(id){
-    const r=rapports.find(x=>x.id===id);if(!r)return;
-    title.textContent='Modifier — '+r.id;
-    document.getElementById('rapportTitle').value=r.title;
-    document.getElementById('rapportType').value=r.type;
-    document.getElementById('rapportSeverity').value=r.severity;
-    document.getElementById('rapportAuthor').value=r.author;
-    document.getElementById('rapportUsername').value=r.username;
-    document.getElementById('rapportDept').value=r.dept;
-    document.getElementById('rapportDate').value=r.date;
-    document.getElementById('rapportDescription').value=r.description;
-    document.getElementById('rapportConclusion').value=r.conclusion||'';
-    document.getElementById('rapportWitnesses').value=(r.witnesses||[]).join(', ');
-    document.getElementById('rapportLRC').value=r.lrc||'';
-  }else{
-    title.textContent='Nouveau rapport';
-    document.getElementById('rapportForm').reset();
-    document.getElementById('rapportDate').value=new Date().toISOString().split('T')[0];
-  }
-  panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
-}
-function closeRapportForm(){document.getElementById('rapportFormPanel').style.display='none';editingRapportId=null}
-
-function saveRapport(){
-  const title=document.getElementById('rapportTitle').value.trim();
-  const type=document.getElementById('rapportType').value;
-  const severity=document.getElementById('rapportSeverity').value;
-  const author=document.getElementById('rapportAuthor').value.trim();
-  const username=document.getElementById('rapportUsername').value.trim();
-  const dept=document.getElementById('rapportDept').value;
-  const date=document.getElementById('rapportDate').value;
-  const description=document.getElementById('rapportDescription').value.trim();
-  const conclusion=document.getElementById('rapportConclusion').value.trim();
-  const witnessesRaw=document.getElementById('rapportWitnesses').value.trim();
-  const lrc=document.getElementById('rapportLRC').value;
-  const witnesses=witnessesRaw?witnessesRaw.split(',').map(w=>w.trim()).filter(Boolean):[];
-  if(!title||!author||!description||!date){alert('Remplir les champs obligatoires (Titre, Auteur, Date, Description).');return}
-  if(editingRapportId){
-    const idx=rapports.findIndex(r=>r.id===editingRapportId);
-    if(idx!==-1)rapports[idx]={...rapports[idx],title,type,severity,author,username,dept,date,description,conclusion,witnesses,lrc};
-  }else{
-    rapports.push({id:genRapportId(),title,type,severity,author,username,dept,date,description,conclusion,witnesses,lrc,createdAt:new Date().toISOString()});
-  }
-  saveRapports();renderRapports();closeRapportForm();
-  addHistory('Rapport enregistré: '+title);
-}
-
-function viewRapport(id){
-  const r=rapports.find(x=>x.id===id);if(!r)return;
-  const sev=RAPPORT_SEV.find(s=>s.value===r.severity)||RAPPORT_SEV[0];
-  const typeLabel=(RAPPORT_TYPES.find(t=>t.value===r.type)||{}).label||r.type;
-  document.getElementById('rapportViewId').textContent=r.id;
-  document.getElementById('rapportViewType').textContent=typeLabel;
-  document.getElementById('rapportViewTitle').textContent=r.title;
-  document.getElementById('rapportViewSev').textContent=sev.label;
-  document.getElementById('rapportViewSev').style.color=sev.color;
-  document.getElementById('rapportViewAuthor').textContent=r.author+(r.username?' (@'+r.username+')':'');
-  document.getElementById('rapportViewDept').textContent=r.dept;
-  document.getElementById('rapportViewDate').textContent=r.date;
-  document.getElementById('rapportViewDesc').textContent=r.description;
-  document.getElementById('rapportViewConclusion').textContent=r.conclusion||'—';
-  document.getElementById('rapportViewWitnesses').textContent=r.witnesses&&r.witnesses.length?r.witnesses.join(', '):'—';
-  document.getElementById('rapportViewLRC').textContent=r.lrc?'CODE: '+r.lrc:'—';
-  const m=document.getElementById('rapportViewModal');
-  m.classList.add('open');m._currentId=id;
-}
-
-function exportRapportText(id){
-  const r=rapports.find(x=>x.id===id);if(!r)return;
-  const sev=RAPPORT_SEV.find(s=>s.value===r.severity)||RAPPORT_SEV[0];
-  const typeLabel=(RAPPORT_TYPES.find(t=>t.value===r.type)||{}).label||r.type;
-  const text=`══════════════════════════════════════════════════
-SCP FOUNDATION — SITE-19
-${typeLabel.toUpperCase()}
-══════════════════════════════════════════════════
-ID DU RAPPORT    : ${r.id}
-DATE             : ${r.date}
-AUTEUR           : ${r.author}${r.username?' (@'+r.username+')':''}
-DÉPARTEMENT      : ${r.dept}
-SÉVÉRITÉ         : ${sev.label}
-LRC ASSOCIÉ      : ${r.lrc?'CODE: '+r.lrc:'—'}
-══════════════════════════════════════════════════
-TITRE : ${r.title}
-══════════════════════════════════════════════════
-
-DESCRIPTION :
-${r.description}
-
-CONCLUSION :
-${r.conclusion||'—'}
-
-TÉMOINS : ${r.witnesses&&r.witnesses.length?r.witnesses.join(', '):'—'}
-══════════════════════════════════════════════════
-[Document généré le ${new Date().toLocaleString('fr-FR')}]`.trim();
-  const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=r.id+'_'+r.title.replace(/[^a-z0-9]/gi,'_')+'.txt';a.click();
-}
-
-function deleteRapport(id){
-  if(!confirm('Supprimer ce rapport? Action irréversible.'))return;
-  rapports=rapports.filter(r=>r.id!==id);
-  saveRapports();renderRapports();
-  addHistory('Rapport supprimé: '+id);
-}
-
-document.addEventListener('click',e=>{
-  if(e.target.id==='btnNewRapport'){openRapportForm();return}
-  if(e.target.id==='rapportSaveBtn'){saveRapport();return}
-  if(e.target.id==='rapportCancelBtn'||e.target.id==='rapportCancelBtn2'){closeRapportForm();return}
-  if(e.target.id==='rapportViewClose'){document.getElementById('rapportViewModal').classList.remove('open');return}
-  if(e.target.id==='rapportViewEditBtn'){
-    const id=document.getElementById('rapportViewModal')._currentId;
-    document.getElementById('rapportViewModal').classList.remove('open');
-    switchView('rapport');openRapportForm(id);return
-  }
-  if(e.target.id==='rapportViewExportBtn'){exportRapportText(document.getElementById('rapportViewModal')._currentId);return}
-  const vb=e.target.closest('[data-rapport-view]');if(vb){viewRapport(vb.getAttribute('data-rapport-view'));return}
-  const eb=e.target.closest('[data-rapport-export]');if(eb){exportRapportText(eb.getAttribute('data-rapport-export'));return}
-  const db=e.target.closest('[data-rapport-delete]');if(db){deleteRapport(db.getAttribute('data-rapport-delete'));return}
-  const pill=e.target.closest('#rapportFilterRow .pill');
-  if(pill){
-    document.querySelectorAll('#rapportFilterRow .pill').forEach(p=>p.classList.remove('active'));
-    pill.classList.add('active');
-    activeRapportFilter=pill.getAttribute('data-rapport-type');
-    renderRapports();return
-  }
-});
-</script>
-
-<script>
-// ── MAIN APP ──
-let protocols=[];
-let activeCategory='all';
-let searchQuery='';
-let currentUser=null;
-
-const CREDENTIALS={'ADMIN_USER':'ADMIN2006','MODERATEUR':'MOD2024','DIRECTEUR':'FONDATION19'};
-const API_URL='https://api.jsonbin.io/v3/b/67972e2dad19ca34f8f5d498';
-const API_KEY='$2a$10$wFYsPgm5bF7pJFaCHEQkf.K68xVUWfABnl5J2JFDgDTnAJKqf.9hm';
-
-function addHistory(msg){
-  const c=document.getElementById('historyList');if(!c)return;
-  const now=new Date();
-  const ts=`[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}]`;
-  const div=document.createElement('div');div.className='hline';
-  div.innerHTML=`<span class="hts">${ts}</span><span>${msg}</span>`;
-  c.prepend(div);
-  while(c.children.length>25)c.removeChild(c.lastChild);
-}
-
-function switchView(name){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const btn=document.querySelector(`.nav-item[data-view="${name}"]`);
-  if(btn)btn.classList.add('active');
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const view=document.getElementById('view-'+name);
-  if(view)view.classList.add('active');
-}
-
-// Nav
-document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    switchView(btn.getAttribute('data-view'));
-    addHistory('Vue: '+btn.textContent.trim());
-  });
-});
-
-// Fetch protocols
-async function fetchProtocols(){
-  try{
-    document.getElementById('loadingOv').style.display='flex';
-    const r=await fetch(API_URL,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'}});
-    const data=await r.json();
-    protocols=Array.isArray(data)?data:[];
-    renderProtocols();
-    addHistory('API synchro — '+protocols.length+' protocoles chargés.');
-  }catch(e){
-    protocols=JSON.parse(localStorage.getItem('scp19_protocols')||'[]');
-    renderProtocols();
-    addHistory('Mode hors-ligne — données locales chargées.');
-  }finally{
-    document.getElementById('loadingOv').style.display='none';
-  }
-}
-
-async function saveProtocolsAPI(){
-  try{
-    await fetch(API_URL,{method:'PUT',headers:{'X-Master-Key':API_KEY,'Content-Type':'application/json'},body:JSON.stringify(protocols)});
-  }catch(e){
-    localStorage.setItem('scp19_protocols',JSON.stringify(protocols));
-  }
-}
-
-function renderProtocols(){
-  const c=document.getElementById('protocolList');if(!c)return;
-  const cats=['all','emergency','containment','security','site','personnel','anomalous','admin','with-lrc'];
-  cats.forEach(cat=>{
-    const el=document.querySelector(`[data-count-for="${cat}"]`);if(!el)return;
-    if(cat==='all'){el.textContent=protocols.length;return}
-    if(cat==='with-lrc'){el.textContent=protocols.filter(p=>p.lrcCode).length;return}
-    el.textContent=protocols.filter(p=>p.category===cat).length;
-  });
-  document.getElementById('protocolCount').textContent=protocols.length;
-  document.getElementById('topProtoCount').textContent=protocols.length+' protocoles';
-
-  let filtered=protocols;
-  if(activeCategory!=='all'){
-    if(activeCategory==='with-lrc')filtered=filtered.filter(p=>p.lrcCode);
-    else filtered=filtered.filter(p=>p.category===activeCategory);
-  }
-  if(searchQuery){
-    const q=searchQuery.toLowerCase();
-    filtered=filtered.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.content||'').toLowerCase().includes(q));
-  }
-  if(!filtered.length){
-    c.innerHTML=`<div class="empty-st"><div class="empty-ico">◈</div><div class="empty-txt">Aucun protocole trouvé</div></div>`;
-    return;
-  }
-  const tagClass={emergency:'tag-em',containment:'tag-co',security:'tag-se',anomalous:'tag-an'};
-  c.innerHTML=filtered.map(p=>`
-    <div class="proto-item cat-${p.category||''}">
-      <div class="proto-head">
-        <div class="proto-title">${p.title||'Sans titre'}</div>
-        <div class="proto-tags">
-          ${p.category?`<span class="tag ${tagClass[p.category]||''}">${p.category}</span>`:''}
-          ${p.lrcCode?`<span class="tag tag-lrc">CODE: ${p.lrcCode}</span>`:''}
-          ${p.status?`<span class="tag">${p.status}</span>`:''}
+        <div class="file-card euclid reveal">
+          <div class="file-scan"></div>
+          <span class="file-class">EUCLIDE</span>
+          <div class="file-number">SCP-096</div>
+          <div class="file-name">Le Timide</div>
+          <p class="file-desc">
+            Entité humanoïde extrêmement agressive si son visage est <span class="file-redacted">████</span> observé. Protocole Alpha-1 activé. Tout témoin est considéré comme <span class="file-redacted">██████████</span>.
+          </p>
+        </div>
+        <div class="file-card keter reveal">
+          <div class="file-scan"></div>
+          <span class="file-class">KETER</span>
+          <div class="file-number">SCP-682</div>
+          <div class="file-name">Le Reptile Difficile à Détruire</div>
+          <p class="file-desc">
+            Créature reptilienne à grande échelle d'intelligence supérieure. Résistante à toutes tentatives de neutralisation. Haine profonde de toute forme de <span class="file-redacted">████████████</span>.
+          </p>
+        </div>
+        <div class="file-card safe reveal">
+          <div class="file-scan"></div>
+          <span class="file-class">SAFE</span>
+          <div class="file-number">SCP-914</div>
+          <div class="file-name">La Machine à Affiner</div>
+          <p class="file-desc">
+            Appareil mécanique de 18m³ capable de transformer et raffiner des objets selon différents réglages. Utilité tactique confirmée par le Comité O5.
+          </p>
+        </div>
+        <div class="file-card keter reveal">
+          <div class="file-scan"></div>
+          <span class="file-class">KETER</span>
+          <div class="file-number">SCP-106</div>
+          <div class="file-name">Le Vieux Homme</div>
+          <p class="file-desc">
+            Humanöide âgé capable de traverser la matière solide. Attire les victimes dans une <span class="file-redacted">██████████</span> dimension de poche. Confinement temporaire uniquement.
+          </p>
+        </div>
+        <div class="file-card euclid reveal">
+          <div class="file-scan"></div>
+          <span class="file-class">EUCLIDE</span>
+          <div class="file-number">SCP-049</div>
+          <div class="file-name">Le Médecin de la Peste</div>
+          <p class="file-desc">
+            Entité revêtant l'apparence d'un médecin médiéval. Capable de ressusciter des sujets sous forme <span class="file-redacted">████</span>. Sa "cure" est irréversible.
+          </p>
         </div>
       </div>
-      <div class="proto-meta">ID: ${p.id||'—'} · ${p.updatedAt||p.createdAt||'—'}</div>
-      <div class="proto-snippet">${(p.content||'').substring(0,200)}${(p.content||'').length>200?'…':''}</div>
-      <div class="proto-actions">
-        ${currentUser?`<button class="btn btn-xs" data-copy-proto="${p.id}">⧉ Copier</button>`:''}
-        ${currentUser?`<button class="btn btn-xs btn-cyan" data-edit-proto="${p.id}">✎ Modifier</button>`:''}
-        ${currentUser?`<button class="btn btn-xs btn-ghost" data-del-proto="${p.id}">✕</button>`:''}
+    </div>
+  </section>
+
+  <div class="sep">
+    <div class="sep-line"></div>
+    <span class="sep-label">FACTIONS</span>
+    <div class="sep-line"></div>
+  </div>
+
+  <!-- FACTIONS -->
+  <section id="factions">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">// Groupes d'Intérêt</div>
+        <h2 class="section-title">Choisissez<br>Votre Camp</h2>
+      </div>
+      <div class="factions-grid">
+        <div class="faction-card reveal">
+          <span class="faction-icon">🛡️</span>
+          <div class="faction-name">Fondation SCP</div>
+          <div class="faction-role">Contenir — Protéger — Sécuriser</div>
+          <p class="faction-desc">Servez l'organisation secrète la plus puissante au monde. Scientifiques, gardes, agents de terrain — la Fondation ne recule devant rien pour maintenir le secret.</p>
+        </div>
+        <div class="faction-card reveal">
+          <span class="faction-icon">🔓</span>
+          <div class="faction-name">Chaos Insurgency</div>
+          <div class="faction-role">Libérer — Exploiter — Renverser</div>
+          <p class="faction-desc">Dissidents de la Fondation. Vous croyez que les anomalies doivent être utilisées pour le bien de l'humanité — peu importe le coût humain.</p>
+        </div>
+        <div class="faction-card reveal">
+          <span class="faction-icon">⚗️</span>
+          <div class="faction-name">GOC</div>
+          <div class="faction-role">Neutraliser — Effacer — Oublier</div>
+          <p class="faction-desc">La Coalition Mondiale des Occultistes. Votre solution à chaque anomalie : la destruction totale. Pas de confinement, pas de recherche — uniquement l'éradication.</p>
+        </div>
+        <div class="faction-card reveal">
+          <span class="faction-icon">🧬</span>
+          <div class="faction-name">Marshall, Carter & Dark</div>
+          <div class="faction-role">Commercer — Posséder — Vendre</div>
+          <p class="faction-desc">Un club privé de luxe pour les ultra-riches. Les anomalies sont votre marchandise. Vous achetez, vendez, et collectionnez ce que la Fondation tente de cacher.</p>
+        </div>
       </div>
     </div>
-  `).join('');
-}
+  </section>
 
-// Filter + search
-document.getElementById('filterBar')?.addEventListener('click',e=>{
-  const pill=e.target.closest('.pill');if(!pill)return;
-  document.querySelectorAll('#filterBar .pill').forEach(p=>p.classList.remove('active'));
-  pill.classList.add('active');
-  activeCategory=pill.getAttribute('data-category');
-  renderProtocols();
-});
-document.getElementById('searchInput')?.addEventListener('input',e=>{
-  searchQuery=e.target.value;renderProtocols();
-});
+  <div class="sep">
+    <div class="sep-line"></div>
+    <span class="sep-label">PROTOCOLES</span>
+    <div class="sep-line"></div>
+  </div>
 
-// Protocol actions
-document.addEventListener('click',e=>{
-  const cp=e.target.closest('[data-copy-proto]');
-  if(cp){const p=protocols.find(x=>x.id===cp.getAttribute('data-copy-proto'));if(p){navigator.clipboard&&navigator.clipboard.writeText(p.content||'');addHistory('Protocole copié: '+p.title);}return}
-  const ep=e.target.closest('[data-edit-proto]');
-  if(ep){const p=protocols.find(x=>x.id===ep.getAttribute('data-edit-proto'));if(p)openProtocolModal(p);return}
-  const dp=e.target.closest('[data-del-proto]');
-  if(dp){if(!confirm('Supprimer ce protocole?'))return;const id=dp.getAttribute('data-del-proto');protocols=protocols.filter(x=>x.id!==id);renderProtocols();saveProtocolsAPI();addHistory('Protocole supprimé: '+id);return}
-  // LRC
-  const lc=e.target.closest('[data-lrc-copy]');
-  if(lc){const code=lc.getAttribute('data-lrc-copy');navigator.clipboard&&navigator.clipboard.writeText(`ALERTE SITE-19 — CODE: ${code} ACTIVÉ. Toutes les unités appliquer le protocole d'urgence correspondant.`);addHistory('Alerte LRC copiée: CODE '+code);return}
-  const la=e.target.closest('[data-lrc-announce]');if(la){addHistory('Annonce LRC: CODE '+la.getAttribute('data-lrc-announce'));return}
-  const lcr=e.target.closest('[data-lrc-create]');
-  if(lcr){const code=lcr.getAttribute('data-lrc-create');document.getElementById('fieldLRCCode').value=code;document.getElementById('fieldTitle').value=`Protocole CODE: ${code}`;document.getElementById('modalProtocol').classList.add('open');return}
-});
-
-document.getElementById('btnNewProtocol')?.addEventListener('click',()=>openProtocolModal(null));
-
-function openProtocolModal(p){
-  document.getElementById('protocolModalTitle').textContent=p?'Modifier protocole':'Nouveau protocole';
-  document.getElementById('fieldTitle').value=p?.title||'';
-  document.getElementById('fieldCategory').value=p?.category||'emergency';
-  document.getElementById('fieldLRCCode').value=p?.lrcCode||'';
-  document.getElementById('fieldContent').value=p?.content||'';
-  document.getElementById('fieldStatus').value=p?.status||'Brouillon';
-  const m=document.getElementById('modalProtocol');m._editingId=p?.id||null;
-  m.classList.add('open');
-}
-
-document.getElementById('saveProtocolBtn')?.addEventListener('click',()=>{
-  const m=document.getElementById('modalProtocol');
-  const id=m._editingId;
-  const title=document.getElementById('fieldTitle').value.trim();
-  if(!title){alert('Le titre est obligatoire.');return}
-  const p={title,category:document.getElementById('fieldCategory').value,lrcCode:document.getElementById('fieldLRCCode').value,content:document.getElementById('fieldContent').value,status:document.getElementById('fieldStatus').value,updatedAt:new Date().toLocaleDateString('fr-FR')};
-  if(id){const idx=protocols.findIndex(x=>x.id===id);if(idx!==-1)protocols[idx]={...protocols[idx],...p}}
-  else protocols.push({id:'PROT-'+Date.now().toString(36).toUpperCase(),...p,createdAt:new Date().toLocaleDateString('fr-FR')});
-  renderProtocols();saveProtocolsAPI();
-  m.classList.remove('open');
-  addHistory((id?'Protocole modifié':'Nouveau protocole')+': '+title);
-});
-
-// Admin
-document.getElementById('btnRefresh')?.addEventListener('click',()=>{fetchProtocols()});
-
-function renderAdmin(){
-  const el=document.getElementById('adminList');if(!el)return;
-  if(!protocols.length){el.innerHTML='<div class="empty-st"><div class="empty-txt">Aucun protocole chargé</div></div>';return}
-  el.innerHTML='<div class="admin-list-items">'+protocols.map(p=>`
-    <div class="admin-row">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--t0)">${p.title}</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:var(--t4)">${p.category||'—'} · ${p.id||'—'} · ${p.status||'—'}</div>
+  <!-- RULES -->
+  <section id="regles">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">// Manuel de la Fondation</div>
+        <h2 class="section-title">Règles &<br>Protocoles</h2>
       </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-xs btn-cyan" data-edit-proto="${p.id}">✎</button>
-        <button class="btn btn-xs btn-ghost" data-del-proto="${p.id}">✕</button>
+      <div class="rules-container">
+        <ul class="rules-list reveal">
+          <li class="rule-item">
+            <span class="rule-num">01</span>
+            <span class="rule-text">Le roleplay est obligatoire en zone de confinement. Les discussions hors-jeu se font exclusivement sur Discord.</span>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">02</span>
+            <span class="rule-text">Aucun RDM (Random Deathmatch). Toute élimination doit être justifiée par le contexte RP.</span>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">03</span>
+            <span class="rule-text">Respectez la hiérarchie de votre faction. Les ordres des supérieurs sont prioritaires.</span>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">04</span>
+            <span class="rule-text">Les SCP jouables doivent suivre le comportement décrit dans leur dossier officiel.</span>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">05</span>
+            <span class="rule-text">Toute brèche de confinement doit être signalée immédiatement aux agents de niveau D4 ou supérieur.</span>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">06</span>
+            <span class="rule-text">Le metagaming et le powergaming sont interdits et sanctionnés par un ban temporaire.</span>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">07</span>
+            <span class="rule-text">Le staff a le dernier mot. Toute contestation passe par le canal de tickets Discord.</span>
+          </li>
+        </ul>
+
+        <div class="terminal reveal">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">TERMINAL — ACCÈS NIVEAU 5</span>
+          </div>
+          <div class="t-line"><span class="t-prompt">SCP-FOUNDATION@SITE-19:~$ </span>status</div>
+          <div class="t-line"><span class="t-output">▶ Site-19 : OPÉRATIONNEL</span></div>
+          <div class="t-line"><span class="t-output">▶ Containment : 94.7% STABLE</span></div>
+          <div class="t-line"><span class="t-warn">▶ SCP-106 : BRÈCHE PARTIELLE</span></div>
+          <div class="t-line"><span class="t-output">▶ MTF Epsilon-11 : EN ROUTE</span></div>
+          <div class="t-line">&nbsp;</div>
+          <div class="t-line"><span class="t-prompt">SCP-FOUNDATION@SITE-19:~$ </span>players</div>
+          <div class="t-line"><span class="t-output">▶ Fondation : 24 agents actifs</span></div>
+          <div class="t-line"><span class="t-output">▶ Chaos Insurgency : 8 opératifs</span></div>
+          <div class="t-line"><span class="t-output">▶ SCPs confinés : 6 / 8</span></div>
+          <div class="t-line"><span class="t-error">▶ ALERTE : 2 SCPs non localisés</span></div>
+          <div class="t-line">&nbsp;</div>
+          <div class="t-line"><span class="t-prompt">SCP-FOUNDATION@SITE-19:~$ </span><span class="cursor"></span></div>
+        </div>
       </div>
-    </div>`).join('')+'</div>';
-}
+    </div>
+  </section>
 
-// Login
-document.getElementById('btnLogin')?.addEventListener('click',()=>{
-  document.getElementById('loginError').style.display='none';
-  document.getElementById('modalLogin').classList.add('open');
-});
-document.getElementById('btnLogout')?.addEventListener('click',()=>{
-  currentUser=null;
-  document.getElementById('btnLogin').style.display='';
-  document.getElementById('btnLogout').style.display='none';
-  document.getElementById('userNameDisp').textContent='INVITÉ';
-  document.getElementById('userRoleDisp').textContent='NON AUTHENTIFIÉ';
-  document.getElementById('topUserName').textContent='INVITÉ';
-  document.getElementById('topAuthStatus').textContent='HORS LIGNE';
-  document.getElementById('topAuthStatus').style.color='var(--t4)';
-  document.getElementById('connectionStatus').textContent='DÉCONNECTÉ — Authentification requise';
-  renderProtocols();renderAdmin();
-  addHistory('Déconnexion effectuée.');
-});
-document.getElementById('confirmLogin')?.addEventListener('click',()=>{
-  const user=document.getElementById('loginUser').value.trim().toUpperCase();
-  const pass=document.getElementById('loginPass').value;
-  if(CREDENTIALS[user]&&CREDENTIALS[user]===pass){
-    currentUser=user;
-    document.getElementById('modalLogin').classList.remove('open');
-    document.getElementById('btnLogin').style.display='none';
-    document.getElementById('btnLogout').style.display='';
-    document.getElementById('userNameDisp').textContent=user;
-    document.getElementById('userRoleDisp').textContent='AUTHENTIFIÉ // SITE-19';
-    document.getElementById('topUserName').textContent=user;
-    document.getElementById('topAuthStatus').textContent='EN LIGNE';
-    document.getElementById('topAuthStatus').style.color='var(--green)';
-    document.getElementById('connectionStatus').textContent='CONNECTÉ EN TANT QUE '+user;
-    renderProtocols();renderAdmin();
-    addHistory('Connexion réussie: '+user);
-  }else{
-    const err=document.getElementById('loginError');err.textContent='Identifiants invalides — Accès refusé.';err.style.display='block';
-  }
-});
-document.getElementById('loginPass')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('confirmLogin')?.click()});
+  <!-- CTA -->
+  <section id="rejoindre" class="cta-section">
+    <div class="cta-bg"></div>
+    <div class="cta-border"></div>
+    <div class="cta-corner tl"></div>
+    <div class="cta-corner tr"></div>
+    <div class="cta-corner bl"></div>
+    <div class="cta-corner br"></div>
 
-// Modal close
-document.addEventListener('click',e=>{
-  if(e.target.closest('[data-close-login]'))document.getElementById('modalLogin').classList.remove('open');
-  if(e.target.closest('[data-close-protocol]'))document.getElementById('modalProtocol').classList.remove('open');
-  if(e.target.closest('[data-close-shortcuts]'))document.getElementById('kbHelp').classList.remove('open');
-  if(e.target.id==='modalLogin')document.getElementById('modalLogin').classList.remove('open');
-  if(e.target.id==='modalProtocol')document.getElementById('modalProtocol').classList.remove('open');
-  if(e.target.id==='rapportViewModal')document.getElementById('rapportViewModal').classList.remove('open');
-});
+    <div style="position:relative; z-index:1;">
+      <div class="cta-tag reveal">// Recrutement Ouvert</div>
+      <h2 class="cta-title reveal">Prêt à<br>Servir la<br>Fondation ?</h2>
+      <p class="cta-sub reveal">
+        Des milliers d'agents comptent sur vous. Le monde ignore leur existence. Votre mission commence maintenant.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="#" class="btn btn-primary">▶ Jouer sur Roblox</a>
+        <a href="#" class="btn btn-secondary">Rejoindre le Discord</a>
+      </div>
+    </div>
+  </section>
 
-// Shortcuts
-const VIEWS=['database','lrc','admin','eval','rapport'];
-document.getElementById('btnShortcuts')?.addEventListener('click',()=>document.getElementById('kbHelp').classList.add('open'));
-document.getElementById('btnShortcutsNav')?.addEventListener('click',()=>document.getElementById('kbHelp').classList.add('open'));
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">SCP // ROBLOX ROLEPLAY — FR</div>
+    <div class="footer-copy">
+      Ce serveur est un projet fan non-officiel. SCP appartient à la SCP Foundation Wiki Community.
+    </div>
+  </footer>
 
-document.addEventListener('keydown',e=>{
-  if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
-  const k=e.key;
-  if(k>='1'&&k<='5'){const v=VIEWS[parseInt(k)-1];if(v)switchView(v);return}
-  if(k==='l'||k==='L'){document.getElementById('btnLogin')?.click();return}
-  if(k==='n'||k==='N'){document.getElementById('btnNewProtocol')?.click();return}
-  if(k==='/'){e.preventDefault();document.getElementById('searchInput')?.focus();return}
-  if(k==='?'){document.getElementById('kbHelp').classList.toggle('open');return}
-  if(k==='Escape'){
-    document.querySelectorAll('.modal-back.open').forEach(m=>m.classList.remove('open'));
-    document.getElementById('rapportViewModal')?.classList.remove('open');
-    document.getElementById('kbHelp')?.classList.remove('open');
-  }
-});
+  <script>
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, (i % 4) * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
 
-// Init
-document.addEventListener('DOMContentLoaded',()=>{
-  // Populate selects
-  const ts=document.getElementById('rapportType');
-  const ss=document.getElementById('rapportSeverity');
-  if(ts)ts.innerHTML=RAPPORT_TYPES.map(t=>`<option value="${t.value}">${t.label}</option>`).join('');
-  if(ss)ss.innerHTML=RAPPORT_SEV.map(s=>`<option value="${s.value}">${s.label}</option>`).join('');
+    reveals.forEach(el => observer.observe(el));
 
-  renderLRCCodes();
-  renderMorphs();
-  renderRapports();
-  renderEvalHistory();
-  fetchProtocols();
-  addHistory('Site-19 initialisé — Système opérationnel.');
-});
-</script>
+    // File card hover scan
+    document.querySelectorAll('.file-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const scan = card.querySelector('.file-scan');
+        if (scan) {
+          scan.style.animation = 'scan 1.5s linear infinite';
+        }
+      });
+    });
 
+    // Terminal typing effect - update status periodically
+    const statuses = [
+      { text: '▶ SCP-173 : CONFINÉ', class: 't-output' },
+      { text: '▶ SCP-682 : NEUTRALISÉ (temporaire)', class: 't-warn' },
+      { text: '▶ ALERTE : BRÈCHE SECTEUR-B', class: 't-error' },
+      { text: '▶ MTF Nu-7 : DÉPLOYÉE', class: 't-output' },
+    ];
+  </script>
 </body>
 </html>
