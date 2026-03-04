@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>INTRANET — Département Médical // Site-19</title>
+<link rel="stylesheet" href="../shared.css"/>
+<style>
+:root { --dept-color: #00e676; --dept-glow: rgba(0,230,118,0.15); }
+.topbar-dept { color: var(--dept-color) !important; }
+.widget-hdr::before { background: var(--dept-color) !important; }
+.dept-badge { color: var(--dept-color) !important; border-color: var(--dept-color) !important; }
+.btn-dept { border-color: var(--dept-color); color: var(--dept-color); background: rgba(0,230,118,0.06); }
+.btn-dept:hover { background: rgba(0,230,118,0.14); }
+.score-row input[type=range] { accent-color: var(--dept-color) !important; }
+.score-val { color: var(--dept-color) !important; }
+.eval-total-score { color: var(--dept-color) !important; }
+
+.patient-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+.patient-card { background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--dept-color); padding:16px; transition:all 0.2s; }
+.patient-card:hover { background:var(--surface2); }
+.patient-card.status-critical { border-left-color:var(--danger); }
+.patient-card.status-stable { border-left-color:var(--safe); }
+.patient-card.status-quarantine { border-left-color:var(--warn); }
+.patient-name { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--white); }
+.patient-id { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--dept-color); letter-spacing:0.1em; }
+.patient-status { font-family:'Share Tech Mono',monospace; font-size:9px; padding:2px 8px; border:1px solid; text-transform:uppercase; letter-spacing:0.1em; display:inline-block; margin:6px 0; }
+.patient-status.critical { color:var(--danger); border-color:var(--danger); background:rgba(192,57,43,0.08); }
+.patient-status.stable { color:var(--safe); border-color:var(--safe); }
+.patient-status.quarantine { color:var(--warn); border-color:var(--warn); }
+.patient-status.observation { color:var(--accent); border-color:var(--accent); }
+.patient-diag { font-family:'Courier Prime',monospace; font-size:11px; color:var(--text-dim); line-height:1.6; margin:6px 0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <a href="../index.html" class="topbar-back">← Site-19</a>
+    <div class="topbar-divider"></div>
+    <div>
+      <div class="topbar-title">⚕️ Médical</div>
+      <div class="topbar-dept">DEPT-MED // BIO-HAZARD — NIV.2</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-status" style="color:var(--dept-color)"><div class="status-dot" style="background:var(--dept-color)"></div>OPÉRATIONNEL</div>
+    <div class="topbar-clearance dept-badge">NIVEAU 2</div>
+  </div>
+</header>
+
+<nav class="dept-nav">
+  <button class="nav-tab active" data-view="protocoles"><span class="nav-tab-icon">▢</span> Protocoles</button>
+  <button class="nav-tab" data-view="patients"><span class="nav-tab-icon">🏥</span> Patients</button>
+  <button class="nav-tab" data-view="morphs"><span class="nav-tab-icon">◈</span> Morphs</button>
+  <button class="nav-tab" data-view="evaluations"><span class="nav-tab-icon">✦</span> Évaluations</button>
+  <button class="nav-tab" data-view="rapports"><span class="nav-tab-icon">📋</span> Rapports</button>
+</nav>
+
+<div class="app-layout">
+<main class="main-content">
+
+  <!-- ▸ PROTOCOLES MÉDICAUX -->
+  <section class="view active" id="view-protocoles">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-tag">// Base de données médicale</div>
+        <div class="sec-title">PROTOCOLES <span>MÉDICAUX</span></div>
+        <div class="sec-sub" id="protoCount">0 protocoles chargés</div>
+      </div>
+      <div class="sec-actions">
+        <button class="btn btn-dept btn-sm" id="btnNewProto">+ Nouveau</button>
+      </div>
+    </div>
+
+    <div class="alert-banner safe">
+      <span>✓</span> Unité médicale opérationnelle — Niveau de contamination nominal — Zone de quarantaine active
+    </div>
+
+    <div class="search-row">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" id="protoSearch" placeholder="Rechercher un protocole médical…" autocomplete="off"/>
+      </div>
+    </div>
+    <div class="filter-row" id="protoFilters">
+      <button class="pill active" data-cat="all">Tous <span class="pill-n" id="cnt-all">0</span></button>
+      <button class="pill" data-cat="urgence">Urgence <span class="pill-n" id="cnt-urgence">0</span></button>
+      <button class="pill" data-cat="quarantaine">Quarantaine <span class="pill-n" id="cnt-quarantaine">0</span></button>
+      <button class="pill" data-cat="contamination">Contamination <span class="pill-n" id="cnt-contamination">0</span></button>
+      <button class="pill" data-cat="chirurgie">Chirurgie <span class="pill-n" id="cnt-chirurgie">0</span></button>
+      <button class="pill" data-cat="psychologie">Psychologie <span class="pill-n" id="cnt-psychologie">0</span></button>
+    </div>
+    <div class="item-list" id="protoList">
+      <div class="empty-state"><div class="empty-icon">⚕️</div><div class="empty-text">Aucun protocole médical enregistré</div></div>
+    </div>
+
+    <div class="modal-ov" id="modalProto">
+      <div class="modal-box">
+        <div class="modal-hdr">
+          <div class="modal-title" id="protoModalTitle">Nouveau protocole</div>
+          <button class="modal-close" data-close-modal="modalProto">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-field full"><label>Titre *</label><input id="pTitle" type="text" placeholder="Ex: Protocole Décontamination CODE GREEN"/></div>
+            <div class="form-field">
+              <label>Catégorie</label>
+              <select id="pCat">
+                <option value="urgence">Urgence</option>
+                <option value="quarantaine">Quarantaine</option>
+                <option value="contamination">Contamination</option>
+                <option value="chirurgie">Chirurgie</option>
+                <option value="psychologie">Psychologie</option>
+              </select>
+            </div>
+            <div class="form-field"><label>Niveau biohazard</label>
+              <select id="pBio">
+                <option value="0">Niveau 0 — Aucun</option>
+                <option value="1">Niveau 1 — Faible</option>
+                <option value="2">Niveau 2 — Modéré</option>
+                <option value="3">Niveau 3 — Élevé</option>
+                <option value="4">Niveau 4 — Critique</option>
+              </select>
+            </div>
+            <div class="form-field"><label>Statut</label><input id="pStatus" value="Actif"/></div>
+            <div class="form-field full"><label>Contenu / Procédure *</label><textarea id="pContent" rows="8" placeholder="Décrivez la procédure médicale en détail…"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost btn-sm" data-close-modal="modalProto">Annuler</button>
+          <button class="btn btn-dept btn-sm" id="saveProtoBtn">💾 Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ▸ PATIENTS -->
+  <section class="view" id="view-patients">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-tag">// Registre des patients</div>
+        <div class="sec-title">PATIENTS <span>ACTIFS</span></div>
+        <div class="sec-sub" id="patientCount">0 patients enregistrés</div>
+      </div>
+      <div class="sec-actions">
+        <button class="btn btn-dept btn-sm" id="btnNewPatient">+ Nouveau patient</button>
+      </div>
+    </div>
+
+    <div class="form-panel" id="patientFormPanel" style="display:none">
+      <div class="form-title">
+        <span id="patientFormTitle">Nouveau patient</span>
+        <button class="btn btn-ghost btn-sm" id="patientCancelBtn">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label>Nom / Désignation *</label><input id="ptName" type="text" placeholder="Ex: M.NOWAK ou SCP-049-2 Instance"/></div>
+        <div class="form-field"><label>ID Patient</label><input id="ptId" type="text" placeholder="Auto-généré si vide"/></div>
+        <div class="form-field">
+          <label>Statut</label>
+          <select id="ptStatus">
+            <option value="stable">Stable</option>
+            <option value="critical">Critique</option>
+            <option value="quarantine">Quarantaine</option>
+            <option value="observation">Observation</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Médecin responsable</label><input id="ptDoctor" placeholder="Ex: M.KOLIANSKY"/></div>
+        <div class="form-field"><label>Date admission</label><input id="ptDate" type="date"/></div>
+        <div class="form-field"><label>Chambre / Zone</label><input id="ptRoom" placeholder="Ex: Zone Médicale B — Chambre 3"/></div>
+        <div class="form-field full"><label>Diagnostic / Notes *</label><textarea id="ptDiag" rows="4" placeholder="Symptômes, diagnostic, exposition anomalique éventuelle…"></textarea></div>
+        <div class="form-field full"><label>Traitement en cours</label><textarea id="ptTreatment" rows="3" placeholder="Médicaments, procédures, suivi…"></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost btn-sm" id="patientCancelBtn2">Annuler</button>
+        <button class="btn btn-dept btn-sm" id="patientSaveBtn">💾 Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="filter-row" id="patientFilters">
+      <button class="pill active" data-pt-filter="all">Tous</button>
+      <button class="pill" data-pt-filter="critical">Critique</button>
+      <button class="pill" data-pt-filter="quarantine">Quarantaine</button>
+      <button class="pill" data-pt-filter="observation">Observation</button>
+      <button class="pill" data-pt-filter="stable">Stable</button>
+    </div>
+    <div class="patient-grid" id="patientList">
+      <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏥</div><div class="empty-text">Aucun patient enregistré</div></div>
+    </div>
+  </section>
+
+  <!-- ▸ MORPHS -->
+  <section class="view" id="view-morphs">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-tag">// Commandes Roblox</div>
+        <div class="sec-title">MORPHS <span>MÉDICAL</span></div>
+        <div class="sec-sub">Commandes de morph pour le département médical</div>
+      </div>
+    </div>
+    <div class="item-list" id="morphList"></div>
+  </section>
+
+  <!-- ▸ ÉVALUATIONS -->
+  <section class="view" id="view-evaluations">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-tag">// Ressources humaines médicales</div>
+        <div class="sec-title">ÉVALUATIONS <span>PERSONNEL</span></div>
+        <div class="sec-sub" id="evalCount">0 évaluations</div>
+      </div>
+      <div class="sec-actions">
+        <button class="btn btn-dept btn-sm" id="btnNewEval">+ Nouvelle évaluation</button>
+      </div>
+    </div>
+    <div class="form-panel" id="evalFormPanel" style="display:none">
+      <div class="form-title">
+        <span id="evalFormTitle">Nouvelle évaluation</span>
+        <button class="btn btn-ghost btn-sm" id="evalCancelBtn">✕ Annuler</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label>Nom *</label><input id="evalName" type="text"/></div>
+        <div class="form-field"><label>Username Roblox</label><input id="evalUser" type="text"/></div>
+        <div class="form-field"><label>Grade</label><input id="evalRank" type="text" placeholder="Ex: [D.M-PSY] Psychologue"/></div>
+        <div class="form-field"><label>Évaluateur *</label><input id="evalAuthor" type="text"/></div>
+        <div class="form-field"><label>Date *</label><input id="evalDate" type="date"/></div>
+        <div class="form-field"><label>Décision</label>
+          <select id="evalDecision">
+            <option value="promu">✅ Promu</option>
+            <option value="valide" selected>✔ Validé</option>
+            <option value="avertissement">⚠ Avertissement</option>
+            <option value="recale">❌ Recalé</option>
+            <option value="expulse">🚫 Expulsion</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px;">Critères (0–10)</div>
+      <div class="eval-crit-grid">
+        <div class="eval-crit"><label>Discipline</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreDisc"/><span class="score-val" id="valDisc">5</span></div></div>
+        <div class="eval-crit"><label>Connaissance protocoles</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreProto"/><span class="score-val" id="valProto">5</span></div></div>
+        <div class="eval-crit"><label>Réactivité</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreReact"/><span class="score-val" id="valReact">5</span></div></div>
+        <div class="eval-crit"><label>Communication</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreComm"/><span class="score-val" id="valComm">5</span></div></div>
+        <div class="eval-crit"><label>Respect hiérarchie</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreHier"/><span class="score-val" id="valHier">5</span></div></div>
+        <div class="eval-crit"><label>Comportement</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreComp"/><span class="score-val" id="valComp">5</span></div></div>
+      </div>
+      <div class="eval-total">
+        <div><div class="eval-total-lbl">SCORE TOTAL</div><div class="eval-total-score" id="evalTotalScore">30 / 60</div></div>
+        <div class="eval-total-mention" id="evalTotalMention">— SATISFAISANT</div>
+      </div>
+      <div class="form-field full" style="margin-bottom:0"><label>Commentaires</label><textarea id="evalComments" rows="3"></textarea></div>
+      <div class="form-actions">
+        <button class="btn btn-ghost btn-sm" id="evalCancelBtn2">Annuler</button>
+        <button class="btn btn-dept btn-sm" id="evalSaveBtn">💾 Enregistrer</button>
+      </div>
+    </div>
+    <div class="card-grid" id="evalList">
+      <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✦</div><div class="empty-text">Aucune évaluation</div></div>
+    </div>
+  </section>
+
+  <!-- ▸ RAPPORTS -->
+  <section class="view" id="view-rapports">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-tag">// Journaux médicaux</div>
+        <div class="sec-title">RAPPORTS <span>MÉDICAUX</span></div>
+        <div class="sec-sub" id="rapportCount">0 rapports</div>
+      </div>
+      <div class="sec-actions">
+        <button class="btn btn-dept btn-sm" id="btnNewRapport">+ Nouveau rapport</button>
+      </div>
+    </div>
+    <div class="form-panel" id="rapportFormPanel" style="display:none">
+      <div class="form-title">
+        <span id="rapportFormTitle">Nouveau rapport</span>
+        <button class="btn btn-ghost btn-sm" id="rapportCancelBtn">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-field full"><label>Titre *</label><input id="rTitle" type="text" placeholder="Ex: Rapport d'exposition SCP-049 — M.NOWAK"/></div>
+        <div class="form-field"><label>Type</label>
+          <select id="rType">
+            <option value="incident">⚠ Incident médical</option>
+            <option value="exposure">☣ Exposition anomalique</option>
+            <option value="quarantine">🔒 Mise en quarantaine</option>
+            <option value="operation">🔬 Rapport opératoire</option>
+            <option value="psychology">🧠 Rapport psychologique</option>
+            <option value="death">💀 Rapport de décès</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Sévérité</label><select id="rSev"></select></div>
+        <div class="form-field"><label>Médecin responsable *</label><input id="rAuthor" type="text" placeholder="Ex: M.KOLIANSKY"/></div>
+        <div class="form-field"><label>Patient concerné</label><input id="rPatient" type="text" placeholder="Ex: M.NOWAK — ID: MED-XXXXX"/></div>
+        <div class="form-field"><label>Date *</label><input id="rDate" type="date"/></div>
+        <div class="form-field full"><label>Description *</label><textarea id="rDesc" rows="5" placeholder="Détaillez les événements médicaux, symptômes, traitements…"></textarea></div>
+        <div class="form-field full"><label>Pronostic & suivi</label><textarea id="rConc" rows="3" placeholder="Pronostic, traitement prescrit, suivi recommandé…"></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost btn-sm" id="rapportCancelBtn2">Annuler</button>
+        <button class="btn btn-dept btn-sm" id="rapportSaveBtn">💾 Enregistrer</button>
+      </div>
+    </div>
+    <div class="filter-row" id="rapportFilters">
+      <button class="pill active" data-r-filter="all">Tous</button>
+      <button class="pill" data-r-filter="incident">Incidents</button>
+      <button class="pill" data-r-filter="exposure">Expositions</button>
+      <button class="pill" data-r-filter="quarantine">Quarantaines</button>
+      <button class="pill" data-r-filter="psychology">Psy</button>
+    </div>
+    <div class="card-grid" id="rapportList">
+      <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📋</div><div class="empty-text">Aucun rapport médical</div></div>
+    </div>
+  </section>
+
+</main>
+
+<aside class="sidebar">
+  <div class="widget">
+    <div class="widget-hdr"><span class="widget-title">Statistiques — Médical</span></div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val" style="color:var(--dept-color)" id="statProto">0</div><div class="stat-lbl">Protocoles</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--dept-color)" id="statPatients">0</div><div class="stat-lbl">Patients</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--dept-color)" id="statEval">0</div><div class="stat-lbl">Évaluations</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--dept-color)" id="statRapport">0</div><div class="stat-lbl">Rapports</div></div>
+    </div>
+  </div>
+  <div class="widget">
+    <div class="widget-hdr"><span class="widget-title">Terminal Médical</span></div>
+    <div class="terminal">
+      <div><span class="t-prompt">MED@SITE-19:~$ </span><span class="t-dim">status</span></div>
+      <div><span class="t-out">▶ Salle de chirurgie : DISPONIBLE</span></div>
+      <div><span class="t-out">▶ Zone quarantaine : ACTIVE</span></div>
+      <div><span class="t-warn">▶ Stock sérum anti-SCP-049 : 60%</span></div>
+      <div><span class="t-out">▶ Personnel médical : 3 actifs</span></div>
+      <div><span class="t-prompt">MED@SITE-19:~$ </span><span class="cursor"></span></div>
+    </div>
+  </div>
+  <div class="widget">
+    <div class="widget-hdr"><span class="widget-title">Journal</span></div>
+    <div class="hlog" id="historyList">
+      <div class="hline"><span class="hts">[--:--]</span><span>Intranet Médical initialisé.</span></div>
+    </div>
+  </div>
+</aside>
+</div>
+
+<script src="../shared.js"></script>
+<script>
+const MORPH_DATA_MED = [
+  {name:'M.KOLIANSKY',username:'mrgraschat',rank:'[D.M-PSY] Psychologue',date:'',command:`run team mrgraschat Medic & permntag mrgraschat M.KOLIANSKY & permrtag mrgraschat [D.M-PSY] Psychologue & permmorph mrgraschat DM & startergear mrgraschat authorize & startergear mrgraschat o5 & startergear mrgraschat clipboard`},
+];
+
+let protocols = SCPIntranet.store.get('med_protocols',[]);
+let patients = SCPIntranet.store.get('med_patients',[]);
+let evaluations = SCPIntranet.store.get('med_evals',[]);
+let rapports = SCPIntranet.store.get('med_rapports',[]);
+let editingProtoId=null,editingPatientId=null,editingEvalId=null,editingRapportId=null;
+let protoFilter='all',patientFilter='all',rapportFilter='all';
+
+function save(){
+  SCPIntranet.store.set('med_protocols',protocols);
+  SCPIntranet.store.set('med_patients',patients);
+  SCPIntranet.store.set('med_evals',evaluations);
+  SCPIntranet.store.set('med_rapports',rapports);
+  updateStats();
+}
+function updateStats(){
+  SCPIntranet.updateStat('statProto',protocols.length);
+  SCPIntranet.updateStat('statPatients',patients.length);
+  SCPIntranet.updateStat('statEval',evaluations.length);
+  SCPIntranet.updateStat('statRapport',rapports.length);
+  SCPIntranet.updateStat('protoCount',protocols.length+' protocoles');
+  SCPIntranet.updateStat('patientCount',patients.length+' patients');
+  SCPIntranet.updateStat('evalCount',evaluations.length+' évaluations');
+  SCPIntranet.updateStat('rapportCount',rapports.length+' rapports');
+}
+
+// MORPHS
+function renderMorphs(){
+  const el=document.getElementById('morphList');if(!el)return;
+  if(!MORPH_DATA_MED.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">◈</div><div class="empty-text">Aucune commande</div></div>';return;}
+  el.innerHTML=MORPH_DATA_MED.map((m,i)=>`
+    <div class="item-card">
+      <div class="item-head">
+        <div class="item-title" style="color:var(--dept-color)">${m.name}</div>
+        ${m.date?`<span class="tag">${m.date}</span>`:''}
+      </div>
+      <div class="item-meta">${m.rank} — @${m.username}</div>
+      <div class="item-body" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${m.command.substring(0,80)}…</div>
+      <div class="item-actions">
+        <button class="btn btn-xs btn-dept" data-morph-i="${i}">⧉ Copier morph</button>
+      </div>
+    </div>
+  `).join('');
+}
+document.addEventListener('click',async e=>{
+  const mb=e.target.closest('[data-morph-i]');if(!mb)return;
+  const m=MORPH_DATA_MED[parseInt(mb.dataset.morphI)];if(!m)return;
+  await SCPIntranet.copyText(m.command,mb,'Copié !');
+  SCPIntranet.addHistory('Morph copié: '+m.name);
+});
+
+// PROTOCOLS
+function renderProtocols(){
+  const el=document.getElementById('protoList');if(!el)return;
+  const q=document.getElementById('protoSearch')?.value.toLowerCase()||'';
+  let list=protocols.filter(p=>protoFilter==='all'||p.category===protoFilter);
+  if(q)list=list.filter(p=>(p.title+p.content).toLowerCase().includes(q));
+  const cats=['all','urgence','quarantaine','contamination','chirurgie','psychologie'];
+  cats.forEach(c=>{const n=document.getElementById('cnt-'+c);if(n)n.textContent=c==='all'?protocols.length:protocols.filter(p=>p.category===c).length;});
+  if(!list.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">⚕️</div><div class="empty-text">Aucun protocole trouvé</div></div>';return;}
+  const catColor={urgence:'tag-urgent',quarantaine:'tag-warn',contamination:'tag-urgent',chirurgie:'tag-safe',psychologie:'tag-accent'};
+  el.innerHTML=list.map(p=>`
+    <div class="item-card cat-${p.category==='urgence'||p.category==='contamination'?'urgent':p.category==='quarantaine'?'warn':'safe'}">
+      <div class="item-head">
+        <div class="item-title">${p.title}</div>
+        <div class="item-tags">
+          <span class="tag ${catColor[p.category]||''}">${p.category}</span>
+          ${p.bio?`<span class="tag tag-urgent">BIO-NIV.${p.bio}</span>`:''}
+          ${p.status?`<span class="tag">${p.status}</span>`:''}
+        </div>
+      </div>
+      <div class="item-meta">ID: ${p.id} · ${p.date}</div>
+      <div class="item-body">${p.content.substring(0,200)}${p.content.length>200?'…':''}</div>
+      <div class="item-actions">
+        <button class="btn btn-xs btn-ghost" data-copy-p="${p.id}">⧉ Copier</button>
+        <button class="btn btn-xs btn-dept" data-edit-p="${p.id}">✎ Modifier</button>
+        <button class="btn btn-xs btn-danger" data-del-p="${p.id}">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+document.getElementById('protoSearch')?.addEventListener('input',renderProtocols);
+document.getElementById('protoFilters')?.addEventListener('click',e=>{
+  const pill=e.target.closest('.pill');if(!pill)return;
+  document.querySelectorAll('#protoFilters .pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active');protoFilter=pill.dataset.cat;renderProtocols();
+});
+document.addEventListener('click',e=>{
+  const cp=e.target.closest('[data-copy-p]');if(cp){const p=protocols.find(x=>x.id===cp.dataset.copyP);if(p)SCPIntranet.copyText(p.content,cp,'Copié');return;}
+  const ep=e.target.closest('[data-edit-p]');if(ep){openProtoModal(protocols.find(x=>x.id===ep.dataset.editP));return;}
+  const dp=e.target.closest('[data-del-p]');if(dp){if(!confirm('Supprimer ?'))return;protocols=protocols.filter(x=>x.id!==dp.dataset.delP);save();renderProtocols();return;}
+});
+document.getElementById('btnNewProto')?.addEventListener('click',()=>openProtoModal(null));
+function openProtoModal(p=null){
+  editingProtoId=p?.id||null;
+  document.getElementById('protoModalTitle').textContent=p?'Modifier protocole':'Nouveau protocole';
+  document.getElementById('pTitle').value=p?.title||'';
+  document.getElementById('pCat').value=p?.category||'urgence';
+  document.getElementById('pBio').value=p?.bio||'0';
+  document.getElementById('pStatus').value=p?.status||'Actif';
+  document.getElementById('pContent').value=p?.content||'';
+  SCPIntranet.openModal('modalProto');
+}
+document.getElementById('saveProtoBtn')?.addEventListener('click',()=>{
+  const title=document.getElementById('pTitle').value.trim();
+  const content=document.getElementById('pContent').value.trim();
+  if(!title||!content){alert('Titre et contenu requis.');return;}
+  const data={title,category:document.getElementById('pCat').value,bio:document.getElementById('pBio').value,status:document.getElementById('pStatus').value,content,date:SCPIntranet.fmtDate(SCPIntranet.today())};
+  if(editingProtoId){const i=protocols.findIndex(x=>x.id===editingProtoId);if(i!==-1)protocols[i]={...protocols[i],...data};}
+  else protocols.push({id:SCPIntranet.genId('MED-PROTO'),...data});
+  save();renderProtocols();SCPIntranet.closeModal('modalProto');
+  SCPIntranet.addHistory('Protocole enregistré: '+title);
+});
+
+// PATIENTS
+function renderPatients(){
+  const el=document.getElementById('patientList');if(!el)return;
+  let list=patientFilter==='all'?patients:patients.filter(p=>p.status===patientFilter);
+  if(!list.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏥</div><div class="empty-text">Aucun patient</div></div>';return;}
+  el.innerHTML=[...list].reverse().map(p=>`
+    <div class="patient-card status-${p.status}">
+      <div class="patient-name">${p.name}</div>
+      <div class="patient-id">${p.id}</div>
+      <div class="patient-status ${p.status}">${p.status.toUpperCase()}</div>
+      <div class="patient-diag">${p.diagnosis.substring(0,120)}${p.diagnosis.length>120?'…':''}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);margin-bottom:8px">Dr: ${p.doctor||'—'} · Admission: ${p.date} · ${p.room||'—'}</div>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-xs btn-dept" data-edit-pt="${p.id}">✎ Modifier</button>
+        <button class="btn btn-xs btn-danger" data-del-pt="${p.id}">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+document.getElementById('patientFilters')?.addEventListener('click',e=>{
+  const pill=e.target.closest('.pill');if(!pill)return;
+  document.querySelectorAll('#patientFilters .pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active');patientFilter=pill.dataset.ptFilter;renderPatients();
+});
+document.addEventListener('click',e=>{
+  const ep=e.target.closest('[data-edit-pt]');if(ep){openPatientForm(patients.find(x=>x.id===ep.dataset.editPt));return;}
+  const dp=e.target.closest('[data-del-pt]');if(dp){if(!confirm('Supprimer ce patient ?'))return;patients=patients.filter(x=>x.id!==dp.dataset.delPt);save();renderPatients();return;}
+});
+document.getElementById('btnNewPatient')?.addEventListener('click',()=>openPatientForm(null));
+['patientCancelBtn','patientCancelBtn2'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{document.getElementById('patientFormPanel').style.display='none';editingPatientId=null;}));
+function openPatientForm(p=null){
+  editingPatientId=p?.id||null;
+  document.getElementById('patientFormTitle').textContent=p?'Modifier — '+p.name:'Nouveau patient';
+  document.getElementById('ptName').value=p?.name||'';
+  document.getElementById('ptId').value=p?.customId||'';
+  document.getElementById('ptStatus').value=p?.status||'stable';
+  document.getElementById('ptDoctor').value=p?.doctor||'';
+  document.getElementById('ptDate').value=p?.date||SCPIntranet.today();
+  document.getElementById('ptRoom').value=p?.room||'';
+  document.getElementById('ptDiag').value=p?.diagnosis||'';
+  document.getElementById('ptTreatment').value=p?.treatment||'';
+  const panel=document.getElementById('patientFormPanel');
+  panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('patientSaveBtn')?.addEventListener('click',()=>{
+  const name=document.getElementById('ptName').value.trim();
+  const diag=document.getElementById('ptDiag').value.trim();
+  const date=document.getElementById('ptDate').value;
+  if(!name||!diag||!date){alert('Nom, diagnostic et date requis.');return;}
+  const data={name,status:document.getElementById('ptStatus').value,doctor:document.getElementById('ptDoctor').value.trim(),date,room:document.getElementById('ptRoom').value.trim(),diagnosis:diag,treatment:document.getElementById('ptTreatment').value.trim(),customId:document.getElementById('ptId').value.trim()};
+  if(editingPatientId){const i=patients.findIndex(x=>x.id===editingPatientId);if(i!==-1)patients[i]={...patients[i],...data};}
+  else patients.push({id:SCPIntranet.genId('MED-PT'),...data,createdAt:new Date().toISOString()});
+  save();renderPatients();document.getElementById('patientFormPanel').style.display='none';editingPatientId=null;
+  SCPIntranet.addHistory('Patient enregistré: '+name);
+});
+
+// EVALS (shared logic)
+SCPIntranet.initEvalSliders();
+function renderEvals(){
+  const el=document.getElementById('evalList');if(!el)return;
+  SCPIntranet.updateStat('evalCount',evaluations.length+' évaluations');
+  if(!evaluations.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✦</div><div class="empty-text">Aucune évaluation</div></div>';return;}
+  const dec={promu:'✅ Promu',valide:'✔ Validé',avertissement:'⚠ Avertissement',recale:'❌ Recalé',expulse:'🚫 Expulsé'};
+  el.innerHTML=[...evaluations].reverse().map(ev=>{
+    const m=SCPIntranet.getEvalMention(ev.total);
+    return`<div class="card">
+      <div class="card-hdr"><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--white)">${ev.name}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:${m.color}">${ev.total}/60</div></div>
+      <div class="card-type">${ev.rank} — @${ev.username||'—'}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${m.color};text-transform:uppercase">${m.text}</div>
+      <div class="card-meta"><span>${dec[ev.decision]}</span><span>${ev.date}</span></div>
+      ${ev.comments?`<div class="card-excerpt">${ev.comments}</div>`:''}
+      <div class="card-acts">
+        <button class="btn btn-xs btn-dept" data-edit-ev="${ev.id}">✎</button>
+        <button class="btn btn-xs btn-danger" data-del-ev="${ev.id}">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('btnNewEval')?.addEventListener('click',()=>openEvalForm(null));
+['evalCancelBtn','evalCancelBtn2'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{document.getElementById('evalFormPanel').style.display='none';}));
+document.addEventListener('click',e=>{
+  const eb=e.target.closest('[data-edit-ev]');if(eb){openEvalForm(evaluations.find(x=>x.id===eb.dataset.editEv));return;}
+  const db=e.target.closest('[data-del-ev]');if(db){if(!confirm('Supprimer ?'))return;evaluations=evaluations.filter(x=>x.id!==db.dataset.delEv);save();renderEvals();return;}
+});
+function openEvalForm(ev=null){
+  document.getElementById('evalFormTitle').textContent=ev?'Modifier — '+ev.name:'Nouvelle évaluation';
+  document.getElementById('evalName').value=ev?.name||'';
+  document.getElementById('evalUser').value=ev?.username||'';
+  document.getElementById('evalRank').value=ev?.rank||'';
+  document.getElementById('evalAuthor').value=ev?.author||'';
+  document.getElementById('evalDate').value=ev?.date||SCPIntranet.today();
+  document.getElementById('evalDecision').value=ev?.decision||'valide';
+  document.getElementById('evalComments').value=ev?.comments||'';
+  SCPIntranet.EVAL_CRITERIA.forEach(k=>{const s=document.getElementById('score'+k);const v=document.getElementById('val'+k);if(s)s.value=ev?.scores?.[k]||5;if(v)v.textContent=ev?.scores?.[k]||5;});
+  SCPIntranet.updateEvalUI();editingEvalId=ev?.id||null;
+  const panel=document.getElementById('evalFormPanel');panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('evalSaveBtn')?.addEventListener('click',()=>{
+  const name=document.getElementById('evalName').value.trim();const author=document.getElementById('evalAuthor').value.trim();const date=document.getElementById('evalDate').value;
+  if(!name||!author||!date){alert('Champs requis.');return;}
+  const scores={};SCPIntranet.EVAL_CRITERIA.forEach(k=>scores[k]=parseInt(document.getElementById('score'+k).value));
+  const total=Object.values(scores).reduce((a,b)=>a+b,0);
+  const data={name,username:document.getElementById('evalUser').value.trim(),rank:document.getElementById('evalRank').value.trim(),author,date,decision:document.getElementById('evalDecision').value,comments:document.getElementById('evalComments').value.trim(),scores,total};
+  if(editingEvalId){const i=evaluations.findIndex(x=>x.id===editingEvalId);if(i!==-1)evaluations[i]={...evaluations[i],...data};}
+  else evaluations.push({id:SCPIntranet.genId('MED-EVAL'),...data,createdAt:new Date().toISOString()});
+  save();renderEvals();document.getElementById('evalFormPanel').style.display='none';editingEvalId=null;
+  SCPIntranet.addHistory('Évaluation: '+name);
+});
+
+// RAPPORTS
+function renderRapports(){
+  const el=document.getElementById('rapportList');if(!el)return;
+  let list=rapportFilter==='all'?rapports:rapports.filter(r=>r.type===rapportFilter);
+  SCPIntranet.updateStat('rapportCount',rapports.length+' rapports');
+  if(!list.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📋</div><div class="empty-text">Aucun rapport</div></div>';return;}
+  el.innerHTML=[...list].reverse().map(r=>{
+    const sev=SCPIntranet.getSevStyle(r.severity);
+    return`<div class="card">
+      <div class="card-hdr"><div class="card-id">${r.id}</div><div class="card-sev" style="color:${sev.color};border-color:${sev.color}">${sev.label}</div></div>
+      <div class="card-type">${r.type}</div>
+      <div class="card-title">${r.title}</div>
+      <div class="card-meta"><span>Dr. ${r.author}</span><span>${r.date}</span>${r.patient?`<span>Patient: ${r.patient}</span>`:''}</div>
+      <div class="card-excerpt">${r.description.substring(0,100)}…</div>
+      <div class="card-acts">
+        <button class="btn btn-xs btn-dept" data-edit-r="${r.id}">✎</button>
+        <button class="btn btn-xs btn-ghost" data-exp-r="${r.id}">⬇</button>
+        <button class="btn btn-xs btn-danger" data-del-r="${r.id}">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('rapportFilters')?.addEventListener('click',e=>{
+  const pill=e.target.closest('.pill');if(!pill)return;
+  document.querySelectorAll('#rapportFilters .pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active');rapportFilter=pill.dataset.rFilter;renderRapports();
+});
+document.addEventListener('click',e=>{
+  const eb=e.target.closest('[data-edit-r]');if(eb){openRapportForm(rapports.find(x=>x.id===eb.dataset.editR));return;}
+  const xb=e.target.closest('[data-exp-r]');if(xb){const r=rapports.find(x=>x.id===xb.dataset.expR);if(r)SCPIntranet.exportRapport(r);return;}
+  const db=e.target.closest('[data-del-r]');if(db){if(!confirm('Supprimer ?'))return;rapports=rapports.filter(x=>x.id!==db.dataset.delR);save();renderRapports();return;}
+});
+document.getElementById('btnNewRapport')?.addEventListener('click',()=>openRapportForm(null));
+['rapportCancelBtn','rapportCancelBtn2'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{document.getElementById('rapportFormPanel').style.display='none';editingRapportId=null;}));
+function openRapportForm(r=null){
+  editingRapportId=r?.id||null;
+  document.getElementById('rapportFormTitle').textContent=r?'Modifier — '+r.id:'Nouveau rapport';
+  document.getElementById('rTitle').value=r?.title||'';
+  document.getElementById('rType').value=r?.type||'incident';
+  document.getElementById('rSev').value=r?.severity||'moderate';
+  document.getElementById('rAuthor').value=r?.author||'';
+  document.getElementById('rPatient').value=r?.patient||'';
+  document.getElementById('rDate').value=r?.date||SCPIntranet.today();
+  document.getElementById('rDesc').value=r?.description||'';
+  document.getElementById('rConc').value=r?.conclusion||'';
+  const panel=document.getElementById('rapportFormPanel');panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('rapportSaveBtn')?.addEventListener('click',()=>{
+  const title=document.getElementById('rTitle').value.trim();const author=document.getElementById('rAuthor').value.trim();const desc=document.getElementById('rDesc').value.trim();const date=document.getElementById('rDate').value;
+  if(!title||!author||!desc||!date){alert('Champs requis.');return;}
+  const data={title,type:document.getElementById('rType').value,severity:document.getElementById('rSev').value,author,patient:document.getElementById('rPatient').value.trim(),date,description:desc,conclusion:document.getElementById('rConc').value.trim(),dept:'Département Médical'};
+  if(editingRapportId){const i=rapports.findIndex(x=>x.id===editingRapportId);if(i!==-1)rapports[i]={...rapports[i],...data};}
+  else rapports.push({id:SCPIntranet.genId('MED-RPT'),...data,createdAt:new Date().toISOString()});
+  save();renderRapports();document.getElementById('rapportFormPanel').style.display='none';editingRapportId=null;
+  SCPIntranet.addHistory('Rapport médical: '+title);
+});
+
+// INIT
+document.addEventListener('DOMContentLoaded',()=>{
+  SCPIntranet.initTabs('.nav-tab','view-');
+  SCPIntranet.initModalClose();
+  SCPIntranet.fillSelect('rSev',SCPIntranet.RAPPORT_SEV);
+  renderMorphs();renderProtocols();renderPatients();renderEvals();renderRapports();
+  updateStats();
+  SCPIntranet.addHistory('Intranet Médical chargé.');
+});
+</script>
+</body>
+</html>
