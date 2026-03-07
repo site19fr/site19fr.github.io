@@ -42,6 +42,55 @@
 .morph-preview { font-family:'Courier Prime',monospace; font-size:10px; color:var(--text-dim); background:var(--bg); padding:5px 8px; border:1px solid var(--border); margin-bottom:8px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 .copy-btn { width:100%; padding:5px; border:1px solid var(--border2); background:transparent; color:var(--text-dim); font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer; transition:all 0.2s; }
 .copy-btn:hover { border-color:var(--safe); color:var(--safe); }
+
+/* ── APPEL NOMINAL ── */
+.appel-stats-row { display:flex; gap:10px; flex-wrap:wrap; }
+.appel-stat { flex:1; min-width:80px; background:var(--surface2); border:1px solid var(--border); padding:10px 14px; text-align:center; }
+.appel-stat span { display:block; font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; line-height:1; }
+.appel-stat small { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; }
+.appel-stat--present { border-left:3px solid var(--safe); }
+.appel-stat--present span { color:var(--safe); }
+.appel-stat--absent { border-left:3px solid var(--danger); }
+.appel-stat--absent span { color:var(--danger); }
+.appel-stat--retard { border-left:3px solid var(--warn); }
+.appel-stat--retard span { color:var(--warn); }
+.appel-stat--nc { border-left:3px solid var(--border2); }
+.appel-stat--nc span { color:var(--text-dim); }
+.appel-progress-wrap { width:120px; height:6px; background:var(--surface2); border:1px solid var(--border); overflow:hidden; }
+.appel-progress-bar { height:100%; background:var(--accent); transition:width 0.3s; }
+.appel-agent-list { display:flex; flex-direction:column; gap:6px; }
+.appel-agent-row { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); padding:10px 14px; transition:all 0.2s; }
+.appel-agent-row:hover { background:var(--surface2); }
+.appel-agent-row.is-present { border-left:3px solid var(--safe); }
+.appel-agent-row.is-absent { border-left:3px solid var(--danger); }
+.appel-agent-row.is-retard { border-left:3px solid var(--warn); }
+.appel-agent-info { flex:1; min-width:0; }
+.appel-agent-name { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:var(--white); text-transform:uppercase; }
+.appel-agent-sub { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:1px; }
+.appel-agent-note { font-family:'Courier Prime',monospace; font-size:10px; color:var(--warn); margin-top:3px; font-style:italic; }
+.appel-btn-group { display:flex; gap:5px; flex-shrink:0; }
+.appel-status-btn { padding:4px 10px; border:1px solid var(--border2); background:transparent; font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; transition:all 0.2s; color:var(--text-dim); }
+.appel-status-btn:hover { border-color:var(--accent); color:var(--accent); }
+.appel-status-btn.active-present { border-color:var(--safe); color:var(--safe); background:rgba(0,230,118,0.08); }
+.appel-status-btn.active-absent { border-color:var(--danger); color:var(--danger); background:rgba(255,51,85,0.08); }
+.appel-status-btn.active-retard { border-color:var(--warn); color:var(--warn); background:rgba(255,170,0,0.08); }
+.appel-note-btn { padding:4px 8px; border:1px solid var(--border); background:transparent; font-family:'Share Tech Mono',monospace; font-size:9px; cursor:pointer; color:var(--text-dim); transition:all 0.2s; }
+.appel-note-btn:hover { border-color:var(--warn); color:var(--warn); }
+.appel-note-btn.has-note { color:var(--warn); border-color:var(--warn); }
+.appel-histo-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent2); padding:12px 16px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+.appel-histo-info { flex:1; }
+.appel-histo-title { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:var(--white); text-transform:uppercase; }
+.appel-histo-meta { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:2px; }
+.appel-histo-badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.appel-badge { font-family:'Share Tech Mono',monospace; font-size:9px; padding:2px 7px; border:1px solid; border-radius:2px; }
+.appel-badge--p { border-color:var(--safe); color:var(--safe); }
+.appel-badge--a { border-color:var(--danger); color:var(--danger); }
+.appel-badge--r { border-color:var(--warn); color:var(--warn); }
+.appel-badge--nc { border-color:var(--border2); color:var(--text-dim); }
+.appel-class-badge { font-family:'Share Tech Mono',monospace; font-size:8px; padding:1px 5px; border:1px solid; border-radius:1px; letter-spacing:0.08em; margin-right:4px; vertical-align:middle; }
+.appel-section-hdr { display:flex; justify-content:space-between; align-items:center; font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.14em; padding:8px 10px; background:var(--surface2); border:1px solid var(--border); border-left:3px solid; margin-bottom:4px; margin-top:10px; }
+.appel-section-hdr:first-child { margin-top:0; }
+.appel-section-count { color:var(--text-dim); }
 </style>
 </head>
 <body>
@@ -67,6 +116,7 @@
   <button class="nav-tab" data-view="morphs"><span class="nav-tab-icon">◈</span> Morphs</button>
   <button class="nav-tab" data-view="evaluations"><span class="nav-tab-icon">✦</span> Évaluations</button>
   <button class="nav-tab" data-view="rapports"><span class="nav-tab-icon">📋</span> Rapports</button>
+  <button class="nav-tab" data-view="appel"><span class="nav-tab-icon">📣</span> Appel Nominal</button>
 </nav>
 
 <div class="app-layout">
@@ -311,6 +361,165 @@
       <div class="modal-footer">
         <button class="btn btn-ghost btn-sm" data-close-modal="modalRapportView">Fermer</button>
         <button class="btn btn-primary btn-sm" id="rvExportBtn">⬇ Exporter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ▸ APPEL NOMINAL -->
+  <section class="view" id="view-appel">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-tag">// Contrôle de présence</div>
+        <div class="sec-title">APPEL <span>NOMINAL</span></div>
+        <div class="sec-sub" id="appelCount">Aucune session en cours</div>
+      </div>
+      <div class="sec-actions">
+        <button class="btn btn-primary btn-sm" id="btnNewAppel">+ Nouvelle session</button>
+        <button class="btn btn-ghost btn-sm" id="btnManageAgents">⚙ Agents</button>
+      </div>
+    </div>
+
+    <!-- Session active -->
+    <div id="appelSessionPanel" style="display:none">
+      <div class="form-panel" style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.14em">Session en cours</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--white);margin-top:2px" id="appelSessionTitle">—</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px" id="appelSessionMeta">—</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="appel-progress-wrap">
+              <div class="appel-progress-bar" id="appelProgressBar" style="width:0%"></div>
+            </div>
+            <span id="appelProgressText" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);white-space:nowrap">0/0</span>
+          </div>
+        </div>
+        <div class="appel-stats-row">
+          <div class="appel-stat appel-stat--present"><span id="acntPresent">0</span><small>Présents</small></div>
+          <div class="appel-stat appel-stat--absent"><span id="acntAbsent">0</span><small>Absents</small></div>
+          <div class="appel-stat appel-stat--retard"><span id="acntRetard">0</span><small>Retards</small></div>
+          <div class="appel-stat appel-stat--nc"><span id="acntNC">0</span><small>Non répondu</small></div>
+        </div>
+      </div>
+
+      <!-- Quick filters -->
+      <div class="filter-row" style="margin-bottom:12px" id="appelFilters">
+        <button class="pill active" data-appel-filter="all">Tous</button>
+        <button class="pill" data-appel-filter="nc">Non répondu</button>
+        <button class="pill" data-appel-filter="present">Présents</button>
+        <button class="pill" data-appel-filter="absent">Absents</button>
+        <button class="pill" data-appel-filter="retard">Retards</button>
+      </div>
+
+      <!-- Search -->
+      <div class="search-row" style="margin-bottom:12px">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" id="appelSearch" placeholder="Rechercher un agent…" autocomplete="off"/>
+        </div>
+      </div>
+
+      <div id="appelAgentList" class="appel-agent-list"></div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" id="appelMarkAllPresent">✓ Tous présents</button>
+        <button class="btn btn-ghost btn-sm" id="appelReset">↺ Réinitialiser</button>
+        <button class="btn btn-primary btn-sm" id="appelCloseSession">📋 Clôturer &amp; Exporter</button>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="appelEmptyState">
+      <div class="empty-state" style="margin-top:40px">
+        <div class="empty-icon">📣</div>
+        <div class="empty-text">Aucune session d'appel en cours<br><span style="font-size:10px;opacity:0.6">Démarrez une nouvelle session pour effectuer l'appel nominal</span></div>
+      </div>
+    </div>
+
+    <!-- Historique des sessions -->
+    <div id="appelHistoSection" style="margin-top:24px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px">Historique des sessions</div>
+      <div id="appelHistoList">
+        <div class="empty-state"><div class="empty-text" style="font-size:11px">Aucune session archivée</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal: Nouvelle session -->
+  <div class="modal-ov" id="modalNewAppel">
+    <div class="modal-box">
+      <div class="modal-hdr">
+        <div class="modal-title">Nouvelle session d'appel</div>
+        <button class="modal-close" data-close-modal="modalNewAppel">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-field full"><label>Titre de la session *</label><input id="appelTitle" type="text" placeholder="Ex: Appel — Rotation du soir"/></div>
+          <div class="form-field"><label>Responsable *</label><input id="appelResponsable" type="text" placeholder="Votre nom"/></div>
+          <div class="form-field"><label>Date *</label><input id="appelDate" type="date"/></div>
+          <div class="form-field">
+            <label>Type</label>
+            <select id="appelType">
+              <option value="rotation">Rotation</option>
+              <option value="urgence">Urgence</option>
+              <option value="formation">Formation</option>
+              <option value="exercice">Exercice</option>
+            </select>
+          </div>
+          <div class="form-field full"><label>Notes (optionnel)</label><input id="appelNotes" type="text" placeholder="Ex: Brèche en cours — présence obligatoire"/></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" data-close-modal="modalNewAppel">Annuler</button>
+        <button class="btn btn-primary btn-sm" id="appelStartBtn">▶ Démarrer l'appel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Gérer agents -->
+  <div class="modal-ov" id="modalAgents">
+    <div class="modal-box" style="max-width:520px">
+      <div class="modal-hdr">
+        <div class="modal-title">Gestion des agents</div>
+        <button class="modal-close" data-close-modal="modalAgents">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+          <input id="agentInputName" type="text" placeholder="Nom (ex: A.MAX)" class="search-input" style="flex:2;min-width:100px"/>
+          <input id="agentInputUser" type="text" placeholder="Username Roblox" class="search-input" style="flex:2;min-width:100px"/>
+          <input id="agentInputRank" type="text" placeholder="Grade (ex: [D.SE] Cadet)" class="search-input" style="flex:3;min-width:140px"/>
+          <button class="btn btn-primary btn-sm" id="agentAddBtn">+ Ajouter</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+          <button class="btn btn-ghost btn-sm" id="agentImportMorphBtn">⟳ Importer depuis Morphs</button>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)" id="agentImportInfo"></span>
+        </div>
+        <div id="agentMgmtList" style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger btn-sm" id="agentClearAll">🗑 Vider la liste</button>
+        <button class="btn btn-ghost btn-sm" data-close-modal="modalAgents">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Note absence -->
+  <div class="modal-ov" id="modalNote">
+    <div class="modal-box" style="max-width:380px">
+      <div class="modal-hdr">
+        <div class="modal-title" id="modalNoteTitle">Note — Agent</div>
+        <button class="modal-close" data-close-modal="modalNote">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field full">
+          <label>Motif / observation</label>
+          <textarea id="agentNoteInput" rows="3" placeholder="Ex: Permission accordée, urgence personnelle…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" data-close-modal="modalNote">Annuler</button>
+        <button class="btn btn-primary btn-sm" id="agentNoteSaveBtn">💾 Enregistrer</button>
       </div>
     </div>
   </div>
@@ -683,6 +892,412 @@ document.getElementById('rapportSaveBtn')?.addEventListener('click',()=>{
   SCPIntranet.addHistory('Rapport enregistré: '+title);
 });
 
+// ── APPEL NOMINAL ──
+let agents = SCPIntranet.store.get('sec_agents', []);
+let appelSessions = SCPIntranet.store.get('sec_appel_sessions', []);
+let currentAppel = null;
+let activeAppelFilter = 'all';
+let noteTargetAgentId = null;
+
+function saveAgents() { SCPIntranet.store.set('sec_agents', agents); }
+function saveAppelSessions() { SCPIntranet.store.set('sec_appel_sessions', appelSessions); }
+
+// ── Parse classe from grade tag ──
+// Ex: "[D.SE-SF] Agent de 1ère Classe" → { tag:"D.SE-SF", section:"SF", base:"D.SE" }
+function parseClasse(rank) {
+  if (!rank) return { tag: '—', section: '', base: '', label: '—', color: '#7090b0' };
+  const m = rank.match(/^\[([^\]]+)\]/);
+  if (!m) return { tag: rank.substring(0,15), section: '', base: '', label: rank.substring(0,15), color: '#7090b0' };
+  const tag = m[1]; // e.g. "D.SE-SF" or "D.SE-DIR." or "D.SE"
+  const parts = tag.split('-');
+  const base = parts[0]; // "D.SE"
+  const section = parts.slice(1).join('-') || ''; // "SF", "DSI", "BSI", "SC", "DIR.", ""
+
+  const SECTION_MAP = {
+    '':     { label: 'Standard',          color: '#4cc3ff' },
+    'SF':   { label: 'SF — Spéc. Forces', color: '#ffa500' },
+    'DSI':  { label: 'DSI — Int. Dept',   color: '#cc55ff' },
+    'BSI':  { label: 'BSI — Bureau Int.', color: '#cc55ff' },
+    'SC':   { label: 'SC — Sect. Chef',   color: '#00e676' },
+    'DIR':  { label: 'DIR — Direction',   color: '#ff3355' },
+    'DIR.': { label: 'DIR — Direction',   color: '#ff3355' },
+  };
+  const info = SECTION_MAP[section] || { label: section || 'Standard', color: '#4cc3ff' };
+  return { tag, section, base, label: info.label, color: info.color };
+}
+
+function classBadge(rank) {
+  const c = parseClasse(rank);
+  return `<span class="appel-class-badge" style="border-color:${c.color};color:${c.color}">[${c.tag}]</span>`;
+}
+
+// ── Render agent management list ──
+function renderAgentMgmt() {
+  const el = document.getElementById('agentMgmtList');
+  if (!el) return;
+  if (!agents.length) {
+    el.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--text-dim);padding:10px">Aucun agent enregistré. Utilisez le bouton « Importer depuis Morphs » pour charger automatiquement les agents.</div>';
+    return;
+  }
+  // Group by section
+  const grouped = {};
+  agents.forEach(a => {
+    const c = parseClasse(a.rank);
+    const key = c.section || 'STD';
+    if (!grouped[key]) grouped[key] = { info: c, list: [] };
+    grouped[key].list.push(a);
+  });
+  let html = '';
+  Object.entries(grouped).forEach(([key, g]) => {
+    html += `<div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${g.info.color};text-transform:uppercase;letter-spacing:0.12em;padding:6px 0 4px;border-bottom:1px solid var(--border);margin-bottom:6px">${g.info.label} (${g.list.length})</div>`;
+    g.list.forEach(a => {
+      html += `<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${g.info.color};padding:8px 12px;margin-bottom:4px">
+        <div style="flex:1">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--white);text-transform:uppercase">${a.name}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)">${a.username ? '@'+a.username+' · ' : ''}${a.rank||'—'}</div>
+        </div>
+        <button class="btn btn-xs btn-danger" data-del-agent="${a.id}">✕</button>
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
+// Import from MORPH_DATA
+document.getElementById('agentImportMorphBtn')?.addEventListener('click', () => {
+  if (!confirm('Importer tous les agents depuis la liste Morphs ? Les doublons (même username) seront ignorés.')) return;
+  let added = 0;
+  MORPH_DATA.forEach(m => {
+    if (!agents.find(a => a.username === m.username)) {
+      agents.push({ id: SCPIntranet.genId('AGT'), name: m.name, username: m.username, rank: m.rank });
+      added++;
+    }
+  });
+  saveAgents();
+  document.getElementById('agentImportInfo').textContent = `${added} agent(s) importé(s).`;
+  renderAgentMgmt();
+  SCPIntranet.addHistory(`Import Morphs: ${added} agent(s) ajouté(s).`);
+});
+
+document.getElementById('agentClearAll')?.addEventListener('click', () => {
+  if (!confirm('Vider toute la liste des agents ?')) return;
+  agents = []; saveAgents(); renderAgentMgmt();
+});
+
+document.getElementById('agentAddBtn')?.addEventListener('click', () => {
+  const name = document.getElementById('agentInputName').value.trim();
+  if (!name) return;
+  agents.push({ id: SCPIntranet.genId('AGT'), name, username: document.getElementById('agentInputUser').value.trim(), rank: document.getElementById('agentInputRank').value.trim() });
+  saveAgents();
+  document.getElementById('agentInputName').value = '';
+  document.getElementById('agentInputUser').value = '';
+  document.getElementById('agentInputRank').value = '';
+  renderAgentMgmt();
+  SCPIntranet.addHistory('Agent ajouté: ' + name);
+});
+
+document.getElementById('agentMgmtList')?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-del-agent]');
+  if (!btn) return;
+  if (!confirm('Supprimer cet agent ?')) return;
+  agents = agents.filter(a => a.id !== btn.dataset.delAgent);
+  saveAgents(); renderAgentMgmt();
+});
+
+document.getElementById('btnManageAgents')?.addEventListener('click', () => {
+  renderAgentMgmt();
+  SCPIntranet.openModal('modalAgents');
+});
+
+// ── Appel session entries ──
+function getEntry(agentId) {
+  return currentAppel?.entries.find(e => e.agentId === agentId) || { agentId, status: 'nc', note: '' };
+}
+function setEntry(agentId, status) {
+  if (!currentAppel) return;
+  const i = currentAppel.entries.findIndex(e => e.agentId === agentId);
+  if (i >= 0) currentAppel.entries[i].status = status;
+  else currentAppel.entries.push({ agentId, status, note: '' });
+  renderAppelSession();
+}
+function setEntryNote(agentId, note) {
+  if (!currentAppel) return;
+  const i = currentAppel.entries.findIndex(e => e.agentId === agentId);
+  if (i >= 0) currentAppel.entries[i].note = note;
+  else currentAppel.entries.push({ agentId, status: 'nc', note });
+}
+function appelCounts() {
+  const entries = currentAppel?.entries || [];
+  const present = entries.filter(e => e.status === 'present').length;
+  const absent = entries.filter(e => e.status === 'absent').length;
+  const retard = entries.filter(e => e.status === 'retard').length;
+  const nc = Math.max(0, agents.length - present - absent - retard);
+  return { present, absent, retard, nc };
+}
+
+function renderAppelSession() {
+  if (!currentAppel) return;
+  const counts = appelCounts();
+  document.getElementById('acntPresent').textContent = counts.present;
+  document.getElementById('acntAbsent').textContent = counts.absent;
+  document.getElementById('acntRetard').textContent = counts.retard;
+  document.getElementById('acntNC').textContent = counts.nc;
+  const responded = counts.present + counts.absent + counts.retard;
+  const pct = agents.length ? Math.round(responded / agents.length * 100) : 0;
+  document.getElementById('appelProgressBar').style.width = pct + '%';
+  document.getElementById('appelProgressText').textContent = responded + '/' + agents.length;
+
+  const search = (document.getElementById('appelSearch')?.value || '').toLowerCase();
+
+  // Filter agents
+  let list = agents.filter(a => {
+    if (search && !a.name.toLowerCase().includes(search) && !(a.username||'').toLowerCase().includes(search)) return false;
+    const status = getEntry(a.id).status;
+    if (activeAppelFilter !== 'all' && status !== activeAppelFilter) return false;
+    return true;
+  });
+
+  const el = document.getElementById('appelAgentList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="empty-text" style="font-size:11px">Aucun agent correspondant</div></div>'; return; }
+
+  // Group by section
+  const grouped = {};
+  list.forEach(a => {
+    const c = parseClasse(a.rank);
+    const key = c.section || 'STD';
+    if (!grouped[key]) grouped[key] = { info: c, list: [] };
+    grouped[key].list.push(a);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([key, g]) => {
+    const sectionAgents = g.list;
+    const sPresent = sectionAgents.filter(a => getEntry(a.id).status === 'present').length;
+    const sTotal = sectionAgents.length;
+    html += `<div class="appel-section-hdr" style="border-color:${g.info.color}">
+      <span style="color:${g.info.color}">${g.info.label}</span>
+      <span class="appel-section-count">${sPresent}/${sTotal} présents</span>
+    </div>`;
+    sectionAgents.forEach(a => {
+      const entry = getEntry(a.id);
+      const cls = parseClasse(a.rank);
+      html += `<div class="appel-agent-row ${entry.status !== 'nc' ? 'is-'+entry.status : ''}" style="${entry.status !== 'nc' ? '' : 'border-left:3px solid '+cls.color}">
+        <div class="appel-agent-info">
+          <div class="appel-agent-name">${classBadge(a.rank)} ${a.name}</div>
+          <div class="appel-agent-sub">${a.username ? '@'+a.username : ''}${a.rank ? ' · '+a.rank.replace(/^\[[^\]]+\]\s*/,'') : ''}</div>
+          ${entry.note ? `<div class="appel-agent-note">📝 ${entry.note}</div>` : ''}
+        </div>
+        <div class="appel-btn-group">
+          <button class="appel-status-btn ${entry.status==='present'?'active-present':''}" data-status-agent="${a.id}" data-status="present">✓ Présent</button>
+          <button class="appel-status-btn ${entry.status==='retard'?'active-retard':''}" data-status-agent="${a.id}" data-status="retard">⏱ Retard</button>
+          <button class="appel-status-btn ${entry.status==='absent'?'active-absent':''}" data-status-agent="${a.id}" data-status="absent">✕ Absent</button>
+          <button class="appel-note-btn ${entry.note?'has-note':''}" data-note-agent="${a.id}" title="Ajouter une note">📝</button>
+        </div>
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
+document.getElementById('appelAgentList')?.addEventListener('click', e => {
+  const sb = e.target.closest('[data-status-agent]');
+  if (sb) { setEntry(sb.dataset.statusAgent, sb.dataset.status); return; }
+  const nb = e.target.closest('[data-note-agent]');
+  if (nb) {
+    noteTargetAgentId = nb.dataset.noteAgent;
+    const agent = agents.find(a => a.id === noteTargetAgentId);
+    document.getElementById('modalNoteTitle').textContent = 'Note — ' + (agent?.name || '');
+    document.getElementById('agentNoteInput').value = getEntry(noteTargetAgentId).note || '';
+    SCPIntranet.openModal('modalNote');
+  }
+});
+
+document.getElementById('agentNoteSaveBtn')?.addEventListener('click', () => {
+  if (!noteTargetAgentId) return;
+  setEntryNote(noteTargetAgentId, document.getElementById('agentNoteInput').value.trim());
+  SCPIntranet.closeModal('modalNote');
+  noteTargetAgentId = null;
+  renderAppelSession();
+});
+
+document.getElementById('appelFilters')?.addEventListener('click', e => {
+  const pill = e.target.closest('.pill'); if (!pill) return;
+  document.querySelectorAll('#appelFilters .pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  activeAppelFilter = pill.dataset.appelFilter;
+  renderAppelSession();
+});
+
+document.getElementById('appelSearch')?.addEventListener('input', () => renderAppelSession());
+
+document.getElementById('appelMarkAllPresent')?.addEventListener('click', () => {
+  if (!currentAppel || !confirm('Marquer tous les agents comme présents ?')) return;
+  agents.forEach(a => {
+    const i = currentAppel.entries.findIndex(e => e.agentId === a.id);
+    if (i >= 0) currentAppel.entries[i].status = 'present';
+    else currentAppel.entries.push({ agentId: a.id, status: 'present', note: '' });
+  });
+  renderAppelSession();
+});
+
+document.getElementById('appelReset')?.addEventListener('click', () => {
+  if (!currentAppel || !confirm('Réinitialiser toutes les présences ?')) return;
+  currentAppel.entries = [];
+  renderAppelSession();
+});
+
+// ── Start session ──
+document.getElementById('btnNewAppel')?.addEventListener('click', () => {
+  document.getElementById('appelDate').value = SCPIntranet.today();
+  document.getElementById('appelTitle').value = '';
+  document.getElementById('appelResponsable').value = '';
+  document.getElementById('appelNotes').value = '';
+  SCPIntranet.openModal('modalNewAppel');
+});
+
+document.getElementById('appelStartBtn')?.addEventListener('click', () => {
+  const title = document.getElementById('appelTitle').value.trim();
+  const resp = document.getElementById('appelResponsable').value.trim();
+  const date = document.getElementById('appelDate').value;
+  if (!title || !resp || !date) { alert('Remplir les champs obligatoires.'); return; }
+  if (!agents.length) { alert('Aucun agent dans la liste. Ajoutez des agents via ⚙ Agents d\'abord.'); return; }
+  currentAppel = {
+    id: SCPIntranet.genId('APPEL'),
+    title, responsable: resp, date,
+    type: document.getElementById('appelType').value,
+    notes: document.getElementById('appelNotes').value.trim(),
+    entries: [], startedAt: new Date().toISOString(), closed: false
+  };
+  SCPIntranet.closeModal('modalNewAppel');
+  const typeLabel = document.getElementById('appelType').options[document.getElementById('appelType').selectedIndex].text;
+  document.getElementById('appelSessionTitle').textContent = title;
+  document.getElementById('appelSessionMeta').textContent = `${date} — ${resp} — ${typeLabel} — ${agents.length} agents`;
+  document.getElementById('appelSessionPanel').style.display = 'block';
+  document.getElementById('appelEmptyState').style.display = 'none';
+  document.getElementById('appelCount').textContent = `Session active: ${title} (${agents.length} agents)`;
+  renderAppelSession();
+  SCPIntranet.addHistory('Appel démarré: ' + title);
+});
+
+// ── Close & export ──
+document.getElementById('appelCloseSession')?.addEventListener('click', () => {
+  if (!currentAppel) return;
+  if (!confirm('Clôturer la session et exporter le rapport ?')) return;
+  currentAppel.closedAt = new Date().toISOString();
+  currentAppel.closed = true;
+  currentAppel.snapshot = agents.map(a => ({ ...a, entry: getEntry(a.id), classe: parseClasse(a.rank) }));
+  appelSessions.push(currentAppel);
+  saveAppelSessions();
+  exportAppelRapport(currentAppel);
+  currentAppel = null;
+  document.getElementById('appelSessionPanel').style.display = 'none';
+  document.getElementById('appelEmptyState').style.display = 'block';
+  document.getElementById('appelCount').textContent = 'Aucune session en cours';
+  renderAppelHistorique();
+  SCPIntranet.addHistory('Appel clôturé et exporté.');
+});
+
+function exportAppelRapport(session) {
+  const snap = session.snapshot || [];
+  // Group by section for export
+  const grouped = {};
+  snap.forEach(a => {
+    const key = a.classe?.section || 'STD';
+    const label = a.classe?.label || 'Standard';
+    if (!grouped[key]) grouped[key] = { label, list: [] };
+    grouped[key].list.push(a);
+  });
+  const statusIcon = { present:'✓', absent:'✕', retard:'⏱', nc:'?' };
+  const present = snap.filter(a => a.entry.status === 'present').length;
+  const absent = snap.filter(a => a.entry.status === 'absent').length;
+  const retard = snap.filter(a => a.entry.status === 'retard').length;
+  const nc = snap.filter(a => a.entry.status === 'nc').length;
+
+  const lines = [
+    '══════════════════════════════════════════',
+    'SCP FOUNDATION — SITE-19',
+    'RAPPORT D\'APPEL NOMINAL',
+    '══════════════════════════════════════════',
+    `ID SESSION    : ${session.id}`,
+    `TITRE         : ${session.title}`,
+    `TYPE          : ${session.type.toUpperCase()}`,
+    `DATE          : ${session.date}`,
+    `RESPONSABLE   : ${session.responsable}`,
+    `NOTES         : ${session.notes || '—'}`,
+    '══════════════════════════════════════════',
+    `TOTAL AGENTS  : ${snap.length}`,
+    `PRÉSENTS      : ${present}`,
+    `RETARDS       : ${retard}`,
+    `ABSENTS       : ${absent}`,
+    `NON RÉPONDUS  : ${nc}`,
+    `TAUX PRÉSENCE : ${snap.length ? Math.round((present+retard)/snap.length*100) : 0}%`,
+    '══════════════════════════════════════════',
+    '',
+  ];
+
+  Object.entries(grouped).forEach(([, g]) => {
+    const gPresent = g.list.filter(a => a.entry.status === 'present').length;
+    lines.push(`── ${g.label.toUpperCase()} (${gPresent}/${g.list.length}) ──`);
+    g.list.forEach(a => {
+      const icon = statusIcon[a.entry.status] || '?';
+      const noteStr = a.entry.note ? ` [${a.entry.note}]` : '';
+      lines.push(`  ${icon}  [${a.rank?.match(/^\[([^\]]+)\]/)?.[1]||'—'}] ${a.name}${a.username?' (@'+a.username+')':''}${noteStr}`);
+    });
+    lines.push('');
+  });
+
+  lines.push('══════════════════════════════════════════');
+  lines.push(`[Généré le ${new Date().toLocaleString('fr-FR')}]`);
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = session.id + '_appel_' + session.date + '.txt';
+  a.click();
+}
+
+// ── Historique ──
+function renderAppelHistorique() {
+  const el = document.getElementById('appelHistoList'); if (!el) return;
+  if (!appelSessions.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-text" style="font-size:11px">Aucune session archivée</div></div>';
+    return;
+  }
+  el.innerHTML = [...appelSessions].reverse().map(s => {
+    const snap = s.snapshot || [];
+    const p = snap.filter(a => a.entry.status === 'present').length;
+    const ab = snap.filter(a => a.entry.status === 'absent').length;
+    const r = snap.filter(a => a.entry.status === 'retard').length;
+    const nc = snap.filter(a => a.entry.status === 'nc').length;
+    const pct = snap.length ? Math.round((p+r)/snap.length*100) : 0;
+    return `<div class="appel-histo-card">
+      <div class="appel-histo-info">
+        <div class="appel-histo-title">${s.title}</div>
+        <div class="appel-histo-meta">${s.date} — ${s.responsable} — ${s.type} — ${snap.length} agents</div>
+        <div class="appel-histo-badges">
+          <span class="appel-badge appel-badge--p">✓ ${p} présents</span>
+          <span class="appel-badge appel-badge--r">⏱ ${r} retards</span>
+          <span class="appel-badge appel-badge--a">✕ ${ab} absents</span>
+          ${nc ? `<span class="appel-badge appel-badge--nc">? ${nc} N/R</span>` : ''}
+          <span class="appel-badge" style="border-color:var(--accent);color:var(--accent)">${pct}% présence</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-xs btn-ghost" data-reexport-appel="${s.id}">⬇ Export</button>
+        <button class="btn btn-xs btn-danger" data-del-appel="${s.id}">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('appelHistoList')?.addEventListener('click', e => {
+  const eb = e.target.closest('[data-reexport-appel]');
+  if (eb) { const s = appelSessions.find(x => x.id === eb.dataset.reexportAppel); if (s) exportAppelRapport(s); return; }
+  const db = e.target.closest('[data-del-appel]');
+  if (db) { if (!confirm('Supprimer cette session ?')) return; appelSessions = appelSessions.filter(x => x.id !== db.dataset.delAppel); saveAppelSessions(); renderAppelHistorique(); }
+});
+
+
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
   SCPIntranet.initTabs('.nav-tab','view-');
@@ -690,6 +1305,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   SCPIntranet.fillSelect('rType',SCPIntranet.RAPPORT_TYPES);
   SCPIntranet.fillSelect('rSev',SCPIntranet.RAPPORT_SEV);
   renderLRC();renderMorphs();renderProtocols();renderEvals();renderRapports();
+  renderAppelHistorique();
   updateStats();
   SCPIntranet.addHistory('Intranet Sécurité chargé.');
 });
