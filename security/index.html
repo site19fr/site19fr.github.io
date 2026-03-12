@@ -563,8 +563,152 @@
 </aside>
 </div>
 
-<script src="../shared.js"></script>
-<script>
+<script type="module">
+// ══════════════════════════════════════════
+// SHARED.JS — INLINE
+// ══════════════════════════════════════════
+const SCPIntranet = (() => {
+  const store = {
+    get: (key, fallback=[]) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
+    set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+  };
+  function addHistory(msg, containerId='historyList') {
+    const c = document.getElementById(containerId); if (!c) return;
+    const now = new Date();
+    const ts = `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}]`;
+    const div = document.createElement('div'); div.className = 'hline';
+    div.innerHTML = `<span class="hts">${ts}</span><span>${msg}</span>`;
+    c.prepend(div);
+    while (c.children.length > 30) c.removeChild(c.lastChild);
+  }
+  function initTabs(navSelector='.nav-tab', viewPrefix='view-') {
+    const tabs = document.querySelectorAll(navSelector);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(viewPrefix + tab.dataset.view);
+        if (target) target.classList.add('active');
+        addHistory('Vue: ' + tab.textContent.trim());
+      });
+    });
+  }
+  async function copyText(text, btn, label='Copié !') {
+    try {
+      if (navigator.clipboard) await navigator.clipboard.writeText(text);
+      else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+      if (btn) {
+        const orig = btn.textContent; btn.textContent = '✓ ' + label; btn.style.color = 'var(--safe)'; btn.style.borderColor = 'var(--safe)';
+        setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1500);
+      }
+      return true;
+    } catch { return false; }
+  }
+  function openModal(id) { document.getElementById(id)?.classList.add('open'); }
+  function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+  function initModalClose() {
+    document.addEventListener('click', e => {
+      if (e.target.dataset.closeModal) closeModal(e.target.dataset.closeModal);
+      if (e.target.classList.contains('modal-ov')) closeModal(e.target.id);
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-ov.open').forEach(m => m.classList.remove('open')); });
+  }
+  function genId(prefix='ID') { return prefix + '-' + Date.now().toString(36).toUpperCase(); }
+  function today() { return new Date().toISOString().split('T')[0]; }
+  function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString('fr-FR'); } catch { return d; } }
+  function updateStat(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+  const EVAL_CRITERIA = ['Disc','Proto','React','Comm','Hier','Comp'];
+  const EVAL_LABELS = { Disc:'Discipline', Proto:'Connaissance protocoles', React:'Réactivité', Comm:'Communication', Hier:'Respect hiérarchie', Comp:'Comportement' };
+  function getEvalMention(score, max=60) {
+    const p = score / max;
+    if (p >= 0.9) return { text:'EXCELLENT', color:'var(--safe)' };
+    if (p >= 0.75) return { text:'TRÈS BON', color:'var(--accent)' };
+    if (p >= 0.6) return { text:'SATISFAISANT', color:'var(--accent2)' };
+    if (p >= 0.45) return { text:'INSUFFISANT', color:'var(--warn)' };
+    return { text:'RECALÉ', color:'var(--danger)' };
+  }
+  function computeEvalTotal() { return EVAL_CRITERIA.reduce((s,k) => { const el = document.getElementById('score'+k); return s + (el ? parseInt(el.value) : 0); }, 0); }
+  function updateEvalUI() {
+    const total = computeEvalTotal();
+    const scoreEl = document.getElementById('evalTotalScore'); const mentionEl = document.getElementById('evalTotalMention');
+    if (scoreEl) scoreEl.textContent = total + ' / 60';
+    if (mentionEl) { const m = getEvalMention(total); mentionEl.textContent = '— ' + m.text; mentionEl.style.color = m.color; }
+  }
+  function initEvalSliders() {
+    EVAL_CRITERIA.forEach(k => {
+      const slider = document.getElementById('score'+k); const val = document.getElementById('val'+k);
+      if (!slider || !val) return;
+      slider.addEventListener('input', () => { val.textContent = slider.value; updateEvalUI(); });
+    });
+  }
+  const RAPPORT_TYPES = [
+    { value:'incident', label:'⚠ Incident' }, { value:'breach', label:'🔴 Brèche' },
+    { value:'personnel', label:'👤 Personnel' }, { value:'patrol', label:'🔒 Patrouille' },
+    { value:'test', label:'🧪 Test' }, { value:'disciplinary', label:'📋 Disciplinaire' },
+  ];
+  const RAPPORT_SEV = [
+    { value:'low', label:'FAIBLE', color:'var(--safe)' }, { value:'moderate', label:'MODÉRÉE', color:'var(--warn)' },
+    { value:'high', label:'ÉLEVÉE', color:'#e67e22' }, { value:'critical', label:'CRITIQUE', color:'var(--danger)' },
+  ];
+  function getSevStyle(val) { return RAPPORT_SEV.find(s => s.value === val) || RAPPORT_SEV[0]; }
+  function getTypeLabel(val) { return (RAPPORT_TYPES.find(t => t.value === val) || {}).label || val; }
+  function exportRapport(r) {
+    const sev = getSevStyle(r.severity); const typeLabel = getTypeLabel(r.type);
+    const text = [
+      '══════════════════════════════════════════',
+      'SCP FOUNDATION — SITE-19', typeLabel.toUpperCase(),
+      '══════════════════════════════════════════',
+      `ID              : ${r._id?.slice(-8)||'—'}`,
+      `DATE            : ${r.date}`,
+      `AUTEUR          : ${r.author}${r.username?' (@'+r.username+')':''}`,
+      `DÉPARTEMENT     : ${r.dept||'Département de la Sécurité'}`,
+      `SÉVÉRITÉ        : ${sev.label}`,
+      '══════════════════════════════════════════',
+      `TITRE : ${r.title}`,
+      '══════════════════════════════════════════',
+      '', 'DESCRIPTION :', r.description, '', 'CONCLUSION :', r.conclusion||'—',
+      '', `TÉMOINS : ${r.witnesses?.join(', ')||'—'}`,
+      '══════════════════════════════════════════',
+      `[Généré le ${new Date().toLocaleString('fr-FR')}]`,
+    ].join('\n');
+    const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = (r._id||'rapport') + '_' + r.title.replace(/[^a-z0-9]/gi,'_') + '.txt'; a.click();
+  }
+  function fillSelect(id, options) {
+    const el = document.getElementById(id); if (!el) return;
+    el.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  }
+  return { store, addHistory, initTabs, copyText, openModal, closeModal, initModalClose, genId, today, fmtDate, updateStat, EVAL_CRITERIA, EVAL_LABELS, getEvalMention, computeEvalTotal, updateEvalUI, initEvalSliders, RAPPORT_TYPES, RAPPORT_SEV, getSevStyle, getTypeLabel, exportRapport, fillSelect };
+})();
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc,
+  addDoc, updateDoc, deleteDoc, setDoc,
+  onSnapshot, query, orderBy, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAKnnxGUTpNWtkYetID8UwTp6cJgbcj9Kc",
+  authDomain: "scp-site19.firebaseapp.com",
+  projectId: "scp-site19",
+  storageBucket: "scp-site19.firebasestorage.app",
+  messagingSenderId: "245750946774",
+  appId: "1:245750946774:web:821944a85e207094b22277"
+});
+const db = getFirestore(app);
+
+// ── Helpers Firestore ──
+async function fbAdd(col, data)          { return await addDoc(collection(db, col), { ...data, createdAt: new Date().toISOString() }); }
+async function fbUpdate(col, id, data)   { await updateDoc(doc(db, col, id), data); }
+async function fbDelete(col, id)         { await deleteDoc(doc(db, col, id)); }
+function fbListen(col, cb) {
+  const q = query(collection(db, col), orderBy('createdAt', 'asc'));
+  return onSnapshot(q, snap => cb(snap.docs.map(d => ({ _id: d.id, ...d.data() }))));
+}
+
 const DEPT = 'security';
 const MORPH_DATA = [
   {name:'"ECHO"',username:'alcbasket',rank:'[D.SE-SF] Agent de 1ère Classe',date:'13/02/2026',command:`run team alcbasket Département de la Sécurité F & permntag alcbasket "ECHO" & permrtag alcbasket [D.SE-SF] Agent de 1ère Classe & permmorph alc reset & permhat alc Vest & permhat alc holster & permhat alc kneepads & permhat alc 11515337829,11515333598 & permhat alc 15081386107 & permhat alc helmet & permhat alc 15949578750 & permhat alc 4684658997 & permmorph alcbasket DSF Cadet & startergear alcbasket laser pistol & startergear alcbasket L4 & res alcbasket`},
@@ -594,19 +738,18 @@ const LRC_CODES=[
 ];
 
 // ── STATE ──
-let protocols = SCPIntranet.store.get('sec_protocols', []);
-let evaluations = SCPIntranet.store.get('sec_evals', []);
-let rapports = SCPIntranet.store.get('sec_rapports', []);
+let protocols   = [];
+let evaluations = [];
+let rapports    = [];
 let editingProtoId = null, editingEvalId = null, editingRapportId = null;
 let activeRapportFilter = 'all', activeEvalFilter = 'all', protoFilter = 'all';
 let currentRapport = null;
 
-function save() {
-  SCPIntranet.store.set('sec_protocols', protocols);
-  SCPIntranet.store.set('sec_evals', evaluations);
-  SCPIntranet.store.set('sec_rapports', rapports);
-  updateStats();
-}
+fbListen('sec_protocols',   d => { protocols   = d; renderProtocols(); updateStats(); });
+fbListen('sec_evals',       d => { evaluations = d; renderEvals();     updateStats(); });
+fbListen('sec_rapports',    d => { rapports    = d; renderRapports();  updateStats(); });
+
+function save() { updateStats(); }
 function updateStats() {
   SCPIntranet.updateStat('statProto', protocols.length);
   SCPIntranet.updateStat('statEval', evaluations.length);
@@ -689,12 +832,12 @@ function renderProtocols() {
           ${p.status ? `<span class="tag">${p.status}</span>` : ''}
         </div>
       </div>
-      <div class="item-meta">ID: ${p.id} · ${p.date}</div>
+      <div class="item-meta">ID: ${p._id?.slice(-6)||'—'} · ${p.date}</div>
       <div class="item-body">${p.content.substring(0,200)}${p.content.length>200?'…':''}</div>
       <div class="item-actions">
-        <button class="btn btn-xs btn-ghost" data-copy-p="${p.id}">⧉ Copier</button>
-        <button class="btn btn-xs btn-primary" data-edit-p="${p.id}">✎ Modifier</button>
-        <button class="btn btn-xs btn-danger" data-del-p="${p.id}">✕</button>
+        <button class="btn btn-xs btn-ghost" data-copy-p="${p._id}">⧉ Copier</button>
+        <button class="btn btn-xs btn-primary" data-edit-p="${p._id}">✎ Modifier</button>
+        <button class="btn btn-xs btn-danger" data-del-p="${p._id}">✕</button>
       </div>
     </div>
   `).join('');
@@ -707,17 +850,17 @@ document.getElementById('protoFilters')?.addEventListener('click', e => {
   protoFilter = pill.dataset.cat;
   renderProtocols();
 });
-document.addEventListener('click', e => {
+document.addEventListener('click', async e => {
   const cp = e.target.closest('[data-copy-p]');
-  if (cp) { const p = protocols.find(x=>x.id===cp.dataset.copyP); if(p) SCPIntranet.copyText(p.content, cp, 'Copié'); return; }
+  if (cp) { const p = protocols.find(x=>x._id===cp.dataset.copyP); if(p) SCPIntranet.copyText(p.content, cp, 'Copié'); return; }
   const ep = e.target.closest('[data-edit-p]');
-  if (ep) { openProtoModal(protocols.find(x=>x.id===ep.dataset.editP)); return; }
+  if (ep) { openProtoModal(protocols.find(x=>x._id===ep.dataset.editP)); return; }
   const dp = e.target.closest('[data-del-p]');
-  if (dp) { if(!confirm('Supprimer ce protocole ?')) return; protocols=protocols.filter(x=>x.id!==dp.dataset.delP); save(); renderProtocols(); SCPIntranet.addHistory('Protocole supprimé.'); return; }
+  if (dp) { if(!confirm('Supprimer ce protocole ?')) return; await fbDelete('sec_protocols', dp.dataset.delP); SCPIntranet.addHistory('Protocole supprimé.'); return; }
 });
 document.getElementById('btnNewProto')?.addEventListener('click', () => openProtoModal(null));
 function openProtoModal(p=null) {
-  editingProtoId = p?.id || null;
+  editingProtoId = p?._id || null;
   document.getElementById('protoModalTitle').textContent = p ? 'Modifier protocole' : 'Nouveau protocole';
   document.getElementById('pTitle').value = p?.title || '';
   document.getElementById('pCat').value = p?.category || 'urgent';
@@ -725,19 +868,20 @@ function openProtoModal(p=null) {
   document.getElementById('pContent').value = p?.content || '';
   SCPIntranet.openModal('modalProto');
 }
-document.getElementById('saveProtoBtn')?.addEventListener('click', () => {
+document.getElementById('saveProtoBtn')?.addEventListener('click', async () => {
   const title = document.getElementById('pTitle').value.trim();
   const content = document.getElementById('pContent').value.trim();
   if (!title || !content) { alert('Titre et contenu requis.'); return; }
   const data = { title, category: document.getElementById('pCat').value, status: document.getElementById('pStatus').value, content, date: SCPIntranet.fmtDate(SCPIntranet.today()) };
-  if (editingProtoId) { const i = protocols.findIndex(x=>x.id===editingProtoId); if(i!==-1) protocols[i]={...protocols[i],...data}; }
-  else protocols.push({ id: SCPIntranet.genId('PSEC'), ...data });
-  save(); renderProtocols(); SCPIntranet.closeModal('modalProto');
-  SCPIntranet.addHistory((editingProtoId?'Protocole modifié':'Nouveau protocole')+': '+title);
+  const wasEditing = !!editingProtoId;
+  if (editingProtoId) { await fbUpdate('sec_protocols', editingProtoId, data); }
+  else { await fbAdd('sec_protocols', data); }
+  editingProtoId = null;
+  SCPIntranet.closeModal('modalProto');
+  SCPIntranet.addHistory((wasEditing ? 'Protocole modifié' : 'Nouveau protocole') + ': ' + title);
 });
 
 // ── EVALUATIONS ──
-SCPIntranet.initEvalSliders();
 function renderEvals() {
   const el = document.getElementById('evalList'); if (!el) return;
   let list = activeEvalFilter==='all' ? evaluations : evaluations.filter(e=>e.decision===activeEvalFilter);
@@ -756,8 +900,8 @@ function renderEvals() {
       <div class="card-meta"><span>${dec[ev.decision]||ev.decision}</span><span>${ev.date}</span><span>Éval: ${ev.author}</span></div>
       ${ev.comments?`<div class="card-excerpt">${ev.comments}</div>`:''}
       <div class="card-acts">
-        <button class="btn btn-xs btn-primary" data-edit-ev="${ev.id}">✎</button>
-        <button class="btn btn-xs btn-danger" data-del-ev="${ev.id}">✕</button>
+        <button class="btn btn-xs btn-primary" data-edit-ev="${ev._id}">✎</button>
+        <button class="btn btn-xs btn-danger" data-del-ev="${ev._id}">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -767,16 +911,16 @@ document.getElementById('evalFilters')?.addEventListener('click', e => {
   document.querySelectorAll('#evalFilters .pill').forEach(p=>p.classList.remove('active'));
   pill.classList.add('active'); activeEvalFilter = pill.dataset.evalFilter; renderEvals();
 });
-document.addEventListener('click', e => {
+document.addEventListener('click', async e => {
   const eb = e.target.closest('[data-edit-ev]');
-  if (eb) { openEvalForm(evaluations.find(x=>x.id===eb.dataset.editEv)); return; }
+  if (eb) { openEvalForm(evaluations.find(x=>x._id===eb.dataset.editEv)); return; }
   const db = e.target.closest('[data-del-ev]');
-  if (db) { if(!confirm('Supprimer ?')) return; evaluations=evaluations.filter(x=>x.id!==db.dataset.delEv); save(); renderEvals(); return; }
+  if (db) { if(!confirm('Supprimer ?')) return; await fbDelete('sec_evals', db.dataset.delEv); return; }
 });
 document.getElementById('btnNewEval')?.addEventListener('click', () => openEvalForm(null));
 ['evalCancelBtn','evalCancelBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { document.getElementById('evalFormPanel').style.display='none'; editingEvalId=null; }));
 function openEvalForm(ev=null) {
-  editingEvalId = ev?.id || null;
+  editingEvalId = ev?._id || null;
   document.getElementById('evalFormTitle').textContent = ev ? 'Modifier — '+ev.name : 'Nouvelle évaluation';
   document.getElementById('evalName').value = ev?.name || '';
   document.getElementById('evalUser').value = ev?.username || '';
@@ -796,7 +940,7 @@ function openEvalForm(ev=null) {
   panel.style.display='block';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
-document.getElementById('evalSaveBtn')?.addEventListener('click', () => {
+document.getElementById('evalSaveBtn')?.addEventListener('click', async () => {
   const name = document.getElementById('evalName').value.trim();
   const author = document.getElementById('evalAuthor').value.trim();
   const date = document.getElementById('evalDate').value;
@@ -805,10 +949,9 @@ document.getElementById('evalSaveBtn')?.addEventListener('click', () => {
   SCPIntranet.EVAL_CRITERIA.forEach(k=>scores[k]=parseInt(document.getElementById('score'+k).value));
   const total=Object.values(scores).reduce((a,b)=>a+b,0);
   const data={name,username:document.getElementById('evalUser').value.trim(),rank:document.getElementById('evalRank').value.trim(),author,date,decision:document.getElementById('evalDecision').value,comments:document.getElementById('evalComments').value.trim(),scores,total};
-  if(editingEvalId){const i=evaluations.findIndex(x=>x.id===editingEvalId);if(i!==-1)evaluations[i]={...evaluations[i],...data};}
-  else evaluations.push({id:SCPIntranet.genId('EVAL'),...data,createdAt:new Date().toISOString()});
-  save();renderEvals();
-  document.getElementById('evalFormPanel').style.display='none';editingEvalId=null;
+  if(editingEvalId){ await fbUpdate('sec_evals', editingEvalId, data); }
+  else { await fbAdd('sec_evals', data); }
+  document.getElementById('evalFormPanel').style.display='none'; editingEvalId=null;
   SCPIntranet.addHistory('Évaluation enregistrée: '+name);
 });
 
@@ -821,15 +964,15 @@ function renderRapports() {
   el.innerHTML=[...list].reverse().map(r=>{
     const sev=SCPIntranet.getSevStyle(r.severity);
     return `<div class="card">
-      <div class="card-hdr"><div class="card-id">${r.id}</div><div class="card-sev" style="color:${sev.color};border-color:${sev.color}">${sev.label}</div></div>
+      <div class="card-hdr"><div class="card-id">${r._id?.slice(-6)||'—'}</div><div class="card-sev" style="color:${sev.color};border-color:${sev.color}">${sev.label}</div></div>
       <div class="card-type">${SCPIntranet.getTypeLabel(r.type)}</div>
       <div class="card-title">${r.title}</div>
       <div class="card-meta"><span>${r.author}</span><span>${r.date}</span>${r.lrc?`<span style="color:var(--warn)">CODE: ${r.lrc}</span>`:''}</div>
       <div class="card-excerpt">${r.description.substring(0,100)}${r.description.length>100?'…':''}</div>
       <div class="card-acts">
-        <button class="btn btn-xs btn-primary" data-view-r="${r.id}">📄 Voir</button>
-        <button class="btn btn-xs btn-ghost" data-exp-r="${r.id}">⬇</button>
-        <button class="btn btn-xs btn-danger" data-del-r="${r.id}">✕</button>
+        <button class="btn btn-xs btn-primary" data-view-r="${r._id}">📄 Voir</button>
+        <button class="btn btn-xs btn-ghost" data-exp-r="${r._id}">⬇</button>
+        <button class="btn btn-xs btn-danger" data-del-r="${r._id}">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -839,15 +982,15 @@ document.getElementById('rapportFilters')?.addEventListener('click',e=>{
   document.querySelectorAll('#rapportFilters .pill').forEach(p=>p.classList.remove('active'));
   pill.classList.add('active');activeRapportFilter=pill.dataset.rFilter;renderRapports();
 });
-document.addEventListener('click',e=>{
-  const vb=e.target.closest('[data-view-r]');if(vb){viewRapport(rapports.find(x=>x.id===vb.dataset.viewR));return;}
-  const eb=e.target.closest('[data-exp-r]');if(eb){const r=rapports.find(x=>x.id===eb.dataset.expR);if(r)SCPIntranet.exportRapport(r);return;}
-  const db=e.target.closest('[data-del-r]');if(db){if(!confirm('Supprimer ?'))return;rapports=rapports.filter(x=>x.id!==db.dataset.delR);save();renderRapports();return;}
+document.addEventListener('click', async e=>{
+  const vb=e.target.closest('[data-view-r]');if(vb){viewRapport(rapports.find(x=>x._id===vb.dataset.viewR));return;}
+  const eb=e.target.closest('[data-exp-r]');if(eb){const r=rapports.find(x=>x._id===eb.dataset.expR);if(r)SCPIntranet.exportRapport(r);return;}
+  const db=e.target.closest('[data-del-r]');if(db){if(!confirm('Supprimer ?'))return; await fbDelete('sec_rapports', db.dataset.delR); return;}
 });
 function viewRapport(r){
   if(!r)return;currentRapport=r;
   const sev=SCPIntranet.getSevStyle(r.severity);
-  document.getElementById('rvId').textContent=r.id;
+  document.getElementById('rvId').textContent=r._id?.slice(-8)||'—';
   document.getElementById('rvType').textContent=SCPIntranet.getTypeLabel(r.type);
   document.getElementById('rvTitle').textContent=r.title;
   document.getElementById('rvSev').textContent=sev.label;document.getElementById('rvSev').style.color=sev.color;
@@ -863,8 +1006,8 @@ document.getElementById('rvExportBtn')?.addEventListener('click',()=>{if(current
 document.getElementById('btnNewRapport')?.addEventListener('click',()=>openRapportForm(null));
 ['rapportCancelBtn','rapportCancelBtn2'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{document.getElementById('rapportFormPanel').style.display='none';editingRapportId=null;}));
 function openRapportForm(r=null){
-  editingRapportId=r?.id||null;
-  document.getElementById('rapportFormTitle').textContent=r?'Modifier — '+r.id:'Nouveau rapport';
+  editingRapportId=r?._id||null;
+  document.getElementById('rapportFormTitle').textContent=r?'Modifier — '+(r._id?.slice(-6)||'—'):'Nouveau rapport';
   document.getElementById('rTitle').value=r?.title||'';
   document.getElementById('rType').value=r?.type||'incident';
   document.getElementById('rSev').value=r?.severity||'moderate';
@@ -878,7 +1021,7 @@ function openRapportForm(r=null){
   const panel=document.getElementById('rapportFormPanel');
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
-document.getElementById('rapportSaveBtn')?.addEventListener('click',()=>{
+document.getElementById('rapportSaveBtn')?.addEventListener('click', async ()=>{
   const title=document.getElementById('rTitle').value.trim();
   const author=document.getElementById('rAuthor').value.trim();
   const desc=document.getElementById('rDesc').value.trim();
@@ -886,21 +1029,24 @@ document.getElementById('rapportSaveBtn')?.addEventListener('click',()=>{
   if(!title||!author||!desc||!date){alert('Remplir les champs obligatoires.');return;}
   const witnesses=document.getElementById('rWitnesses').value.trim().split(',').map(w=>w.trim()).filter(Boolean);
   const data={title,type:document.getElementById('rType').value,severity:document.getElementById('rSev').value,author,username:document.getElementById('rUser').value.trim(),date,description:desc,conclusion:document.getElementById('rConc').value.trim(),witnesses,lrc:document.getElementById('rLRC').value,dept:'Département de la Sécurité'};
-  if(editingRapportId){const i=rapports.findIndex(x=>x.id===editingRapportId);if(i!==-1)rapports[i]={...rapports[i],...data};}
-  else rapports.push({id:SCPIntranet.genId('SEC-RPT'),...data,createdAt:new Date().toISOString()});
-  save();renderRapports();document.getElementById('rapportFormPanel').style.display='none';editingRapportId=null;
+  if(editingRapportId){ await fbUpdate('sec_rapports', editingRapportId, data); }
+  else { await fbAdd('sec_rapports', data); }
+  document.getElementById('rapportFormPanel').style.display='none'; editingRapportId=null;
   SCPIntranet.addHistory('Rapport enregistré: '+title);
 });
 
 // ── APPEL NOMINAL ──
-let agents = SCPIntranet.store.get('sec_agents', []);
-let appelSessions = SCPIntranet.store.get('sec_appel_sessions', []);
+let agents = [];
+let appelSessions = [];
 let currentAppel = null;
 let activeAppelFilter = 'all';
 let noteTargetAgentId = null;
 
-function saveAgents() { SCPIntranet.store.set('sec_agents', agents); }
-function saveAppelSessions() { SCPIntranet.store.set('sec_appel_sessions', appelSessions); }
+fbListen('sec_agents',          d => { agents        = d; renderAgentMgmt(); if(currentAppel) renderAppelSession(); });
+fbListen('sec_appel_sessions',  d => { appelSessions = d; renderAppelHistorique(); });
+
+function saveAgents()       { /* Firebase */ }
+function saveAppelSessions(){ /* Firebase */ }
 
 // ── Parse classe from grade tag ──
 // Ex: "[D.SE-SF] Agent de 1ère Classe" → { tag:"D.SE-SF", section:"SF", base:"D.SE" }
@@ -956,7 +1102,7 @@ function renderAgentMgmt() {
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--white);text-transform:uppercase">${a.name}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)">${a.username ? '@'+a.username+' · ' : ''}${a.rank||'—'}</div>
         </div>
-        <button class="btn btn-xs btn-danger" data-del-agent="${a.id}">✕</button>
+        <button class="btn btn-xs btn-danger" data-del-agent="${a._id}">✕</button>
       </div>`;
     });
   });
@@ -964,44 +1110,40 @@ function renderAgentMgmt() {
 }
 
 // Import from MORPH_DATA
-document.getElementById('agentImportMorphBtn')?.addEventListener('click', () => {
+document.getElementById('agentImportMorphBtn')?.addEventListener('click', async () => {
   if (!confirm('Importer tous les agents depuis la liste Morphs ? Les doublons (même username) seront ignorés.')) return;
   let added = 0;
-  MORPH_DATA.forEach(m => {
+  for (const m of MORPH_DATA) {
     if (!agents.find(a => a.username === m.username)) {
-      agents.push({ id: SCPIntranet.genId('AGT'), name: m.name, username: m.username, rank: m.rank });
+      await fbAdd('sec_agents', { name: m.name, username: m.username, rank: m.rank });
       added++;
     }
-  });
-  saveAgents();
+  }
   document.getElementById('agentImportInfo').textContent = `${added} agent(s) importé(s).`;
-  renderAgentMgmt();
   SCPIntranet.addHistory(`Import Morphs: ${added} agent(s) ajouté(s).`);
 });
 
-document.getElementById('agentClearAll')?.addEventListener('click', () => {
+document.getElementById('agentClearAll')?.addEventListener('click', async () => {
   if (!confirm('Vider toute la liste des agents ?')) return;
-  agents = []; saveAgents(); renderAgentMgmt();
+  const snap = await getDocs(collection(db, 'sec_agents'));
+  for (const d of snap.docs) await fbDelete('sec_agents', d.id);
 });
 
-document.getElementById('agentAddBtn')?.addEventListener('click', () => {
+document.getElementById('agentAddBtn')?.addEventListener('click', async () => {
   const name = document.getElementById('agentInputName').value.trim();
   if (!name) return;
-  agents.push({ id: SCPIntranet.genId('AGT'), name, username: document.getElementById('agentInputUser').value.trim(), rank: document.getElementById('agentInputRank').value.trim() });
-  saveAgents();
+  await fbAdd('sec_agents', { name, username: document.getElementById('agentInputUser').value.trim(), rank: document.getElementById('agentInputRank').value.trim() });
   document.getElementById('agentInputName').value = '';
   document.getElementById('agentInputUser').value = '';
   document.getElementById('agentInputRank').value = '';
-  renderAgentMgmt();
   SCPIntranet.addHistory('Agent ajouté: ' + name);
 });
 
-document.getElementById('agentMgmtList')?.addEventListener('click', e => {
+document.getElementById('agentMgmtList')?.addEventListener('click', async e => {
   const btn = e.target.closest('[data-del-agent]');
   if (!btn) return;
   if (!confirm('Supprimer cet agent ?')) return;
-  agents = agents.filter(a => a.id !== btn.dataset.delAgent);
-  saveAgents(); renderAgentMgmt();
+  await fbDelete('sec_agents', btn.dataset.delAgent);
 });
 
 document.getElementById('btnManageAgents')?.addEventListener('click', () => {
@@ -1052,7 +1194,7 @@ function renderAppelSession() {
   // Filter agents
   let list = agents.filter(a => {
     if (search && !a.name.toLowerCase().includes(search) && !(a.username||'').toLowerCase().includes(search)) return false;
-    const status = getEntry(a.id).status;
+    const status = getEntry(a._id).status;
     if (activeAppelFilter !== 'all' && status !== activeAppelFilter) return false;
     return true;
   });
@@ -1072,14 +1214,14 @@ function renderAppelSession() {
   let html = '';
   Object.entries(grouped).forEach(([key, g]) => {
     const sectionAgents = g.list;
-    const sPresent = sectionAgents.filter(a => getEntry(a.id).status === 'present').length;
+    const sPresent = sectionAgents.filter(a => getEntry(a._id).status === 'present').length;
     const sTotal = sectionAgents.length;
     html += `<div class="appel-section-hdr" style="border-color:${g.info.color}">
       <span style="color:${g.info.color}">${g.info.label}</span>
       <span class="appel-section-count">${sPresent}/${sTotal} présents</span>
     </div>`;
     sectionAgents.forEach(a => {
-      const entry = getEntry(a.id);
+      const entry = getEntry(a._id);
       const cls = parseClasse(a.rank);
       html += `<div class="appel-agent-row ${entry.status !== 'nc' ? 'is-'+entry.status : ''}" style="${entry.status !== 'nc' ? '' : 'border-left:3px solid '+cls.color}">
         <div class="appel-agent-info">
@@ -1088,10 +1230,10 @@ function renderAppelSession() {
           ${entry.note ? `<div class="appel-agent-note">📝 ${entry.note}</div>` : ''}
         </div>
         <div class="appel-btn-group">
-          <button class="appel-status-btn ${entry.status==='present'?'active-present':''}" data-status-agent="${a.id}" data-status="present">✓ Présent</button>
-          <button class="appel-status-btn ${entry.status==='retard'?'active-retard':''}" data-status-agent="${a.id}" data-status="retard">⏱ Retard</button>
-          <button class="appel-status-btn ${entry.status==='absent'?'active-absent':''}" data-status-agent="${a.id}" data-status="absent">✕ Absent</button>
-          <button class="appel-note-btn ${entry.note?'has-note':''}" data-note-agent="${a.id}" title="Ajouter une note">📝</button>
+          <button class="appel-status-btn ${entry.status==='present'?'active-present':''}" data-status-agent="${a._id}" data-status="present">✓ Présent</button>
+          <button class="appel-status-btn ${entry.status==='retard'?'active-retard':''}" data-status-agent="${a._id}" data-status="retard">⏱ Retard</button>
+          <button class="appel-status-btn ${entry.status==='absent'?'active-absent':''}" data-status-agent="${a._id}" data-status="absent">✕ Absent</button>
+          <button class="appel-note-btn ${entry.note?'has-note':''}" data-note-agent="${a._id}" title="Ajouter une note">📝</button>
         </div>
       </div>`;
     });
@@ -1105,7 +1247,7 @@ document.getElementById('appelAgentList')?.addEventListener('click', e => {
   const nb = e.target.closest('[data-note-agent]');
   if (nb) {
     noteTargetAgentId = nb.dataset.noteAgent;
-    const agent = agents.find(a => a.id === noteTargetAgentId);
+    const agent = agents.find(a => a._id === noteTargetAgentId);
     document.getElementById('modalNoteTitle').textContent = 'Note — ' + (agent?.name || '');
     document.getElementById('agentNoteInput').value = getEntry(noteTargetAgentId).note || '';
     SCPIntranet.openModal('modalNote');
@@ -1133,9 +1275,9 @@ document.getElementById('appelSearch')?.addEventListener('input', () => renderAp
 document.getElementById('appelMarkAllPresent')?.addEventListener('click', () => {
   if (!currentAppel || !confirm('Marquer tous les agents comme présents ?')) return;
   agents.forEach(a => {
-    const i = currentAppel.entries.findIndex(e => e.agentId === a.id);
+    const i = currentAppel.entries.findIndex(e => e.agentId === a._id);
     if (i >= 0) currentAppel.entries[i].status = 'present';
-    else currentAppel.entries.push({ agentId: a.id, status: 'present', note: '' });
+    else currentAppel.entries.push({ agentId: a._id, status: 'present', note: '' });
   });
   renderAppelSession();
 });
@@ -1180,20 +1322,18 @@ document.getElementById('appelStartBtn')?.addEventListener('click', () => {
 });
 
 // ── Close & export ──
-document.getElementById('appelCloseSession')?.addEventListener('click', () => {
+document.getElementById('appelCloseSession')?.addEventListener('click', async () => {
   if (!currentAppel) return;
   if (!confirm('Clôturer la session et exporter le rapport ?')) return;
   currentAppel.closedAt = new Date().toISOString();
   currentAppel.closed = true;
-  currentAppel.snapshot = agents.map(a => ({ ...a, entry: getEntry(a.id), classe: parseClasse(a.rank) }));
-  appelSessions.push(currentAppel);
-  saveAppelSessions();
+  currentAppel.snapshot = agents.map(a => ({ ...a, entry: getEntry(a._id), classe: parseClasse(a.rank) }));
+  await fbAdd('sec_appel_sessions', currentAppel);
   exportAppelRapport(currentAppel);
   currentAppel = null;
   document.getElementById('appelSessionPanel').style.display = 'none';
   document.getElementById('appelEmptyState').style.display = 'block';
   document.getElementById('appelCount').textContent = 'Aucune session en cours';
-  renderAppelHistorique();
   SCPIntranet.addHistory('Appel clôturé et exporté.');
 });
 
@@ -1283,32 +1423,30 @@ function renderAppelHistorique() {
         </div>
       </div>
       <div style="display:flex;gap:6px">
-        <button class="btn btn-xs btn-ghost" data-reexport-appel="${s.id}">⬇ Export</button>
-        <button class="btn btn-xs btn-danger" data-del-appel="${s.id}">✕</button>
+        <button class="btn btn-xs btn-ghost" data-reexport-appel="${s._id}">⬇ Export</button>
+        <button class="btn btn-xs btn-danger" data-del-appel="${s._id}">✕</button>
       </div>
     </div>`;
   }).join('');
 }
 
-document.getElementById('appelHistoList')?.addEventListener('click', e => {
+document.getElementById('appelHistoList')?.addEventListener('click', async e => {
   const eb = e.target.closest('[data-reexport-appel]');
-  if (eb) { const s = appelSessions.find(x => x.id === eb.dataset.reexportAppel); if (s) exportAppelRapport(s); return; }
+  if (eb) { const s = appelSessions.find(x => x._id === eb.dataset.reexportAppel); if (s) exportAppelRapport(s); return; }
   const db = e.target.closest('[data-del-appel]');
-  if (db) { if (!confirm('Supprimer cette session ?')) return; appelSessions = appelSessions.filter(x => x.id !== db.dataset.delAppel); saveAppelSessions(); renderAppelHistorique(); }
+  if (db) { if (!confirm('Supprimer cette session ?')) return; await fbDelete('sec_appel_sessions', db.dataset.delAppel); }
 });
 
 
-// ── INIT ──
-document.addEventListener('DOMContentLoaded',()=>{
-  SCPIntranet.initTabs('.nav-tab','view-');
-  SCPIntranet.initModalClose();
-  SCPIntranet.fillSelect('rType',SCPIntranet.RAPPORT_TYPES);
-  SCPIntranet.fillSelect('rSev',SCPIntranet.RAPPORT_SEV);
-  renderLRC();renderMorphs();renderProtocols();renderEvals();renderRapports();
-  renderAppelHistorique();
-  updateStats();
-  SCPIntranet.addHistory('Intranet Sécurité chargé.');
-});
+// ── INIT — module runs after DOM is ready, no DOMContentLoaded needed ──
+SCPIntranet.initTabs('.nav-tab','view-');
+SCPIntranet.initModalClose();
+SCPIntranet.fillSelect('rType',SCPIntranet.RAPPORT_TYPES);
+SCPIntranet.fillSelect('rSev',SCPIntranet.RAPPORT_SEV);
+SCPIntranet.initEvalSliders();
+renderLRC(); renderMorphs();
+updateStats();
+SCPIntranet.addHistory('Intranet Sécurité chargé.');
 </script>
 </body>
 </html>
