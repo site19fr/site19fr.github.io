@@ -877,6 +877,182 @@
       font-size: 11px;
       letter-spacing: 0.1em;
     }
+
+    /* ── SERVER STATUS SECTION ── */
+    .server-status-section {
+      padding: 60px 40px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .status-panel { max-width: 1200px; margin: 0 auto; }
+    .status-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .status-panel-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-panel-title::before {
+      content: ''; display: inline-block; width: 20px; height: 1px; background: var(--accent);
+    }
+    .status-header-right { display: flex; align-items: center; gap: 16px; }
+    .status-live-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; letter-spacing: 0.2em; color: var(--safe);
+      border: 1px solid var(--safe); padding: 4px 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .live-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--safe);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .status-last-update {
+      font-family: 'Share Tech Mono', monospace; font-size: 10px;
+      color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    /* Main status bar */
+    .status-main-row {
+      display: grid; grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 28px;
+      padding: 22px 28px; background: var(--surface); border: 1px solid var(--border);
+      margin-bottom: 2px; position: relative; overflow: hidden;
+    }
+    @media (max-width: 700px) { .status-main-row { grid-template-columns: 1fr; } }
+    .status-main-row::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--safe); transition: background 0.8s;
+    }
+    .status-main-row.warning::before { background: var(--euclid); }
+    .status-main-row.danger::before  { background: var(--danger); }
+    .status-main-name {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700;
+      color: var(--white); text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .status-main-sub {
+      font-family: 'Share Tech Mono', monospace; font-size: 10px;
+      color: var(--text-dim); letter-spacing: 0.15em; margin-top: 4px;
+    }
+    .status-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .status-bar-label {
+      display: flex; justify-content: space-between;
+      font-family: 'Share Tech Mono', monospace; font-size: 10px;
+      color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .status-bar-track { height: 4px; background: var(--border); position: relative; overflow: hidden; }
+    .status-bar-fill {
+      height: 100%; background: var(--safe); transition: width 1.2s ease, background 0.8s;
+      position: relative;
+    }
+    .status-bar-fill::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+      width: 30px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.25));
+      animation: barShimmer 2s ease-in-out infinite;
+    }
+    @keyframes barShimmer { 0%,100%{opacity:0} 50%{opacity:1} }
+    .status-badge {
+      font-family: 'Share Tech Mono', monospace; font-size: 11px;
+      letter-spacing: 0.15em; padding: 6px 16px; border: 1px solid;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .status-badge.ok   { color: var(--safe);   border-color: var(--safe);   background: rgba(39,174,96,0.08); }
+    .status-badge.warn { color: var(--euclid); border-color: var(--euclid); background: rgba(230,126,34,0.08); }
+    .status-badge.crit { color: var(--danger); border-color: var(--danger); background: rgba(192,57,43,0.10); }
+    /* Metrics */
+    .status-metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-bottom: 2px;
+    }
+    @media (max-width: 900px) { .status-metrics { grid-template-columns: repeat(2, 1fr); } }
+    .metric-card {
+      background: var(--surface); border: 1px solid var(--border); padding: 20px 24px;
+      display: flex; flex-direction: column; gap: 6px;
+      position: relative; overflow: hidden; transition: border-color 0.3s;
+    }
+    .metric-card:hover { border-color: rgba(232,200,74,0.2); }
+    .metric-label {
+      font-family: 'Share Tech Mono', monospace; font-size: 9px;
+      letter-spacing: 0.25em; color: var(--text-dim); text-transform: uppercase;
+    }
+    .metric-value {
+      font-family: 'Share Tech Mono', monospace; font-size: 30px;
+      font-weight: 700; color: var(--white); line-height: 1; transition: color 0.5s;
+    }
+    .metric-value .mu { font-size: 13px; color: var(--text-dim); margin-left: 3px; }
+    .metric-trend {
+      font-family: 'Share Tech Mono', monospace; font-size: 10px;
+      color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .metric-trend.up { color: var(--safe); }
+    .metric-trend.down { color: var(--danger); }
+    .metric-trend.warn { color: var(--euclid); }
+    /* Bottom row */
+    .status-bottom-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    }
+    @media (max-width: 768px) { .status-bottom-row { grid-template-columns: 1fr; } }
+    /* Log */
+    .status-log { background: #050708; border: 1px solid var(--border); overflow: hidden; }
+    .status-log-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(232,200,74,0.03);
+    }
+    .log-title { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--accent); }
+    .log-count { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); }
+    .log-entries { padding: 4px 0; max-height: 200px; overflow-y: auto; }
+    .log-entries::-webkit-scrollbar { width: 3px; }
+    .log-entries::-webkit-scrollbar-thumb { background: var(--border); }
+    .log-entry {
+      display: grid; grid-template-columns: 78px 62px 1fr; gap: 12px;
+      padding: 6px 20px; font-family: 'Share Tech Mono', monospace; font-size: 11px;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      animation: logSlide 0.35s ease both;
+    }
+    .log-entry:hover { background: rgba(232,200,74,0.03); }
+    @keyframes logSlide { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+    .log-time { color: var(--text-dim); }
+    .log-sev { text-transform: uppercase; letter-spacing: 0.1em; }
+    .log-sev.ok   { color: var(--safe); }
+    .log-sev.warn { color: var(--euclid); }
+    .log-sev.crit { color: var(--danger); animation: blink 0.9s step-end infinite; }
+    .log-msg { color: var(--text); }
+    /* SCP containment list */
+    .scp-contain-panel { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
+    .scp-contain-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(232,200,74,0.03);
+    }
+    .scp-contain-title { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--accent); }
+    .scp-contain-stat { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); }
+    .scp-contain-list { display: flex; flex-direction: column; gap: 0; padding: 4px 0; max-height: 200px; overflow-y: auto; }
+    .scp-contain-list::-webkit-scrollbar { width: 3px; }
+    .scp-contain-list::-webkit-scrollbar-thumb { background: var(--border); }
+    .scp-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 20px; border-bottom: 1px solid rgba(255,255,255,0.02);
+      transition: background 0.2s;
+    }
+    .scp-row:hover { background: rgba(232,200,74,0.03); }
+    .scp-row-name { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--white); }
+    .scp-row-class { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); margin-top: 2px; }
+    .scp-tag {
+      font-family: 'Share Tech Mono', monospace; font-size: 9px;
+      letter-spacing: 0.15em; padding: 2px 9px; border: 1px solid;
+    }
+    .scp-tag.confined { color: var(--safe);   border-color: var(--safe); }
+    .scp-tag.partial  { color: var(--euclid); border-color: var(--euclid); }
+    .scp-tag.breach   { color: var(--danger); border-color: var(--danger); animation: blink 0.7s step-end infinite; }
   </style>
 </head>
 <body>
@@ -886,6 +1062,7 @@
     <div class="nav-logo">Site-19</div>
     <ul class="nav-links">
       <li><a href="#scps">Dossiers SCP</a></li>
+      <li><a href="#serveur">Serveur</a></li>
       <li><a href="#factions">Factions</a></li>
       <li><a href="#regles">Règles</a></li>
       <li><a href="#intranet">Intranet</a></li>
@@ -941,6 +1118,86 @@
     <div class="scroll-hint">
       <span>Défiler</span>
       <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ══ SERVER STATUS ══ -->
+  <section class="server-status-section" id="serveur">
+    <div class="status-panel">
+
+      <div class="status-panel-header">
+        <div class="status-panel-title">// STATUT SERVEUR EN DIRECT — SITE-19</div>
+        <div class="status-header-right">
+          <span class="status-last-update" id="statusLastUpdate">Actualisation…</span>
+          <div class="status-live-badge"><div class="live-dot"></div>LIVE</div>
+        </div>
+      </div>
+
+      <!-- Main containment bar -->
+      <div class="status-main-row" id="mainStatusRow">
+        <div>
+          <div class="status-main-name">SITE-19</div>
+          <div class="status-main-sub">ROBLOX ROLEPLAY SERVER — FR</div>
+        </div>
+        <div class="status-bar-wrap">
+          <div class="status-bar-label">
+            <span>STABILITÉ DE CONFINEMENT</span>
+            <span id="containPct">—</span>
+          </div>
+          <div class="status-bar-track">
+            <div class="status-bar-fill" id="containBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="status-badge ok" id="mainBadge">OPÉRATIONNEL</div>
+      </div>
+
+      <!-- 4 metrics -->
+      <div class="status-metrics">
+        <div class="metric-card">
+          <div class="metric-label">Joueurs connectés</div>
+          <div class="metric-value" id="mPlayers">—</div>
+          <div class="metric-trend" id="mPlayersTrend">↑ en ligne</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Agents Fondation</div>
+          <div class="metric-value" id="mFoundation">—</div>
+          <div class="metric-trend up" id="mFoundationTrend">actifs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">SCPs confinés</div>
+          <div class="metric-value" id="mContained">—<span class="mu" id="mContainedTotal">/8</span></div>
+          <div class="metric-trend" id="mContainedTrend">—</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Alertes actives</div>
+          <div class="metric-value" id="mAlerts">—</div>
+          <div class="metric-trend" id="mAlertsTrend">en cours</div>
+        </div>
+      </div>
+
+      <!-- Bottom: log + SCP list -->
+      <div class="status-bottom-row">
+
+        <!-- Event log -->
+        <div class="status-log">
+          <div class="status-log-header">
+            <span class="log-title">// JOURNAL DES ÉVÉNEMENTS</span>
+            <span class="log-count" id="logCount">0 entrées</span>
+          </div>
+          <div class="log-entries" id="logEntries"></div>
+        </div>
+
+        <!-- SCP containment -->
+        <div class="scp-contain-panel">
+          <div class="scp-contain-header">
+            <span class="scp-contain-title">// ÉTAT DE CONFINEMENT</span>
+            <span class="scp-contain-stat" id="scpStat">—</span>
+          </div>
+          <div class="scp-contain-list" id="scpList"></div>
+        </div>
+
+      </div>
+
     </div>
   </section>
 
@@ -1267,5 +1524,178 @@
       { text: '▶ MTF Nu-7 : DÉPLOYÉE', class: 't-output' },
     ];
   </script>
+  <script>
+  // ══════════════════════════════════════════════
+  // SERVER STATUS — LIVE GOOGLE SHEETS
+  // ══════════════════════════════════════════════
+  (function() {
+    const PUBLISHED_ID = '2PACX-1vSATfEkFObKU1P9lIYzIVMHKwsLGaU2uuUxQ-QDCmwbuPHoR4KXlNPrby7PVQyWVlk1yyyFeseclCCR';
+    const BASE_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSATfEkFObKU1P9lIYzIVMHKwsLGaU2uuUxQ-QDCmwbuPHoR4KXlNPrby7PVQyWVIk1yyyFeseclCCR/pub?output=csv`;
+    const REFRESH_MS = 15000; // 15 secondes
+
+    const $ = id => document.getElementById(id);
+
+    // ── Parse CSV simple (gère les guillemets)
+    function parseCSV(text) {
+      return text.trim().split('\n').map(line => {
+        const cols = [];
+        let cur = '', inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') { inQ = !inQ; }
+          else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+          else { cur += c; }
+        }
+        cols.push(cur.trim());
+        return cols;
+      });
+    }
+
+    // GID des feuilles (0 = première feuille, 1 = deuxième)
+    const GID_STATS   = 0;
+    const GID_JOURNAL = 1;
+
+    // ── Fetch avec cache-bust + proxy CORS
+    async function fetchSheet(gid) {
+      const sheetUrl = `${BASE_URL}&gid=${gid}`;
+      // Proxy CORS pour éviter les blocages navigateur
+      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}&_=${Date.now()}`;
+      const res = await fetch(proxy);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return parseCSV(await res.text());
+    }
+
+    // ── Render time
+    function nowStr() {
+      const d = new Date();
+      return `[${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}]`;
+    }
+
+    // ── Render metrics depuis feuille Stats
+    // Attendu : lignes  clé,valeur   (ex: joueurs,38)
+    function renderStats(rows) {
+      const map = {};
+      rows.forEach(r => { if (r[0]) map[r[0].toLowerCase().trim()] = r[1]?.trim() || ''; });
+
+      const players    = map['joueurs']    || '—';
+      const foundation = map['fondation']  || '—';
+      const alerts     = parseInt(map['alertes']) || 0;
+      const statut     = (map['statut'] || 'OPÉRATIONNEL').toUpperCase();
+
+      if ($('mPlayers')) $('mPlayers').textContent = players;
+      if ($('mPlayersTrend')) { $('mPlayersTrend').className = 'metric-trend up'; $('mPlayersTrend').textContent = '↑ connectés'; }
+      if ($('mFoundation')) $('mFoundation').textContent = foundation;
+      if ($('mAlerts')) {
+        const el = $('mAlerts');
+        el.textContent = alerts;
+        el.style.color = alerts === 0 ? 'var(--safe)' : alerts <= 2 ? 'var(--euclid)' : 'var(--danger)';
+      }
+      if ($('mAlertsTrend')) {
+        const t = $('mAlertsTrend');
+        t.className = 'metric-trend ' + (alerts === 0 ? 'up' : alerts <= 2 ? 'warn' : 'down');
+        t.textContent = alerts === 0 ? '✓ aucune alerte' : alerts + ' en cours';
+      }
+
+      // Contenu barre de confinement depuis statut
+      const isCrit = statut.includes('BRÈCHE') || statut.includes('BRECHE') || statut.includes('CRITIQUE');
+      const isWarn = statut.includes('ALERTE') || alerts > 0;
+      const pct = isCrit ? 72 : isWarn ? 87 : 96;
+      const bar = $('containBar');
+      const pctEl = $('containPct');
+      if (bar) {
+        bar.style.width = pct + '%';
+        bar.style.background = isCrit ? 'var(--danger)' : isWarn ? 'var(--euclid)' : 'var(--safe)';
+      }
+      if (pctEl) pctEl.textContent = pct + '%';
+
+      // Badge + main row
+      const row = $('mainStatusRow');
+      const badge = $('mainBadge');
+      if (row) { row.className = 'status-main-row' + (isCrit ? ' danger' : isWarn ? ' warning' : ''); }
+      if (badge) {
+        badge.className = 'status-badge ' + (isCrit ? 'crit' : isWarn ? 'warn' : 'ok');
+        badge.textContent = statut;
+      }
+
+      // Métrique SCPs confinés — masquée si pas de données SCP
+      if ($('mContained')) $('mContained').innerHTML = map['scps_confines'] ? map['scps_confines'] + '<span class="mu">/8</span>' : '—';
+    }
+
+    // ── Render journal depuis feuille Journal
+    // Attendu : heure, sévérité (INFO/ALERTE/CRITIQUE), message
+    function renderJournal(rows) {
+      const el = $('logEntries');
+      if (!el) return;
+      // Filtrer les lignes vides et ignorer header éventuel
+      const entries = rows.filter(r => r[2] && r[2].length > 1 && r[0].toLowerCase() !== 'heure');
+      if (entries.length === 0) {
+        el.innerHTML = '<div class="log-entry"><span class="log-time">—</span><span class="log-sev ok">INFO</span><span class="log-msg">Aucune entrée dans le journal.</span></div>';
+        return;
+      }
+      el.innerHTML = entries.map(r => {
+        const time = r[0] || '—';
+        const sevRaw = (r[1] || 'INFO').toUpperCase().trim();
+        const msg  = r[2] || '';
+        const sevClass = sevRaw === 'CRITIQUE' ? 'crit' : sevRaw === 'ALERTE' ? 'warn' : 'ok';
+        return `<div class="log-entry">
+          <span class="log-time">${time}</span>
+          <span class="log-sev ${sevClass}">${sevRaw}</span>
+          <span class="log-msg">${msg}</span>
+        </div>`;
+      }).join('');
+      const cnt = $('logCount');
+      if (cnt) cnt.textContent = entries.length + ' entrée' + (entries.length > 1 ? 's' : '');
+    }
+
+    // ── Indicateur d'état de connexion
+    function setConnectionState(ok, msg) {
+      const lu = $('statusLastUpdate');
+      if (!lu) return;
+      if (ok) {
+        lu.style.color = '';
+        lu.textContent = 'MÀJ ' + nowStr();
+      } else {
+        lu.style.color = 'var(--danger)';
+        lu.textContent = '⚠ ' + (msg || 'Erreur de connexion');
+      }
+    }
+
+    // ── Fetch + render
+    async function refresh() {
+      try {
+        const [statsRows, journalRows] = await Promise.all([
+          fetchSheet(GID_STATS),
+          fetchSheet(GID_JOURNAL),
+        ]);
+        renderStats(statsRows);
+        renderJournal(journalRows);
+        setConnectionState(true);
+      } catch (err) {
+        console.warn('[SCP Status] Erreur fetch:', err);
+        setConnectionState(false, 'Sheet inaccessible — vérifier le partage');
+      }
+    }
+
+    // ── Init
+    function init() {
+      // Afficher état de chargement
+      const lu = $('statusLastUpdate');
+      if (lu) lu.textContent = 'Connexion au Sheet…';
+      const logEl = $('logEntries');
+      if (logEl) logEl.innerHTML = '<div class="log-entry"><span class="log-time">…</span><span class="log-sev ok">INFO</span><span class="log-msg">Chargement du journal…</span></div>';
+
+      refresh();
+      setInterval(refresh, REFRESH_MS);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
 </body>
 </html>
+
+
