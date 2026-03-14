@@ -850,6 +850,9 @@ function showApp(name, role) {
   const isAdmin = role === 'admin';
   document.getElementById('adminTab').style.display = isAdmin ? '' : 'none';
   document.getElementById('deleteBtn').style.display = isAdmin ? '' : 'none';
+  // Masquer la gestion des départements roster si rôle insuffisant
+  const deptMgr = document.getElementById('rosterDeptManager');
+  if (deptMgr) deptMgr.style.display = canEditRoster(role) ? '' : 'none';
   document.getElementById('fDate').value = today();
   toggleDuration();
   if (role === 'admin') loadUsers();
@@ -1233,6 +1236,11 @@ const ROSTER_SEED = {
   }
 };
 
+// Rôles autorisés à modifier les rosters
+function canEditRoster(role) {
+  return ['admin', 'responsable'].includes(role || currentRole);
+}
+
 // ── Chargement Firebase (onSnapshot) ──
 function startRosterListen() {
   if (unsubRoster) { unsubRoster(); unsubRoster = null; }
@@ -1298,7 +1306,7 @@ function renderRosterPanels() {
   panelsEl.innerHTML = depts.map(d => `
     <div class="roster-dept-panel ${d.id === activeDeptId ? 'active' : ''}" id="roster-panel-${d.id}">
       ${renderAgentCards(d)}
-      ${renderAddAgentForm(d.id)}
+      ${canEditRoster() ? renderAddAgentForm(d.id) : ''}
     </div>`).join('');
 }
 
@@ -1321,8 +1329,8 @@ function renderAgentCards(dept) {
       <div class="roster-command-preview" title="Cliquer pour voir la commande complète" onclick="toggleCommandFull('${dept.id}','${a.id}')" id="cmdprev-${dept.id}-${a.id}">${escR(a.command).substring(0,110)}…</div>
       <div class="roster-card-actions">
         <button class="roster-copy-btn" data-copy-dept="${dept.id}" data-copy-agent="${a.id}">⧉ Copier morph</button>
-        <button class="roster-edit-btn" data-edit-dept="${dept.id}" data-edit-agent="${a.id}">✏ Modifier</button>
-        <button class="roster-del-btn" data-del-dept="${dept.id}" data-del-agent="${a.id}" title="Supprimer">🗑</button>
+        ${canEditRoster() ? `<button class="roster-edit-btn" data-edit-dept="${dept.id}" data-edit-agent="${a.id}">✏ Modifier</button>` : ''}
+        ${canEditRoster() ? `<button class="roster-del-btn" data-del-dept="${dept.id}" data-del-agent="${a.id}" title="Supprimer">🗑</button>` : ''}
       </div>
     </div>
     <div class="roster-edit-form" id="editform-${dept.id}-${a.id}" style="display:none;">
@@ -1398,6 +1406,7 @@ window.toggleCommandFull = function(deptId, agentId) {
 
 // ── Ajouter un département ──
 window.addDept = function() {
+  if (!canEditRoster()) return;
   const name  = document.getElementById('newDeptName').value.trim();
   const icon  = document.getElementById('newDeptIcon').value.trim() || '📁';
   const color = document.getElementById('newDeptColor').value || '#888888';
@@ -1412,6 +1421,7 @@ window.addDept = function() {
 
 // ── Supprimer un département ──
 function deleteDept(deptId) {
+  if (!canEditRoster()) return;
   const dept = rosterData[deptId];
   if (!dept) return;
   if (!confirm(`Supprimer le département "${dept.name}" et ses ${dept.agents?.length || 0} agents ?`)) return;
@@ -1423,6 +1433,7 @@ function deleteDept(deptId) {
 
 // ── Ajouter un agent ──
 function addAgent(deptId) {
+  if (!canEditRoster()) return;
   const g = s => document.getElementById(s)?.value.trim() || '';
   const name    = g(`new-name-${deptId}`);
   const username= g(`new-user-${deptId}`);
@@ -1463,6 +1474,7 @@ function closeEditForm(deptId, agentId) {
 
 // ── Sauvegarder édition agent ──
 function saveAgent(deptId, agentId) {
+  if (!canEditRoster()) return;
   const dept = rosterData[deptId];
   if (!dept) return;
   const agent = dept.agents?.find(a => a.id === agentId);
@@ -1482,6 +1494,7 @@ function saveAgent(deptId, agentId) {
 
 // ── Supprimer un agent ──
 function deleteAgent(deptId, agentId) {
+  if (!canEditRoster()) return;
   const dept = rosterData[deptId];
   if (!dept) return;
   const agent = dept.agents?.find(a => a.id === agentId);
