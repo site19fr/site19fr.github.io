@@ -130,6 +130,29 @@
     .confirm-zone strong { display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.15em; }
     .loading-spinner { text-align:center; padding:32px; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:0.15em; animation:blink 1s step-end infinite; }
 
+    /* ── SERVER STATUS WIDGET ── */
+    .server-widget { background:var(--surface2); border:1px solid rgba(76,195,255,0.25); border-top:2px solid #4cc3ff; padding:20px; margin-bottom:24px; }
+    .server-widget-title { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; color:#4cc3ff; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid rgba(76,195,255,0.15); }
+    .server-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .server-state-display { display:flex; align-items:center; gap:12px; }
+    .srv-dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; transition:all 0.4s; }
+    .srv-dot.open   { background:var(--safe);   box-shadow:0 0 10px rgba(0,230,118,0.5); animation:srv-pulse 2s infinite; }
+    .srv-dot.closed { background:var(--danger); box-shadow:0 0 8px rgba(192,57,43,0.4); }
+    @keyframes srv-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    .srv-label { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; transition:color 0.3s; }
+    .srv-label.open   { color:var(--safe); }
+    .srv-label.closed { color:var(--danger); }
+    .srv-meta { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:3px; letter-spacing:0.1em; }
+    .srv-btn { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; padding:10px 22px; border:1px solid; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+    .srv-btn.to-open  { color:var(--safe);   border-color:var(--safe);   background:rgba(0,230,118,0.07); }
+    .srv-btn.to-open:hover  { background:rgba(0,230,118,0.18); }
+    .srv-btn.to-close { color:var(--danger); border-color:var(--danger); background:rgba(192,57,43,0.07); }
+    .srv-btn.to-close:hover { background:rgba(192,57,43,0.18); }
+    .srv-reason-row { display:flex; gap:8px; margin-top:14px; }
+    .srv-reason-row input { flex:1; background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:11px; padding:8px 12px; outline:none; }
+    .srv-reason-row input:focus { border-color:#4cc3ff; }
+    .srv-reason-row input::placeholder { color:var(--text-dim); }
+
     /* ── ADMIN ── */
     .admin-section { background:var(--surface2); border:1px solid rgba(192,57,43,0.3); border-top:2px solid var(--danger); padding:20px; margin-bottom:24px; }
     .admin-section-title { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--danger); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid rgba(192,57,43,0.2); }
@@ -320,6 +343,26 @@
           <div class="sec-title">GESTION <span>COMPTES</span></div>
         </div>
       </div>
+
+      <!-- STATUT SERVEUR -->
+      <div class="server-widget">
+        <div class="server-widget-title">🖥 Statut du Serveur Roblox</div>
+        <div class="server-toggle-row">
+          <div class="server-state-display">
+            <div class="srv-dot closed" id="srvDot"></div>
+            <div>
+              <div class="srv-label closed" id="srvLabel">CHARGEMENT…</div>
+              <div class="srv-meta" id="srvMeta">—</div>
+            </div>
+          </div>
+          <button class="srv-btn to-open" id="srvBtn" onclick="toggleServer()">Chargement…</button>
+        </div>
+        <div class="srv-reason-row">
+          <input type="text" id="srvReason" placeholder="Raison optionnelle (ex: Maintenance, Événement spécial…)" maxlength="120"/>
+          <button class="btn btn-ghost btn-sm" onclick="toggleServer()">✓ Appliquer</button>
+        </div>
+      </div>
+
       <div class="admin-section">
         <div class="admin-section-title">⚙ Créer un compte modérateur</div>
         <div class="form-grid">
@@ -468,6 +511,51 @@ let currentRole = null;
 let currentPage = 1;
 let activeDocId = null;
 let unsubscribe = null;
+let unsubServer  = null;
+let serverStatus = { open: false };
+
+// ── SERVER STATUS LISTENER ──
+function startServerListen() {
+  unsubServer = onSnapshot(doc(db, 'server_status', 'current'), snap => {
+    serverStatus = snap.exists() ? snap.data() : { open: false, reason: '', updatedBy: '—', updatedAt: '' };
+    renderServerWidget();
+  });
+}
+
+function renderServerWidget() {
+  const isOpen = !!serverStatus.open;
+  const dot   = document.getElementById('srvDot');
+  const label = document.getElementById('srvLabel');
+  const meta  = document.getElementById('srvMeta');
+  const btn   = document.getElementById('srvBtn');
+  if (!dot) return;
+  dot.className   = 'srv-dot '   + (isOpen ? 'open'   : 'closed');
+  label.className = 'srv-label ' + (isOpen ? 'open'   : 'closed');
+  label.textContent = isOpen ? '⬤ OUVERT' : '⬤ FERMÉ';
+  const parts = [];
+  if (serverStatus.reason)    parts.push(serverStatus.reason);
+  if (serverStatus.updatedBy) parts.push('par ' + serverStatus.updatedBy);
+  if (serverStatus.updatedAt) parts.push(new Date(serverStatus.updatedAt).toLocaleString('fr-FR'));
+  meta.textContent = parts.join(' · ') || '—';
+  btn.className   = 'srv-btn ' + (isOpen ? 'to-close' : 'to-open');
+  btn.textContent = isOpen ? '🔒 Fermer le serveur' : '🔓 Ouvrir le serveur';
+}
+
+window.toggleServer = async function() {
+  if (currentRole !== 'admin') return;
+  const snap = await getDoc(doc(db, 'users', currentUser.uid));
+  const name = snap.exists() ? (snap.data().name || currentUser.email) : currentUser.email;
+  const newOpen = !serverStatus.open;
+  const reason  = document.getElementById('srvReason')?.value.trim() || '';
+  await setDoc(doc(db, 'server_status', 'current'), {
+    open: newOpen,
+    reason,
+    updatedBy: name,
+    updatedAt: new Date().toISOString(),
+  });
+  document.getElementById('srvReason').value = '';
+  SCPIntranet.addHistory('Serveur ' + (newOpen ? 'OUVERT' : 'FERMÉ') + (reason ? ' — ' + reason : ''));
+};
 const PAGE_SIZE = 10;
 
 // ── AUTH STATE ──
@@ -484,9 +572,11 @@ onAuthStateChanged(auth, async user => {
       showApp(user.email, 'moderateur');
     }
     startListen();
+    startServerListen();
   } else {
     currentUser = null; currentRole = null;
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (unsubServer)  { unsubServer();  unsubServer  = null; }
     showLogin();
   }
 });

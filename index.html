@@ -1524,178 +1524,90 @@
       { text: '▶ MTF Nu-7 : DÉPLOYÉE', class: 't-output' },
     ];
   </script>
-  <script>
+  <script type="module">
   // ══════════════════════════════════════════════
-  // SERVER STATUS — LIVE GOOGLE SHEETS
+  // SERVER STATUS — FIREBASE REALTIME
   // ══════════════════════════════════════════════
-  (function() {
-    const PUBLISHED_ID = '2PACX-1vSATfEkFObKU1P9lIYzIVMHKwsLGaU2uuUxQ-QDCmwbuPHoR4KXlNPrby7PVQyWVlk1yyyFeseclCCR';
-    const BASE_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSATfEkFObKU1P9lIYzIVMHKwsLGaU2uuUxQ-QDCmwbuPHoR4KXlNPrby7PVQyWVIk1yyyFeseclCCR/pub?output=csv`;
-    const REFRESH_MS = 15000; // 15 secondes
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const $ = id => document.getElementById(id);
+  const app = initializeApp({
+    apiKey: "AIzaSyAKnnxGUTpNWtkYetID8UwTp6cJgbcj9Kc",
+    authDomain: "scp-site19.firebaseapp.com",
+    projectId: "scp-site19",
+    storageBucket: "scp-site19.firebasestorage.app",
+    messagingSenderId: "245750946774",
+    appId: "1:245750946774:web:821944a85e207094b22277"
+  });
+  const db = getFirestore(app);
+  const $ = id => document.getElementById(id);
 
-    // ── Parse CSV simple (gère les guillemets)
-    function parseCSV(text) {
-      return text.trim().split('\n').map(line => {
-        const cols = [];
-        let cur = '', inQ = false;
-        for (let i = 0; i < line.length; i++) {
-          const c = line[i];
-          if (c === '"') { inQ = !inQ; }
-          else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-          else { cur += c; }
-        }
-        cols.push(cur.trim());
-        return cols;
-      });
+  function nowStr() {
+    const d = new Date();
+    return `[${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}]`;
+  }
+
+  function applyStatus(data) {
+    const isOpen = data?.open ?? false;
+    const reason = data?.reason || '';
+    const updatedBy = data?.updatedBy || '—';
+    const updatedAt = data?.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '—';
+
+    // Badge principal
+    const badge = $('mainBadge');
+    if (badge) {
+      badge.className = 'status-badge ' + (isOpen ? 'ok' : 'crit');
+      badge.textContent = isOpen ? 'OUVERT' : 'FERMÉ';
     }
 
-    // GID des feuilles (0 = première feuille, 1 = deuxième)
-    const GID_STATS   = 0;
-    const GID_JOURNAL = 1;
+    // Barre principale
+    const row = $('mainStatusRow');
+    if (row) row.className = 'status-main-row' + (isOpen ? '' : ' danger');
 
-    // ── Fetch avec cache-bust + proxy CORS
-    async function fetchSheet(gid) {
-      const sheetUrl = `${BASE_URL}&gid=${gid}`;
-      // Proxy CORS pour éviter les blocages navigateur
-      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}&_=${Date.now()}`;
-      const res = await fetch(proxy);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return parseCSV(await res.text());
+    // Barre de confinement
+    const bar = $('containBar');
+    const pctEl = $('containPct');
+    const pct = isOpen ? 96 : 15;
+    if (bar) { bar.style.width = pct + '%'; bar.style.background = isOpen ? 'var(--safe)' : 'var(--danger)'; }
+    if (pctEl) pctEl.textContent = pct + '%';
+
+    // Métriques
+    if ($('mPlayers'))     $('mPlayers').textContent = isOpen ? '●' : '—';
+    if ($('mPlayersTrend')) { $('mPlayersTrend').className = 'metric-trend ' + (isOpen ? 'up' : 'down'); $('mPlayersTrend').textContent = isOpen ? '↑ en ligne' : '● hors ligne'; }
+    if ($('mAlerts'))      { $('mAlerts').textContent = isOpen ? '0' : '!'; $('mAlerts').style.color = isOpen ? 'var(--safe)' : 'var(--danger)'; }
+    if ($('mAlertsTrend')) { $('mAlertsTrend').className = 'metric-trend ' + (isOpen ? 'up' : 'down'); $('mAlertsTrend').textContent = isOpen ? '✓ aucune alerte' : '⚠ serveur fermé'; }
+
+    // Journal
+    const logEl = $('logEntries');
+    if (logEl) {
+      const sevClass = isOpen ? 'ok' : 'crit';
+      const sevLabel = isOpen ? 'INFO' : 'CRITIQUE';
+      const msg = isOpen
+        ? `Serveur ouvert${reason ? ' — ' + reason : ''} · par ${updatedBy}`
+        : `Serveur fermé${reason ? ' — ' + reason : ''} · par ${updatedBy}`;
+      logEl.innerHTML = `<div class="log-entry">
+        <span class="log-time">${nowStr()}</span>
+        <span class="log-sev ${sevClass}">${sevLabel}</span>
+        <span class="log-msg">${msg}</span>
+      </div>`;
     }
 
-    // ── Render time
-    function nowStr() {
-      const d = new Date();
-      return `[${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}]`;
-    }
+    // Dernière mise à jour
+    const lu = $('statusLastUpdate');
+    if (lu) { lu.style.color = ''; lu.textContent = 'MÀJ ' + updatedAt; }
+  }
 
-    // ── Render metrics depuis feuille Stats
-    // Attendu : lignes  clé,valeur   (ex: joueurs,38)
-    function renderStats(rows) {
-      const map = {};
-      rows.forEach(r => { if (r[0]) map[r[0].toLowerCase().trim()] = r[1]?.trim() || ''; });
-
-      const players    = map['joueurs']    || '—';
-      const foundation = map['fondation']  || '—';
-      const alerts     = parseInt(map['alertes']) || 0;
-      const statut     = (map['statut'] || 'OPÉRATIONNEL').toUpperCase();
-
-      if ($('mPlayers')) $('mPlayers').textContent = players;
-      if ($('mPlayersTrend')) { $('mPlayersTrend').className = 'metric-trend up'; $('mPlayersTrend').textContent = '↑ connectés'; }
-      if ($('mFoundation')) $('mFoundation').textContent = foundation;
-      if ($('mAlerts')) {
-        const el = $('mAlerts');
-        el.textContent = alerts;
-        el.style.color = alerts === 0 ? 'var(--safe)' : alerts <= 2 ? 'var(--euclid)' : 'var(--danger)';
-      }
-      if ($('mAlertsTrend')) {
-        const t = $('mAlertsTrend');
-        t.className = 'metric-trend ' + (alerts === 0 ? 'up' : alerts <= 2 ? 'warn' : 'down');
-        t.textContent = alerts === 0 ? '✓ aucune alerte' : alerts + ' en cours';
-      }
-
-      // Contenu barre de confinement depuis statut
-      const isCrit = statut.includes('BRÈCHE') || statut.includes('BRECHE') || statut.includes('CRITIQUE');
-      const isWarn = statut.includes('ALERTE') || alerts > 0;
-      const pct = isCrit ? 72 : isWarn ? 87 : 96;
-      const bar = $('containBar');
-      const pctEl = $('containPct');
-      if (bar) {
-        bar.style.width = pct + '%';
-        bar.style.background = isCrit ? 'var(--danger)' : isWarn ? 'var(--euclid)' : 'var(--safe)';
-      }
-      if (pctEl) pctEl.textContent = pct + '%';
-
-      // Badge + main row
-      const row = $('mainStatusRow');
-      const badge = $('mainBadge');
-      if (row) { row.className = 'status-main-row' + (isCrit ? ' danger' : isWarn ? ' warning' : ''); }
-      if (badge) {
-        badge.className = 'status-badge ' + (isCrit ? 'crit' : isWarn ? 'warn' : 'ok');
-        badge.textContent = statut;
-      }
-
-      // Métrique SCPs confinés — masquée si pas de données SCP
-      if ($('mContained')) $('mContained').innerHTML = map['scps_confines'] ? map['scps_confines'] + '<span class="mu">/8</span>' : '—';
-    }
-
-    // ── Render journal depuis feuille Journal
-    // Attendu : heure, sévérité (INFO/ALERTE/CRITIQUE), message
-    function renderJournal(rows) {
-      const el = $('logEntries');
-      if (!el) return;
-      // Filtrer les lignes vides et ignorer header éventuel
-      const entries = rows.filter(r => r[2] && r[2].length > 1 && r[0].toLowerCase() !== 'heure');
-      if (entries.length === 0) {
-        el.innerHTML = '<div class="log-entry"><span class="log-time">—</span><span class="log-sev ok">INFO</span><span class="log-msg">Aucune entrée dans le journal.</span></div>';
-        return;
-      }
-      el.innerHTML = entries.map(r => {
-        const time = r[0] || '—';
-        const sevRaw = (r[1] || 'INFO').toUpperCase().trim();
-        const msg  = r[2] || '';
-        const sevClass = sevRaw === 'CRITIQUE' ? 'crit' : sevRaw === 'ALERTE' ? 'warn' : 'ok';
-        return `<div class="log-entry">
-          <span class="log-time">${time}</span>
-          <span class="log-sev ${sevClass}">${sevRaw}</span>
-          <span class="log-msg">${msg}</span>
-        </div>`;
-      }).join('');
-      const cnt = $('logCount');
-      if (cnt) cnt.textContent = entries.length + ' entrée' + (entries.length > 1 ? 's' : '');
-    }
-
-    // ── Indicateur d'état de connexion
-    function setConnectionState(ok, msg) {
-      const lu = $('statusLastUpdate');
-      if (!lu) return;
-      if (ok) {
-        lu.style.color = '';
-        lu.textContent = 'MÀJ ' + nowStr();
-      } else {
-        lu.style.color = 'var(--danger)';
-        lu.textContent = '⚠ ' + (msg || 'Erreur de connexion');
-      }
-    }
-
-    // ── Fetch + render
-    async function refresh() {
-      try {
-        const [statsRows, journalRows] = await Promise.all([
-          fetchSheet(GID_STATS),
-          fetchSheet(GID_JOURNAL),
-        ]);
-        renderStats(statsRows);
-        renderJournal(journalRows);
-        setConnectionState(true);
-      } catch (err) {
-        console.warn('[SCP Status] Erreur fetch:', err);
-        setConnectionState(false, 'Sheet inaccessible — vérifier le partage');
-      }
-    }
-
-    // ── Init
-    function init() {
-      // Afficher état de chargement
-      const lu = $('statusLastUpdate');
-      if (lu) lu.textContent = 'Connexion au Sheet…';
-      const logEl = $('logEntries');
-      if (logEl) logEl.innerHTML = '<div class="log-entry"><span class="log-time">…</span><span class="log-sev ok">INFO</span><span class="log-msg">Chargement du journal…</span></div>';
-
-      refresh();
-      setInterval(refresh, REFRESH_MS);
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+  // Listener temps réel
+  onSnapshot(doc(db, 'server_status', 'current'), snap => {
+    if (snap.exists()) {
+      applyStatus(snap.data());
     } else {
-      init();
+      applyStatus({ open: false, reason: 'Non configuré', updatedBy: '—', updatedAt: '' });
     }
-  })();
+  }, err => {
+    const lu = $('statusLastUpdate');
+    if (lu) { lu.style.color = 'var(--danger)'; lu.textContent = '⚠ Erreur Firebase'; }
+  });
   </script>
 </body>
 </html>
-
-
