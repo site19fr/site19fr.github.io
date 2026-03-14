@@ -37,8 +37,12 @@
 
     /* ── ROLE BADGE ── */
     .role-badge { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.2em; padding:2px 8px; border:1px solid; text-transform:uppercase; }
-    .role-badge.admin { color:var(--danger); border-color:rgba(192,57,43,0.5); background:rgba(192,57,43,0.08); }
-    .role-badge.moderateur { color:var(--accent); border-color:rgba(232,200,74,0.4); background:rgba(232,200,74,0.06); }
+    .role-badge.admin        { color:var(--danger); border-color:rgba(192,57,43,0.5);   background:rgba(192,57,43,0.08); }
+    .role-badge.moderateur   { color:var(--accent); border-color:rgba(232,200,74,0.4);  background:rgba(232,200,74,0.06); }
+    .role-badge.responsable  { color:#4cc3ff;       border-color:rgba(76,195,255,0.4);  background:rgba(76,195,255,0.07); }
+    .role-badge.junior       { color:#a8d8a8;       border-color:rgba(168,216,168,0.4); background:rgba(168,216,168,0.06); }
+    .role-badge.animateur    { color:#f39c12;       border-color:rgba(243,156,18,0.4);  background:rgba(243,156,18,0.07); }
+    .role-badge.morpheur     { color:#aa66ff;       border-color:rgba(170,102,255,0.4); background:rgba(170,102,255,0.07); }
 
     /* ── STATS BAR ── */
     .mod-stats-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:28px; }
@@ -172,6 +176,61 @@
     .user-row:last-child { border-bottom:none; }
     .user-email { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--white); }
     .user-meta { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:2px; }
+
+    /* ── ROSTER ── */
+    .roster-tabs { display:flex; gap:2px; margin-bottom:16px; flex-wrap:wrap; }
+    .roster-tab { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; padding:8px 18px; border:1px solid var(--border2); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s; }
+    .roster-tab.active { border-color:var(--accent2); color:var(--accent2); background:rgba(100,160,255,0.06); }
+    .roster-dept-panel { display:none; }
+    .roster-dept-panel.active { display:block; }
+    .roster-agent-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--border2); padding:14px 18px; margin-bottom:4px; transition:all 0.2s; }
+    .roster-agent-card:hover { background:var(--surface2); }
+    .roster-agent-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
+    .roster-agent-name { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--white); text-transform:uppercase; }
+    .roster-agent-rank { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:0.1em; margin-top:1px; }
+    .roster-agent-user { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--accent2); }
+    .roster-command-preview { font-family:'Courier Prime',monospace; font-size:10px; color:var(--text-dim); background:var(--bg); padding:6px 10px; border:1px solid var(--border); margin:8px 0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; cursor:pointer; }
+    .roster-command-preview:hover { border-color:var(--border2); color:var(--text); }
+    .roster-card-actions { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+    .roster-copy-btn { font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; padding:5px 14px; border:1px solid var(--border2); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s; }
+    .roster-copy-btn:hover { border-color:var(--safe); color:var(--safe); }
+    .roster-edit-btn { font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; padding:5px 14px; border:1px solid var(--border2); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s; }
+    .roster-edit-btn:hover { border-color:var(--accent2); color:var(--accent2); }
+    .roster-del-btn { font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; padding:5px 10px; border:1px solid transparent; background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s; }
+    .roster-del-btn:hover { border-color:rgba(192,57,43,0.4); color:var(--danger); }
+    .roster-date-badge { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); flex-shrink:0; }
+    /* Formulaire d'édition inline */
+    .roster-edit-form { background:var(--surface2); border:1px solid var(--border2); border-top:2px solid var(--accent2); padding:16px; margin-bottom:4px; }
+    .roster-edit-form .ef-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .roster-edit-form .ef-full { grid-column:1/-1; }
+    .roster-edit-form label { font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-dim); display:block; margin-bottom:5px; }
+    .roster-edit-form input, .roster-edit-form textarea, .roster-edit-form select {
+      width:100%; background:var(--surface); border:1px solid var(--border2); color:var(--white);
+      font-family:'Share Tech Mono',monospace; font-size:11px; padding:7px 10px; outline:none; box-sizing:border-box;
+    }
+    .roster-edit-form input:focus, .roster-edit-form textarea:focus { border-color:var(--accent2); }
+    .roster-edit-form textarea { resize:vertical; min-height:70px; font-family:'Courier Prime',monospace; font-size:11px; line-height:1.5; }
+    .roster-edit-actions { display:flex; gap:8px; }
+    /* Formulaire ajout agent */
+    .roster-add-zone { background:var(--surface2); border:1px solid rgba(100,160,255,0.2); border-top:2px solid var(--accent2); padding:16px; margin-top:12px; }
+    .roster-add-title { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:var(--accent2); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px; }
+    /* Gestion des départements */
+    .roster-dept-manager { background:var(--surface2); border:1px solid rgba(232,200,74,0.2); border-top:2px solid var(--accent); padding:16px; margin-bottom:16px; }
+    .roster-dept-manager-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
+    .roster-dept-list { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .roster-dept-chip { display:flex; align-items:center; gap:6px; padding:4px 12px; border:1px solid var(--border2); font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text); }
+    .roster-dept-chip-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .roster-dept-chip-del { background:none; border:none; color:var(--text-dim); cursor:pointer; padding:0; font-size:12px; line-height:1; transition:color 0.15s; }
+    .roster-dept-chip-del:hover { color:var(--danger); }
+    .roster-dept-add-row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+    .roster-dept-add-row input { background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:11px; padding:7px 10px; outline:none; flex:1; min-width:120px; }
+    .roster-dept-add-row input:focus { border-color:var(--accent); }
+    .dept-color-pick { width:36px; height:34px; border:1px solid var(--border2); background:var(--surface); cursor:pointer; padding:2px; }
+    /* Save indicator */
+    .roster-save-indicator { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.1em; padding:4px 12px; transition:all 0.3s; }
+    .roster-save-indicator.saving { color:var(--warn); }
+    .roster-save-indicator.saved  { color:var(--safe); }
+    .roster-save-indicator.error  { color:var(--danger); }
   </style>
 </head>
 <body>
@@ -219,10 +278,12 @@
   </div>
 </div>
 
+<!-- ✅ CORRECTION : Ajout du tab Rosters dans la navigation -->
 <div class="dept-nav">
   <button class="nav-tab active" data-view="sanctions"><span class="nav-tab-icon">📋</span> Sanctions</button>
   <button class="nav-tab" data-view="historique"><span class="nav-tab-icon">🔍</span> Historique joueur</button>
   <button class="nav-tab" data-view="stats"><span class="nav-tab-icon">📊</span> Statistiques</button>
+  <button class="nav-tab" data-view="roster"><span class="nav-tab-icon">👥</span> Rosters</button>
   <button class="nav-tab" data-view="admin" id="adminTab" style="display:none;"><span class="nav-tab-icon">🔐</span> Admin</button>
 </div>
 
@@ -347,6 +408,45 @@
       </div>
     </div>
 
+    <!-- VUE : ROSTERS -->
+    <div class="view" id="view-roster">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-tag">// Commandes Roblox par département</div>
+          <div class="sec-title">ROSTERS <span>MORPHS</span></div>
+          <div class="sec-sub">Roster des agents — édition et copie de la commande morph</div>
+        </div>
+        <div class="sec-actions">
+          <span class="roster-save-indicator" id="rosterSaveIndicator"></span>
+        </div>
+      </div>
+
+      <!-- Gestion des départements -->
+      <div class="roster-dept-manager">
+        <div class="roster-dept-manager-title">⚙ Départements</div>
+        <div class="roster-dept-list" id="rosterDeptList"></div>
+        <div class="roster-dept-add-row">
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Nom</label>
+            <input type="text" id="newDeptName" placeholder="Ex: Recherche" maxlength="30" />
+          </div>
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Icône</label>
+            <input type="text" id="newDeptIcon" placeholder="🔬" maxlength="4" style="width:60px;" />
+          </div>
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Couleur</label>
+            <input type="color" id="newDeptColor" value="#4cc3ff" class="dept-color-pick" />
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="addDept()">+ Ajouter département</button>
+        </div>
+      </div>
+
+      <!-- Tabs et panels générés dynamiquement -->
+      <div class="roster-tabs" id="rosterTabs"></div>
+      <div id="rosterPanels"></div>
+    </div>
+
     <!-- VUE : ADMIN -->
     <div class="view" id="view-admin">
       <div class="sec-hdr">
@@ -415,7 +515,7 @@
           <div class="form-field"><label>Mot de passe</label><input type="password" id="newUserPassword" placeholder="Min. 6 caractères" /></div>
           <div class="form-field"><label>Pseudo affiché</label><input type="text" id="newUserName" placeholder="Agent_Nom" /></div>
           <div class="form-field"><label>Rôle</label>
-            <select id="newUserRole"><option value="moderateur">Modérateur</option><option value="admin">Administrateur</option></select>
+            <select id="newUserRole"><option value="moderateur">Modérateur</option><option value="responsable">Responsable</option><option value="junior">Modérateur Junior</option><option value="animateur">Animateur</option><option value="morpheur">Morpheur</option><option value="admin">Administrateur</option></select>
           </div>
         </div>
         <div class="form-actions"><button class="btn btn-danger btn-sm" onclick="createUser()">+ Créer le compte</button></div>
@@ -531,7 +631,7 @@
 
 <!-- FIREBASE + LOGIQUE -->
 <script type="module">
-import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp, deleteApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword }
                                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc, getDoc, getDocs }
@@ -598,7 +698,6 @@ function populateServerForm() {
   if (g('srvScpsTotal'))  g('srvScpsTotal').value   = s.scpsTotal  ?? 8;
   if (g('srvAlerts'))     g('srvAlerts').value      = s.alerts     ?? 0;
 
-  // Log rows
   const logContainer = g('srvLogRows');
   if (logContainer && s.logList?.length) {
     logContainer.innerHTML = s.logList.map(e => `
@@ -614,7 +713,6 @@ function populateServerForm() {
       </div>`).join('');
   }
 
-  // SCP rows
   const scpContainer = g('srvScpRows');
   if (scpContainer && s.scpList?.length) {
     scpContainer.innerHTML = s.scpList.map(e => `
@@ -643,14 +741,12 @@ async function saveServerStatus(newOpen) {
 
   const isOpen = newOpen !== undefined ? newOpen : serverStatus.open;
 
-  // Collect log entries
   const logList = [...document.querySelectorAll('#srvLogRows .srv-log-entry')].map(row => {
     const inputs = row.querySelectorAll('input');
     const sel    = row.querySelector('select');
     return { time: inputs[0]?.value.trim()||'', sev: sel?.value||'INFO', msg: inputs[1]?.value.trim()||'' };
   }).filter(e => e.msg);
 
-  // Collect SCP entries
   const scpList = [...document.querySelectorAll('#srvScpRows .srv-scp-entry')].map(row => {
     const inputs  = row.querySelectorAll('input');
     const selects = row.querySelectorAll('select');
@@ -676,7 +772,6 @@ async function saveServerStatus(newOpen) {
   SCPIntranet.addHistory('Statut serveur mis à jour — ' + (isOpen ? 'OUVERT' : 'FERMÉ'));
 }
 
-// Bind toggle button
 document.addEventListener('click', e => {
   if (e.target.id === 'srvBtn')     saveServerStatus(!serverStatus.open);
   if (e.target.id === 'srvSaveBtn') saveServerStatus(serverStatus.open);
@@ -699,6 +794,7 @@ document.addEventListener('click', e => {
       </div>`);
   }
 });
+
 const PAGE_SIZE = 10;
 
 // ── AUTH STATE ──
@@ -716,10 +812,12 @@ onAuthStateChanged(auth, async user => {
     }
     startListen();
     startServerListen();
+    startRosterListen();
   } else {
     currentUser = null; currentRole = null;
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
     if (unsubServer) { unsubServer(); unsubServer = null; }
+    if (unsubRoster) { unsubRoster(); unsubRoster = null; }
     showLogin();
   }
 });
@@ -740,9 +838,18 @@ function showApp(name, role) {
   document.getElementById('sidebarRole').textContent = role.toUpperCase();
   const badge = document.getElementById('topbarRoleBadge');
   badge.className = 'role-badge ' + role;
-  badge.textContent = role === 'admin' ? '🔐 Admin' : '🛡 Modérateur';
-  document.getElementById('adminTab').style.display = role === 'admin' ? '' : 'none';
-  document.getElementById('deleteBtn').style.display = role === 'admin' ? '' : 'none';
+  const roleLabels = {
+    admin:       '🔐 Admin',
+    responsable: '⭐ Responsable',
+    moderateur:  '🛡 Modérateur',
+    junior:      '🔰 Modo Junior',
+    animateur:   '🎭 Animateur',
+    morpheur:    '🎭 Morpheur',
+  };
+  badge.textContent = roleLabels[role] || ('🛡 ' + role);
+  const isAdmin = role === 'admin';
+  document.getElementById('adminTab').style.display = isAdmin ? '' : 'none';
+  document.getElementById('deleteBtn').style.display = isAdmin ? '' : 'none';
   document.getElementById('fDate').value = today();
   toggleDuration();
   if (role === 'admin') loadUsers();
@@ -869,6 +976,7 @@ window.confirmDelete = async function() {
 };
 
 // ── CREATE USER ──
+// ✅ CORRECTION : deleteApp importé et appelé pour éviter la fuite mémoire
 window.createUser = async function() {
   const email = document.getElementById('newUserEmail').value.trim();
   const pass  = document.getElementById('newUserPassword').value;
@@ -878,13 +986,16 @@ window.createUser = async function() {
   msg.textContent = ''; msg.style.color = '';
   if (!email||!pass||!name) { msg.style.color='var(--danger)'; msg.textContent='⚠ Tous les champs sont requis.'; return; }
   if (pass.length<6) { msg.style.color='var(--danger)'; msg.textContent='⚠ Mot de passe min. 6 caractères.'; return; }
+  let app2 = null;
   try {
-    // Utiliser une 2e instance pour ne pas déconnecter l'admin actuel
-    const app2   = initializeApp(firebaseConfig, 'secondary-' + Date.now());
+    app2  = initializeApp(firebaseConfig, 'secondary-' + Date.now());
     const auth2  = getAuth(app2);
     const cred   = await createUserWithEmailAndPassword(auth2, email, pass);
     const uid    = cred.user.uid;
     await signOut(auth2);
+    // ✅ Nettoyage de l'instance secondaire
+    await deleteApp(app2);
+    app2 = null;
     await setDoc(doc(db, 'users', uid), { email, name, role, createdAt: new Date().toISOString(), createdBy: currentUser.uid });
     msg.style.color = 'var(--safe)';
     msg.textContent = '✓ Compte créé : ' + name + ' [' + role + ']';
@@ -892,12 +1003,14 @@ window.createUser = async function() {
     ['newUserEmail','newUserPassword','newUserName'].forEach(id => document.getElementById(id).value = '');
     loadUsers();
   } catch(e) {
+    if (app2) { try { await deleteApp(app2); } catch {} }
     msg.style.color = 'var(--danger)';
     msg.textContent = '⚠ ' + (e.code === 'auth/email-already-in-use' ? 'Email déjà utilisé.' : e.message);
   }
 };
 
 window.loadUsers = async function() {
+  if (currentRole !== 'admin') return;
   const el = document.getElementById('usersList');
   if (!el) return;
   el.innerHTML = '<div class="loading-spinner">Chargement…</div>';
@@ -969,6 +1082,12 @@ window.lookupPlayer = function() {
     </div></div></div>`;
   SCPIntranet.addHistory('Historique : ' + matches[0].player);
 };
+
+// ── Enter sur la recherche joueur ──
+// ✅ CORRECTION : touche Entrée sur le champ de recherche joueur
+document.getElementById('playerSearchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.lookupPlayer();
+});
 
 // ── RENDER ALL ──
 function renderAll() { renderTable(); renderSidebar(); renderStats(); }
@@ -1073,6 +1192,379 @@ document.addEventListener('click',e=>{
   if(e.target.classList.contains('modal-ov'))SCPIntranet.closeModal(e.target.id);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open'));});
+
+// ══════════════════════════════════════════════════════
+// ── ROSTERS — Firebase + édition complète ──
+// ══════════════════════════════════════════════════════
+
+// Structure en mémoire : { deptId: { id, name, icon, color, agents:[] } }
+let rosterData = {};
+let activeDeptId = null;
+let unsubRoster  = null;
+
+// Données initiales (migration depuis l'ancien hardcodé)
+const ROSTER_SEED = {
+  security: {
+    id:'security', name:'Sécurité', icon:'🔒', color:'#4cc3ff',
+    agents:[
+      {id:'a1',name:'"ECHO"',username:'alcbasket',rank:'[D.SE-SF] Agent de 1ère Classe',date:'13/02/2026',command:`run team alcbasket Département de la Sécurité F & permntag alcbasket "ECHO" & permrtag alcbasket [D.SE-SF] Agent de 1ère Classe & permmorph alc reset & permhat alc Vest & permhat alc holster & permhat alc kneepads & permhat alc 11515337829,11515333598 & permhat alc 15081386107 & permhat alc helmet & permhat alc 15949578750 & permhat alc 4684658997 & permmorph alcbasket DSF Cadet & startergear alcbasket laser pistol & startergear alcbasket L4 & res alcbasket`},
+      {id:'a2',name:'N.HACK',username:'momo907526',rank:'[D.SE] Cadet',date:'04/03/2026',command:`run team momo907526 Sec & permntag momo907526 N.HACK & permrtag momo907526 [D.SE] Cadet & startergear momo907526 laser pistol & permmorph momo907526 SD`},
+      {id:'a3',name:'A.MAX',username:'mrgraschat',rank:'[D.SE-DIR.] Directeur',date:'13/02/2026',command:`run team mrgraschat Département de la Sécurité F & permntag mrgraschat A.MAX & permrtag mrgraschat [D.SE-DIR.] Directeur de la Sécurité & permmorph mrgraschat Commandant & startergear mrgraschat laser pistol & startergear mrgraschat o5 & permscale mrgraschat 1.2`},
+      {id:'a4',name:'M.FRANCOIS',username:'Matheo50534',rank:'[D.SE-DSI] Cadet',date:'13/02/2026',command:`run team Matheo50534 Internal D & permntag Matheo50534 M.FRANCOIS & permrtag Matheo50534 [D.SE-DSI] Cadet & startergear Matheo50534 laser pistol & permmorph Matheo50534 ISD`},
+      {id:'a5',name:'M.NOWAK',username:'FlofloParis',rank:'[D.SE] Cadet',date:'15/02/2026',command:`run team FlofloParis Security & permntag FlofloParis M.NOWAK & permrtag FlofloParis [D.SE] Cadet & startergear FlofloParis laser pistol & permmorph FlofloParis SD`},
+      {id:'a6',name:'D.LUNE',username:'Art_mat246',rank:'[D.SE] Cadet',date:'21/02/2026',command:`run team Art_mat246 Security & permntag Art_mat246 D.LUNE & permrtag Art_mat246 [D.SE] Cadet & startergear Art_mat246 laser pistol & permmorph Art_mat246 SD`},
+      {id:'a7',name:'E.TERNON',username:'sans_argent2',rank:'[D.SE-BSI] Caporal-Chef',date:'22/02/2026',command:`run team sans_argent2 Internal & permntag sans_argent2 E.TERNON & permrtag sans_argent2 [D.SE-BSI] Caporal & startergear sans_argent2 laser pistol & permmorph sans_argent2 ISD`},
+      {id:'a8',name:'J.DEGOBERT',username:'poloman2023',rank:'[D.SE-SC] Agent 2ème cl.',date:'24/02/2026',command:`run team poloman2023 Security & permntag poloman2023 J.DEGOBERT & permrtag poloman2023 [D.SE-SC] Agent de 2ème classe & startergear poloman2023 laser pistol & permmorph poloman2023 SD`},
+      {id:'a9',name:'N.BEDIN',username:'kileurZH_1',rank:'[D.SE] Agent de 2ème Classe',date:'03/03/2026',command:`run team kileurZH_1 Security & permntag kileurZH_1 N.BEDIN & permrtag kileurZH_1 [D.SE] Agent de 2ème Classe & permmorph kileurZH_1 SD & startergear kileurZH_1 laser pistol`},
+      {id:'a10',name:'Y.CREPEAU',username:'yerzits3',rank:'[D.SE] Cadet',date:'04/03/2026',command:`run team yerzits3 Security & permntag yerzits3 Y.CREPEAU & permrtag yerzits3 [D.SE] Cadet & permmorph yerzits3 SD & startergear yerzits3 laser pistol`},
+    ]
+  },
+  medical: {
+    id:'medical', name:'Médical', icon:'⚕️', color:'#00e676',
+    agents:[
+      {id:'b1',name:'M.KOLIANSKY',username:'mrgraschat',rank:'[D.M-PSY] Psychologue',date:'',command:`run team mrgraschat Medic & permntag mrgraschat M.KOLIANSKY & permrtag mrgraschat [D.M-PSY] Psychologue & permmorph mrgraschat DM & startergear mrgraschat authorize & startergear mrgraschat o5 & startergear mrgraschat clipboard`},
+    ]
+  },
+  scientific: {
+    id:'scientific', name:'Scientifique', icon:'🔬', color:'#aa66ff',
+    agents:[
+      {id:'c1',name:'"Élégant"',username:'gaziakzebibou',rank:'[D.SCI-DIR.] Directeur des recherches',date:'',command:`run permntag gaziakzebibou M.Élégant & permrtag gaziakzebibou [D.SCI-DIR.] Directeur des recherches & startergear gaziakzebibou O & startergear gaziakzebibou clipboard & startergear gaziakzebibou auth & startergear gaziakzebibou det`},
+    ]
+  }
+};
+
+// ── Chargement Firebase (onSnapshot) ──
+function startRosterListen() {
+  if (unsubRoster) { unsubRoster(); unsubRoster = null; }
+  unsubRoster = onSnapshot(doc(db, 'rosters', 'data'), snap => {
+    if (snap.exists()) {
+      rosterData = snap.data().depts || {};
+    } else {
+      // Premier chargement : on seed avec les données initiales
+      rosterData = JSON.parse(JSON.stringify(ROSTER_SEED));
+      saveRosterToFirebase(false); // silencieux
+    }
+    renderAllRosters();
+  }, err => {
+    console.error('Roster listen error:', err);
+  });
+}
+
+// ── Sauvegarde Firebase ──
+async function saveRosterToFirebase(showFeedback = true) {
+  const ind = document.getElementById('rosterSaveIndicator');
+  if (ind && showFeedback) { ind.textContent = '⟳ Sauvegarde…'; ind.className = 'roster-save-indicator saving'; }
+  try {
+    await setDoc(doc(db, 'rosters', 'data'), { depts: rosterData, updatedAt: new Date().toISOString() });
+    if (ind && showFeedback) {
+      ind.textContent = '✓ Sauvegardé'; ind.className = 'roster-save-indicator saved';
+      setTimeout(() => { ind.textContent = ''; ind.className = 'roster-save-indicator'; }, 2500);
+    }
+  } catch(e) {
+    if (ind) { ind.textContent = '✕ Erreur Firebase'; ind.className = 'roster-save-indicator error'; }
+    console.error(e);
+  }
+}
+
+// ── ID unique ──
+function ruid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ── Rendu global ──
+function renderAllRosters() {
+  renderRosterTabs();
+  renderRosterPanels();
+  renderDeptChips();
+}
+
+// ── Tabs ──
+function renderRosterTabs() {
+  const depts = Object.values(rosterData);
+  const tabsEl = document.getElementById('rosterTabs');
+  if (!tabsEl) return;
+  if (!activeDeptId || !rosterData[activeDeptId]) {
+    activeDeptId = depts[0]?.id || null;
+  }
+  tabsEl.innerHTML = depts.map(d => `
+    <button class="roster-tab ${d.id === activeDeptId ? 'active' : ''}" data-roster="${d.id}">
+      ${d.icon || ''} ${d.name} (${d.agents?.length || 0})
+    </button>`).join('');
+}
+
+// ── Panels ──
+function renderRosterPanels() {
+  const depts = Object.values(rosterData);
+  const panelsEl = document.getElementById('rosterPanels');
+  if (!panelsEl) return;
+  panelsEl.innerHTML = depts.map(d => `
+    <div class="roster-dept-panel ${d.id === activeDeptId ? 'active' : ''}" id="roster-panel-${d.id}">
+      ${renderAgentCards(d)}
+      ${renderAddAgentForm(d.id)}
+    </div>`).join('');
+}
+
+// ── Cartes agents ──
+function renderAgentCards(dept) {
+  const agents = dept.agents || [];
+  if (!agents.length) {
+    return `<div style="text-align:center;padding:40px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;border:1px dashed var(--border);margin-bottom:8px;">◈ Aucun agent — ajoutez le premier ci-dessous</div>`;
+  }
+  return agents.map((a, i) => `
+    <div class="roster-agent-card" id="card-${dept.id}-${a.id}" style="border-left-color:${dept.color || '#4cc3ff'}">
+      <div class="roster-agent-head">
+        <div>
+          <div class="roster-agent-name">${escR(a.name)}</div>
+          <div class="roster-agent-rank">${escR(a.rank)}</div>
+          <div class="roster-agent-user">@${escR(a.username)}</div>
+        </div>
+        <div class="roster-date-badge">${escR(a.date) || '—'}</div>
+      </div>
+      <div class="roster-command-preview" title="Cliquer pour voir la commande complète" onclick="toggleCommandFull('${dept.id}','${a.id}')" id="cmdprev-${dept.id}-${a.id}">${escR(a.command).substring(0,110)}…</div>
+      <div class="roster-card-actions">
+        <button class="roster-copy-btn" data-copy-dept="${dept.id}" data-copy-agent="${a.id}">⧉ Copier morph</button>
+        <button class="roster-edit-btn" data-edit-dept="${dept.id}" data-edit-agent="${a.id}">✏ Modifier</button>
+        <button class="roster-del-btn" data-del-dept="${dept.id}" data-del-agent="${a.id}" title="Supprimer">🗑</button>
+      </div>
+    </div>
+    <div class="roster-edit-form" id="editform-${dept.id}-${a.id}" style="display:none;">
+      <div class="ef-grid">
+        <div><label>Nom affiché *</label><input id="ef-name-${dept.id}-${a.id}" value="${escAttr(a.name)}" placeholder="Ex: A.DUPONT" /></div>
+        <div><label>Username Roblox *</label><input id="ef-user-${dept.id}-${a.id}" value="${escAttr(a.username)}" placeholder="username_roblox" /></div>
+        <div><label>Grade / Rang</label><input id="ef-rank-${dept.id}-${a.id}" value="${escAttr(a.rank)}" placeholder="[D.SE] Cadet" /></div>
+        <div><label>Date recrutement</label><input id="ef-date-${dept.id}-${a.id}" value="${escAttr(a.date)}" placeholder="JJ/MM/AAAA" /></div>
+        <div class="ef-full"><label>Commande morph *</label><textarea id="ef-cmd-${dept.id}-${a.id}" rows="4">${escR(a.command)}</textarea></div>
+      </div>
+      <div class="roster-edit-actions">
+        <button class="btn btn-primary btn-sm" data-save-dept="${dept.id}" data-save-agent="${a.id}">✓ Enregistrer</button>
+        <button class="btn btn-ghost btn-sm" data-cancel-edit="${dept.id}-${a.id}">Annuler</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── Formulaire d'ajout ──
+function renderAddAgentForm(deptId) {
+  return `
+    <div class="roster-add-zone">
+      <div class="roster-add-title">+ Nouvel agent</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Nom affiché *</label>
+          <input type="text" id="new-name-${deptId}" placeholder="Ex: A.DUPONT" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:11px;padding:7px 10px;outline:none;box-sizing:border-box;" /></div>
+        <div><label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Username Roblox *</label>
+          <input type="text" id="new-user-${deptId}" placeholder="username_roblox" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:11px;padding:7px 10px;outline:none;box-sizing:border-box;" /></div>
+        <div><label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Grade / Rang</label>
+          <input type="text" id="new-rank-${deptId}" placeholder="[D.SE] Cadet" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:11px;padding:7px 10px;outline:none;box-sizing:border-box;" /></div>
+        <div><label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Date recrutement</label>
+          <input type="text" id="new-date-${deptId}" placeholder="JJ/MM/AAAA" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:11px;padding:7px 10px;outline:none;box-sizing:border-box;" /></div>
+        <div style="grid-column:1/-1;"><label style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);display:block;margin-bottom:5px;">Commande morph *</label>
+          <textarea id="new-cmd-${deptId}" rows="3" placeholder="run team username …" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Courier Prime',monospace;font-size:11px;padding:7px 10px;outline:none;resize:vertical;box-sizing:border-box;line-height:1.5;"></textarea></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-primary btn-sm" data-add-agent="${deptId}">+ Ajouter l'agent</button>
+        <span id="add-err-${deptId}" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--danger);"></span>
+      </div>
+    </div>`;
+}
+
+// ── Chips de départements ──
+function renderDeptChips() {
+  const el = document.getElementById('rosterDeptList');
+  if (!el) return;
+  const depts = Object.values(rosterData);
+  if (!depts.length) { el.innerHTML = '<span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--text-dim);">Aucun département</span>'; return; }
+  el.innerHTML = depts.map(d => `
+    <div class="roster-dept-chip">
+      <div class="roster-dept-chip-dot" style="background:${d.color || '#888'}"></div>
+      <span>${d.icon || ''} ${escR(d.name)}</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);margin-left:4px;">(${d.agents?.length || 0})</span>
+      <button class="roster-dept-chip-del" data-del-dept-id="${d.id}" title="Supprimer le département">✕</button>
+    </div>`).join('');
+}
+
+// ── Toggle aperçu commande complète ──
+window.toggleCommandFull = function(deptId, agentId) {
+  const el = document.getElementById(`cmdprev-${deptId}-${agentId}`);
+  if (!el) return;
+  const dept = rosterData[deptId];
+  const agent = dept?.agents?.find(a => a.id === agentId);
+  if (!agent) return;
+  const full = el.dataset.expanded === '1';
+  if (full) {
+    el.textContent = agent.command.substring(0, 110) + '…';
+    el.dataset.expanded = '0';
+  } else {
+    el.textContent = agent.command;
+    el.dataset.expanded = '1';
+  }
+};
+
+// ── Ajouter un département ──
+window.addDept = function() {
+  const name  = document.getElementById('newDeptName').value.trim();
+  const icon  = document.getElementById('newDeptIcon').value.trim() || '📁';
+  const color = document.getElementById('newDeptColor').value || '#888888';
+  if (!name) return;
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g,'_') + '_' + ruid();
+  rosterData[id] = { id, name, icon, color, agents: [] };
+  document.getElementById('newDeptName').value = '';
+  document.getElementById('newDeptIcon').value = '';
+  saveRosterToFirebase();
+  SCPIntranet.addHistory('Département ajouté : ' + name);
+};
+
+// ── Supprimer un département ──
+function deleteDept(deptId) {
+  const dept = rosterData[deptId];
+  if (!dept) return;
+  if (!confirm(`Supprimer le département "${dept.name}" et ses ${dept.agents?.length || 0} agents ?`)) return;
+  delete rosterData[deptId];
+  if (activeDeptId === deptId) activeDeptId = Object.keys(rosterData)[0] || null;
+  saveRosterToFirebase();
+  SCPIntranet.addHistory('Département supprimé : ' + dept.name);
+}
+
+// ── Ajouter un agent ──
+function addAgent(deptId) {
+  const g = s => document.getElementById(s)?.value.trim() || '';
+  const name    = g(`new-name-${deptId}`);
+  const username= g(`new-user-${deptId}`);
+  const rank    = g(`new-rank-${deptId}`);
+  const date    = g(`new-date-${deptId}`);
+  const command = g(`new-cmd-${deptId}`);
+  const errEl   = document.getElementById(`add-err-${deptId}`);
+  if (errEl) errEl.textContent = '';
+  if (!name || !command) {
+    if (errEl) errEl.textContent = '⚠ Nom et commande obligatoires';
+    return;
+  }
+  if (!rosterData[deptId]) return;
+  if (!rosterData[deptId].agents) rosterData[deptId].agents = [];
+  rosterData[deptId].agents.push({ id: ruid(), name, username, rank, date, command });
+  saveRosterToFirebase();
+  SCPIntranet.addHistory('Agent ajouté : ' + name + ' → ' + rosterData[deptId].name);
+  // Reset fields
+  ['name','user','rank','date','cmd'].forEach(f => {
+    const el = document.getElementById(`new-${f}-${deptId}`);
+    if (el) el.value = '';
+  });
+}
+
+// ── Ouvrir formulaire édition ──
+function openEditForm(deptId, agentId) {
+  // Fermer tous les autres formulaires ouverts
+  document.querySelectorAll('.roster-edit-form').forEach(f => f.style.display = 'none');
+  const form = document.getElementById(`editform-${deptId}-${agentId}`);
+  if (form) form.style.display = 'block';
+}
+
+// ── Fermer formulaire édition ──
+function closeEditForm(deptId, agentId) {
+  const form = document.getElementById(`editform-${deptId}-${agentId}`);
+  if (form) form.style.display = 'none';
+}
+
+// ── Sauvegarder édition agent ──
+function saveAgent(deptId, agentId) {
+  const dept = rosterData[deptId];
+  if (!dept) return;
+  const agent = dept.agents?.find(a => a.id === agentId);
+  if (!agent) return;
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  const name    = g(`ef-name-${deptId}-${agentId}`);
+  const username= g(`ef-user-${deptId}-${agentId}`);
+  const rank    = g(`ef-rank-${deptId}-${agentId}`);
+  const date    = g(`ef-date-${deptId}-${agentId}`);
+  const command = g(`ef-cmd-${deptId}-${agentId}`);
+  if (!name || !command) { alert('Nom et commande obligatoires.'); return; }
+  agent.name = name; agent.username = username;
+  agent.rank = rank; agent.date = date; agent.command = command;
+  saveRosterToFirebase();
+  SCPIntranet.addHistory('Agent modifié : ' + name);
+}
+
+// ── Supprimer un agent ──
+function deleteAgent(deptId, agentId) {
+  const dept = rosterData[deptId];
+  if (!dept) return;
+  const agent = dept.agents?.find(a => a.id === agentId);
+  if (!agent) return;
+  if (!confirm(`Supprimer ${agent.name} du roster ?`)) return;
+  dept.agents = dept.agents.filter(a => a.id !== agentId);
+  saveRosterToFirebase();
+  SCPIntranet.addHistory('Agent supprimé : ' + agent.name);
+}
+
+// ── Copier commande ──
+async function copyAgentCommand(deptId, agentId) {
+  const agent = rosterData[deptId]?.agents?.find(a => a.id === agentId);
+  if (!agent) return;
+  const btn = document.querySelector(`[data-copy-dept="${deptId}"][data-copy-agent="${agentId}"]`);
+  try {
+    await navigator.clipboard.writeText(agent.command);
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copié !';
+      btn.style.color = 'var(--safe)'; btn.style.borderColor = 'var(--safe)';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1500);
+    }
+    SCPIntranet.addHistory('Morph copié : ' + agent.name);
+  } catch { if (btn) btn.textContent = '✕ Erreur'; }
+}
+
+// ── Échappement HTML (roster) ──
+function escR(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── Délégation d'événements roster ──
+document.addEventListener('click', e => {
+
+  // Changer d'onglet
+  const tab = e.target.closest('.roster-tab[data-roster]');
+  if (tab) {
+    activeDeptId = tab.dataset.roster;
+    renderAllRosters();
+    return;
+  }
+
+  // Copier commande
+  const copyBtn = e.target.closest('[data-copy-dept]');
+  if (copyBtn) { copyAgentCommand(copyBtn.dataset.copyDept, copyBtn.dataset.copyAgent); return; }
+
+  // Ouvrir édition
+  const editBtn = e.target.closest('[data-edit-dept]');
+  if (editBtn) { openEditForm(editBtn.dataset.editDept, editBtn.dataset.editAgent); return; }
+
+  // Annuler édition
+  const cancelBtn = e.target.closest('[data-cancel-edit]');
+  if (cancelBtn) {
+    const [d, a] = cancelBtn.dataset.cancelEdit.split('-');
+    // Reconstruit proprement en splitant juste le premier tiret (les IDs peuvent contenir des tirets)
+    const key = cancelBtn.dataset.cancelEdit;
+    const deptId  = key.substring(0, key.indexOf('-'));
+    const agentId = key.substring(key.indexOf('-') + 1);
+    closeEditForm(deptId, agentId);
+    return;
+  }
+
+  // Sauvegarder édition
+  const saveBtn = e.target.closest('[data-save-dept]');
+  if (saveBtn) { saveAgent(saveBtn.dataset.saveDept, saveBtn.dataset.saveAgent); return; }
+
+  // Ajouter agent
+  const addBtn = e.target.closest('[data-add-agent]');
+  if (addBtn) { addAgent(addBtn.dataset.addAgent); return; }
+
+  // Supprimer agent
+  const delBtn = e.target.closest('[data-del-dept]');
+  if (delBtn) { deleteAgent(delBtn.dataset.delDept, delBtn.dataset.delAgent); return; }
+
+  // Supprimer département
+  const delDeptBtn = e.target.closest('[data-del-dept-id]');
+  if (delDeptBtn) { deleteDept(delDeptBtn.dataset.delDeptId); return; }
+});
+
+// Démarrage : le listener Firebase est lancé depuis showApp → startRosterListen()
+// (on ne l'appelle plus ici directement car startListen() s'en charge via showApp)
+
+
 </script>
 <script src="shared.js"></script>
 </body>
