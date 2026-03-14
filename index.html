@@ -1068,9 +1068,9 @@
       <li><a href="#intranet">Intranet</a></li>
       <li><a href="#rejoindre">Rejoindre</a></li>
     </ul>
-    <div class="nav-status">
-      <div class="status-dot"></div>
-      SERVEUR EN LIGNE
+    <div class="nav-status" id="navServerStatus">
+      <div class="status-dot" id="navServerDot"></div>
+      <span id="navServerText">SERVEUR…</span>
     </div>
   </nav>
 
@@ -1552,6 +1552,12 @@
     const reason = data?.reason || '';
     const updatedBy = data?.updatedBy || '—';
     const updatedAt = data?.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '—';
+
+    // Navbar badge
+    const navDot  = $('navServerDot');
+    const navText = $('navServerText');
+    if (navDot)  { navDot.style.background = isOpen ? 'var(--safe)' : 'var(--danger)'; }
+    if (navText) { navText.textContent = isOpen ? 'SERVEUR EN LIGNE' : 'SERVEUR FERMÉ'; navText.style.color = isOpen ? 'var(--safe)' : 'var(--danger)'; }
 
     // Badge principal
     const badge = $('mainBadge');
