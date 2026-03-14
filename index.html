@@ -1526,7 +1526,7 @@
   </script>
   <script type="module">
   // ══════════════════════════════════════════════
-  // SERVER STATUS — FIREBASE REALTIME
+  // SERVER STATUS — FIREBASE REALTIME (FULL)
   // ══════════════════════════════════════════════
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -1548,72 +1548,93 @@
   }
 
   function applyStatus(data) {
-    const isOpen = data?.open ?? false;
-    const reason = data?.reason || '';
-    const updatedBy = data?.updatedBy || '—';
+    const isOpen    = data?.open ?? false;
+    const players   = data?.players   ?? '—';
+    const foundation= data?.foundation ?? '—';
+    const scps      = parseInt(data?.scps ?? 0);
+    const scpsTotal = parseInt(data?.scpsTotal ?? 8);
+    const alerts    = parseInt(data?.alerts ?? 0);
+    const scpList   = data?.scpList   ?? [];   // [{name, class, status}]
+    const logList   = data?.logList   ?? [];   // [{time, sev, msg}]
+    const stability = data?.stability ?? (isOpen ? 96 : 15);
+    const reason    = data?.reason    ?? '';
+    const updatedBy = data?.updatedBy ?? '—';
     const updatedAt = data?.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '—';
 
-    // Navbar badge
+    // ── Navbar badge
     const navDot  = $('navServerDot');
     const navText = $('navServerText');
-    if (navDot)  { navDot.style.background = isOpen ? 'var(--safe)' : 'var(--danger)'; }
+    if (navDot)  navDot.style.background = isOpen ? 'var(--safe)' : 'var(--danger)';
     if (navText) { navText.textContent = isOpen ? 'SERVEUR EN LIGNE' : 'SERVEUR FERMÉ'; navText.style.color = isOpen ? 'var(--safe)' : 'var(--danger)'; }
 
-    // Badge principal
+    // ── Main badge + row
     const badge = $('mainBadge');
-    if (badge) {
-      badge.className = 'status-badge ' + (isOpen ? 'ok' : 'crit');
-      badge.textContent = isOpen ? 'OUVERT' : 'FERMÉ';
-    }
+    const row   = $('mainStatusRow');
+    if (badge) { badge.className = 'status-badge ' + (isOpen ? 'ok' : 'crit'); badge.textContent = isOpen ? 'OUVERT' : 'FERMÉ'; }
+    if (row)   row.className = 'status-main-row' + (isOpen ? '' : ' danger');
 
-    // Barre principale
-    const row = $('mainStatusRow');
-    if (row) row.className = 'status-main-row' + (isOpen ? '' : ' danger');
-
-    // Barre de confinement
-    const bar = $('containBar');
+    // ── Containment bar
+    const bar   = $('containBar');
     const pctEl = $('containPct');
-    const pct = isOpen ? 96 : 15;
-    if (bar) { bar.style.width = pct + '%'; bar.style.background = isOpen ? 'var(--safe)' : 'var(--danger)'; }
-    if (pctEl) pctEl.textContent = pct + '%';
+    if (bar)   { bar.style.width = stability + '%'; bar.style.background = stability >= 80 ? 'var(--safe)' : stability >= 50 ? 'var(--euclid)' : 'var(--danger)'; }
+    if (pctEl) pctEl.textContent = stability + '%';
 
-    // Métriques
-    if ($('mPlayers'))     $('mPlayers').textContent = isOpen ? '●' : '—';
-    if ($('mPlayersTrend')) { $('mPlayersTrend').className = 'metric-trend ' + (isOpen ? 'up' : 'down'); $('mPlayersTrend').textContent = isOpen ? '↑ en ligne' : '● hors ligne'; }
-    if ($('mAlerts'))      { $('mAlerts').textContent = isOpen ? '0' : '!'; $('mAlerts').style.color = isOpen ? 'var(--safe)' : 'var(--danger)'; }
-    if ($('mAlertsTrend')) { $('mAlertsTrend').className = 'metric-trend ' + (isOpen ? 'up' : 'down'); $('mAlertsTrend').textContent = isOpen ? '✓ aucune alerte' : '⚠ serveur fermé'; }
+    // ── Metrics
+    if ($('mPlayers')) $('mPlayers').textContent = players;
+    if ($('mPlayersTrend')) { $('mPlayersTrend').className = 'metric-trend ' + (isOpen ? 'up' : 'down'); $('mPlayersTrend').textContent = isOpen ? '↑ connectés' : '● hors ligne'; }
+    if ($('mFoundation')) $('mFoundation').textContent = foundation;
+    if ($('mFoundationTrend')) { $('mFoundationTrend').className = 'metric-trend up'; $('mFoundationTrend').textContent = 'actifs'; }
+    if ($('mContained')) $('mContained').innerHTML = scps + '<span class="mu">/' + scpsTotal + '</span>';
+    if ($('mContainedTrend')) { $('mContainedTrend').className = 'metric-trend ' + (scps >= scpsTotal ? 'up' : 'down'); $('mContainedTrend').textContent = scps >= scpsTotal ? '✓ tous confinés' : (scpsTotal - scps) + ' non localisé(s)'; }
+    if ($('mAlerts')) { $('mAlerts').textContent = alerts; $('mAlerts').style.color = alerts === 0 ? 'var(--safe)' : alerts <= 2 ? 'var(--euclid)' : 'var(--danger)'; }
+    if ($('mAlertsTrend')) { $('mAlertsTrend').className = 'metric-trend ' + (alerts === 0 ? 'up' : alerts <= 2 ? 'warn' : 'down'); $('mAlertsTrend').textContent = alerts === 0 ? '✓ aucune alerte' : alerts + ' en cours'; }
 
-    // Journal
-    const logEl = $('logEntries');
+    // ── Journal des événements
+    const logEl  = $('logEntries');
+    const logCnt = $('logCount');
     if (logEl) {
-      const sevClass = isOpen ? 'ok' : 'crit';
-      const sevLabel = isOpen ? 'INFO' : 'CRITIQUE';
-      const msg = isOpen
-        ? `Serveur ouvert${reason ? ' — ' + reason : ''} · par ${updatedBy}`
-        : `Serveur fermé${reason ? ' — ' + reason : ''} · par ${updatedBy}`;
-      logEl.innerHTML = `<div class="log-entry">
-        <span class="log-time">${nowStr()}</span>
-        <span class="log-sev ${sevClass}">${sevLabel}</span>
-        <span class="log-msg">${msg}</span>
-      </div>`;
+      if (logList.length === 0) {
+        logEl.innerHTML = '<div class="log-entry"><span class="log-time">—</span><span class="log-sev ok">INFO</span><span class="log-msg">Aucune entrée dans le journal.</span></div>';
+      } else {
+        logEl.innerHTML = logList.map(e => {
+          const sevClass = e.sev === 'CRITIQUE' ? 'crit' : e.sev === 'ALERTE' ? 'warn' : 'ok';
+          return `<div class="log-entry"><span class="log-time">${e.time||'—'}</span><span class="log-sev ${sevClass}">${e.sev||'INFO'}</span><span class="log-msg">${e.msg||''}</span></div>`;
+        }).join('');
+      }
     }
+    if (logCnt) logCnt.textContent = logList.length + ' entrée' + (logList.length > 1 ? 's' : '');
 
-    // Dernière mise à jour
+    // ── État de confinement (liste SCPs)
+    const scpEl   = $('scpList');
+    const scpStat = $('scpStat');
+    if (scpEl) {
+      if (!scpList.length) {
+        scpEl.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--text-dim);padding:12px;">Aucune donnée de confinement.</div>';
+      } else {
+        const cls = { SAFE:'var(--safe)', EUCLIDE:'var(--accent)', KETER:'var(--danger)', EUCLID:'var(--accent)' };
+        scpEl.innerHTML = scpList.map(s => {
+          const c = cls[s.class?.toUpperCase()] || 'var(--text-dim)';
+          const confined = (s.status||'').toLowerCase() === 'confiné';
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;">
+            <span style="color:${c};letter-spacing:0.1em;">${s.name||'—'}</span>
+            <span style="color:${confined?'var(--safe)':'var(--danger)'};">${s.status||'—'}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+    if (scpStat) scpStat.textContent = scps + '/' + scpsTotal + ' confinés';
+
+    // ── Last update
     const lu = $('statusLastUpdate');
     if (lu) { lu.style.color = ''; lu.textContent = 'MÀJ ' + updatedAt; }
   }
 
   // Listener temps réel
   onSnapshot(doc(db, 'server_status', 'current'), snap => {
-    if (snap.exists()) {
-      applyStatus(snap.data());
-    } else {
-      applyStatus({ open: false, reason: 'Non configuré', updatedBy: '—', updatedAt: '' });
-    }
-  }, err => {
+    applyStatus(snap.exists() ? snap.data() : { open: false, reason: 'Non configuré', updatedBy: 'Système', updatedAt: new Date().toISOString() });
+  }, () => {
     const lu = $('statusLastUpdate');
     if (lu) { lu.style.color = 'var(--danger)'; lu.textContent = '⚠ Erreur Firebase'; }
   });
   </script>
 </body>
-</html>

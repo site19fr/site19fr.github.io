@@ -133,7 +133,7 @@
     /* ── SERVER STATUS WIDGET ── */
     .server-widget { background:var(--surface2); border:1px solid rgba(76,195,255,0.25); border-top:2px solid #4cc3ff; padding:20px; margin-bottom:24px; }
     .server-widget-title { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; color:#4cc3ff; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid rgba(76,195,255,0.15); }
-    .server-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .server-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
     .server-state-display { display:flex; align-items:center; gap:12px; }
     .srv-dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; transition:all 0.4s; }
     .srv-dot.open   { background:var(--safe);   box-shadow:0 0 10px rgba(0,230,118,0.5); animation:srv-pulse 2s infinite; }
@@ -148,10 +148,22 @@
     .srv-btn.to-open:hover  { background:rgba(0,230,118,0.18); }
     .srv-btn.to-close { color:var(--danger); border-color:var(--danger); background:rgba(192,57,43,0.07); }
     .srv-btn.to-close:hover { background:rgba(192,57,43,0.18); }
-    .srv-reason-row { display:flex; gap:8px; margin-top:14px; }
-    .srv-reason-row input { flex:1; background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:11px; padding:8px 12px; outline:none; }
-    .srv-reason-row input:focus { border-color:#4cc3ff; }
-    .srv-reason-row input::placeholder { color:var(--text-dim); }
+    .srv-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    @media(max-width:700px){ .srv-fields { grid-template-columns:1fr; } }
+    .srv-field label { font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-dim); display:block; margin-bottom:5px; }
+    .srv-field input, .srv-field select { width:100%; background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:11px; padding:7px 10px; outline:none; }
+    .srv-field input:focus, .srv-field select:focus { border-color:#4cc3ff; }
+    .srv-field input::placeholder { color:var(--text-dim); }
+    .srv-field.full { grid-column:1/-1; }
+    .srv-log-row { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+    .srv-log-entry { display:flex; gap:6px; align-items:center; }
+    .srv-log-entry input { flex:1; background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:10px; padding:5px 8px; outline:none; }
+    .srv-log-entry select { background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:10px; padding:5px; outline:none; }
+    .srv-scps-row { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+    .srv-scp-entry { display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:6px; align-items:center; }
+    .srv-scp-entry input, .srv-scp-entry select { background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:10px; padding:5px 8px; outline:none; width:100%; }
+    .srv-save-btn { width:100%; margin-top:16px; padding:10px; background:rgba(76,195,255,0.08); border:1px solid #4cc3ff; color:#4cc3ff; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
+    .srv-save-btn:hover { background:rgba(76,195,255,0.18); }
 
     /* ── ADMIN ── */
     .admin-section { background:var(--surface2); border:1px solid rgba(192,57,43,0.3); border-top:2px solid var(--danger); padding:20px; margin-bottom:24px; }
@@ -344,9 +356,10 @@
         </div>
       </div>
 
-      <!-- STATUT SERVEUR -->
+      <!-- ══ STATUT SERVEUR ══ -->
       <div class="server-widget">
-        <div class="server-widget-title">🖥 Statut du Serveur Roblox</div>
+        <div class="server-widget-title">🖥 Statut du Serveur Roblox — Temps Réel</div>
+
         <div class="server-toggle-row">
           <div class="server-state-display">
             <div class="srv-dot closed" id="srvDot"></div>
@@ -355,12 +368,44 @@
               <div class="srv-meta" id="srvMeta">—</div>
             </div>
           </div>
-          <button class="srv-btn to-open" id="srvBtn" onclick="toggleServer()">Chargement…</button>
+          <button class="srv-btn to-open" id="srvBtn">Chargement…</button>
         </div>
-        <div class="srv-reason-row">
-          <input type="text" id="srvReason" placeholder="Raison optionnelle (ex: Maintenance, Événement spécial…)" maxlength="120"/>
-          <button class="btn btn-ghost btn-sm" onclick="toggleServer()">✓ Appliquer</button>
+
+        <div class="srv-fields">
+          <div class="srv-field"><label>Raison / Message</label><input type="text" id="srvReason" placeholder="Ex: Maintenance, Événement…" maxlength="120"/></div>
+          <div class="srv-field"><label>Stabilité confinement (%)</label><input type="number" id="srvStability" min="0" max="100" placeholder="96"/></div>
+          <div class="srv-field"><label>Joueurs connectés</label><input type="text" id="srvPlayers" placeholder="Ex: 24"/></div>
+          <div class="srv-field"><label>Agents Fondation actifs</label><input type="text" id="srvFoundation" placeholder="Ex: 12"/></div>
+          <div class="srv-field"><label>SCPs confinés</label><input type="number" id="srvScps" min="0" placeholder="Ex: 6"/></div>
+          <div class="srv-field"><label>Total SCPs</label><input type="number" id="srvScpsTotal" min="1" placeholder="8"/></div>
+          <div class="srv-field"><label>Alertes actives</label><input type="number" id="srvAlerts" min="0" placeholder="0"/></div>
+
+          <div class="srv-field full">
+            <label>Journal des événements <button class="btn btn-ghost btn-xs" id="addLogBtn" style="margin-left:8px">+ Ajouter ligne</button></label>
+            <div class="srv-log-row" id="srvLogRows">
+              <div class="srv-log-entry">
+                <input type="text" placeholder="HH:MM:SS" style="max-width:80px"/>
+                <select><option value="INFO">INFO</option><option value="ALERTE">ALERTE</option><option value="CRITIQUE">CRITIQUE</option></select>
+                <input type="text" placeholder="Message…"/>
+                <button class="btn btn-danger btn-xs" onclick="this.closest('.srv-log-entry').remove()">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="srv-field full">
+            <label>État de confinement SCPs <button class="btn btn-ghost btn-xs" id="addScpBtn" style="margin-left:8px">+ Ajouter SCP</button></label>
+            <div class="srv-scps-row" id="srvScpRows">
+              <div class="srv-scp-entry">
+                <input type="text" placeholder="Nom (ex: SCP-173)"/>
+                <select><option value="SAFE">SAFE</option><option value="EUCLIDE">EUCLIDE</option><option value="KETER">KETER</option></select>
+                <select><option value="Confiné">Confiné</option><option value="Brèche">Brèche</option><option value="Non localisé">Non localisé</option></select>
+                <button class="btn btn-danger btn-xs" onclick="this.closest('.srv-scp-entry').remove()">✕</button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <button class="srv-save-btn" id="srvSaveBtn">💾 Sauvegarder toutes les modifications</button>
       </div>
 
       <div class="admin-section">
@@ -517,8 +562,9 @@ let serverStatus = { open: false };
 // ── SERVER STATUS LISTENER ──
 function startServerListen() {
   unsubServer = onSnapshot(doc(db, 'server_status', 'current'), snap => {
-    serverStatus = snap.exists() ? snap.data() : { open: false, reason: '', updatedBy: '—', updatedAt: '' };
+    serverStatus = snap.exists() ? snap.data() : { open:false };
     renderServerWidget();
+    populateServerForm();
   });
 }
 
@@ -541,21 +587,118 @@ function renderServerWidget() {
   btn.textContent = isOpen ? '🔒 Fermer le serveur' : '🔓 Ouvrir le serveur';
 }
 
-window.toggleServer = async function() {
+function populateServerForm() {
+  const s = serverStatus;
+  const g = id => document.getElementById(id);
+  if (g('srvReason'))     g('srvReason').value     = s.reason     || '';
+  if (g('srvStability'))  g('srvStability').value  = s.stability  ?? 96;
+  if (g('srvPlayers'))    g('srvPlayers').value     = s.players    || '';
+  if (g('srvFoundation')) g('srvFoundation').value  = s.foundation || '';
+  if (g('srvScps'))       g('srvScps').value        = s.scps       ?? 0;
+  if (g('srvScpsTotal'))  g('srvScpsTotal').value   = s.scpsTotal  ?? 8;
+  if (g('srvAlerts'))     g('srvAlerts').value      = s.alerts     ?? 0;
+
+  // Log rows
+  const logContainer = g('srvLogRows');
+  if (logContainer && s.logList?.length) {
+    logContainer.innerHTML = s.logList.map(e => `
+      <div class="srv-log-entry">
+        <input type="text" value="${e.time||''}" style="max-width:80px" placeholder="HH:MM:SS"/>
+        <select>
+          <option ${e.sev==='INFO'?'selected':''}>INFO</option>
+          <option ${e.sev==='ALERTE'?'selected':''}>ALERTE</option>
+          <option ${e.sev==='CRITIQUE'?'selected':''}>CRITIQUE</option>
+        </select>
+        <input type="text" value="${(e.msg||'').replace(/"/g,'&quot;')}" placeholder="Message…"/>
+        <button class="btn btn-danger btn-xs" onclick="this.closest('.srv-log-entry').remove()">✕</button>
+      </div>`).join('');
+  }
+
+  // SCP rows
+  const scpContainer = g('srvScpRows');
+  if (scpContainer && s.scpList?.length) {
+    scpContainer.innerHTML = s.scpList.map(e => `
+      <div class="srv-scp-entry">
+        <input type="text" value="${e.name||''}" placeholder="Nom (ex: SCP-173)"/>
+        <select>
+          <option ${e.class==='SAFE'?'selected':''}>SAFE</option>
+          <option ${e.class==='EUCLIDE'?'selected':''}>EUCLIDE</option>
+          <option ${e.class==='KETER'?'selected':''}>KETER</option>
+        </select>
+        <select>
+          <option ${e.status==='Confiné'?'selected':''}>Confiné</option>
+          <option ${e.status==='Brèche'?'selected':''}>Brèche</option>
+          <option ${e.status==='Non localisé'?'selected':''}>Non localisé</option>
+        </select>
+        <button class="btn btn-danger btn-xs" onclick="this.closest('.srv-scp-entry').remove()">✕</button>
+      </div>`).join('');
+  }
+}
+
+async function saveServerStatus(newOpen) {
   if (currentRole !== 'admin') return;
   const snap = await getDoc(doc(db, 'users', currentUser.uid));
   const name = snap.exists() ? (snap.data().name || currentUser.email) : currentUser.email;
-  const newOpen = !serverStatus.open;
-  const reason  = document.getElementById('srvReason')?.value.trim() || '';
-  await setDoc(doc(db, 'server_status', 'current'), {
-    open: newOpen,
-    reason,
-    updatedBy: name,
-    updatedAt: new Date().toISOString(),
-  });
-  document.getElementById('srvReason').value = '';
-  SCPIntranet.addHistory('Serveur ' + (newOpen ? 'OUVERT' : 'FERMÉ') + (reason ? ' — ' + reason : ''));
-};
+  const g = id => document.getElementById(id);
+
+  const isOpen = newOpen !== undefined ? newOpen : serverStatus.open;
+
+  // Collect log entries
+  const logList = [...document.querySelectorAll('#srvLogRows .srv-log-entry')].map(row => {
+    const inputs = row.querySelectorAll('input');
+    const sel    = row.querySelector('select');
+    return { time: inputs[0]?.value.trim()||'', sev: sel?.value||'INFO', msg: inputs[1]?.value.trim()||'' };
+  }).filter(e => e.msg);
+
+  // Collect SCP entries
+  const scpList = [...document.querySelectorAll('#srvScpRows .srv-scp-entry')].map(row => {
+    const inputs  = row.querySelectorAll('input');
+    const selects = row.querySelectorAll('select');
+    return { name: inputs[0]?.value.trim()||'', class: selects[0]?.value||'SAFE', status: selects[1]?.value||'Confiné' };
+  }).filter(e => e.name);
+
+  const data = {
+    open:       isOpen,
+    reason:     g('srvReason')?.value.trim()    || '',
+    stability:  parseInt(g('srvStability')?.value) || (isOpen ? 96 : 15),
+    players:    g('srvPlayers')?.value.trim()   || '—',
+    foundation: g('srvFoundation')?.value.trim()|| '—',
+    scps:       parseInt(g('srvScps')?.value)   || 0,
+    scpsTotal:  parseInt(g('srvScpsTotal')?.value) || 8,
+    alerts:     parseInt(g('srvAlerts')?.value) || 0,
+    logList,
+    scpList,
+    updatedBy:  name,
+    updatedAt:  new Date().toISOString(),
+  };
+
+  await setDoc(doc(db, 'server_status', 'current'), data);
+  SCPIntranet.addHistory('Statut serveur mis à jour — ' + (isOpen ? 'OUVERT' : 'FERMÉ'));
+}
+
+// Bind toggle button
+document.addEventListener('click', e => {
+  if (e.target.id === 'srvBtn')     saveServerStatus(!serverStatus.open);
+  if (e.target.id === 'srvSaveBtn') saveServerStatus(serverStatus.open);
+  if (e.target.id === 'addLogBtn') {
+    document.getElementById('srvLogRows').insertAdjacentHTML('beforeend', `
+      <div class="srv-log-entry">
+        <input type="text" placeholder="HH:MM:SS" style="max-width:80px"/>
+        <select><option>INFO</option><option>ALERTE</option><option>CRITIQUE</option></select>
+        <input type="text" placeholder="Message…"/>
+        <button class="btn btn-danger btn-xs" onclick="this.closest('.srv-log-entry').remove()">✕</button>
+      </div>`);
+  }
+  if (e.target.id === 'addScpBtn') {
+    document.getElementById('srvScpRows').insertAdjacentHTML('beforeend', `
+      <div class="srv-scp-entry">
+        <input type="text" placeholder="Nom (ex: SCP-173)"/>
+        <select><option>SAFE</option><option>EUCLIDE</option><option>KETER</option></select>
+        <select><option>Confiné</option><option>Brèche</option><option>Non localisé</option></select>
+        <button class="btn btn-danger btn-xs" onclick="this.closest('.srv-scp-entry').remove()">✕</button>
+      </div>`);
+  }
+});
 const PAGE_SIZE = 10;
 
 // ── AUTH STATE ──
@@ -576,7 +719,7 @@ onAuthStateChanged(auth, async user => {
   } else {
     currentUser = null; currentRole = null;
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-    if (unsubServer)  { unsubServer();  unsubServer  = null; }
+    if (unsubServer) { unsubServer(); unsubServer = null; }
     showLogin();
   }
 });
