@@ -1138,6 +1138,7 @@ window.loadUsers = async function() {
       const displayName = u.displayName || u.username || u.name || '—';
       const loginId = u.username || u.name || u.email || '—';
       const hasPwd = !!u.password;
+      const roleStr = u.role || 'moderateur';
       return `<div class="user-row">
         <div>
           <div class="user-email">${esc(displayName)}${isMe?' <span style="font-size:9px;color:var(--text-dim)">(vous)</span>':''}</div>
