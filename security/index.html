@@ -796,6 +796,9 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 
+// ── Helpers globaux ──
+function esc(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 // ── Helpers Firestore ──
 async function fbAdd(col, data)        { return await addDoc(collection(db, col), { ...data, createdAt: new Date().toISOString() }); }
 async function fbUpdate(col, id, data) { await updateDoc(doc(db, col, id), data); }
