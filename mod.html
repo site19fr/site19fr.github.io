@@ -245,8 +245,8 @@
     </div>
     <div id="loginForm">
       <div class="login-field">
-        <label>Adresse e-mail</label>
-        <input type="email" id="loginEmail" placeholder="agent@site19.scp" />
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="loginUsername" placeholder="Agent_Nom" autocomplete="username" />
       </div>
       <div class="login-field">
         <label>Mot de passe</label>
@@ -509,11 +509,11 @@
       </div>
 
       <div class="admin-section">
-        <div class="admin-section-title">⚙ Créer un compte modérateur</div>
+        <div class="admin-section-title">⚙ Créer un compte</div>
         <div class="form-grid">
-          <div class="form-field"><label>Email</label><input type="email" id="newUserEmail" placeholder="mod@site19.scp" /></div>
-          <div class="form-field"><label>Mot de passe</label><input type="password" id="newUserPassword" placeholder="Min. 6 caractères" /></div>
-          <div class="form-field"><label>Pseudo affiché</label><input type="text" id="newUserName" placeholder="Agent_Nom" /></div>
+          <div class="form-field"><label>Nom d'utilisateur *</label><input type="text" id="newUserUsername" placeholder="Agent_Nom" autocomplete="off" /></div>
+          <div class="form-field"><label>Mot de passe *</label><input type="password" id="newUserPassword" placeholder="Min. 4 caractères" /></div>
+          <div class="form-field"><label>Nom affiché</label><input type="text" id="newUserDisplayName" placeholder="Ex: M.NOWAK (optionnel)" /></div>
           <div class="form-field"><label>Rôle</label>
             <select id="newUserRole"><option value="moderateur">Modérateur</option><option value="responsable">Responsable</option><option value="junior">Modérateur Junior</option><option value="animateur">Animateur</option><option value="morpheur">Morpheur</option><option value="admin">Administrateur</option></select>
           </div>
@@ -631,10 +631,8 @@
 
 <!-- FIREBASE + LOGIQUE -->
 <script type="module">
-import { initializeApp, deleteApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword }
-                                   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc, getDoc, getDocs }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc, getDocs, where }
                                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -646,9 +644,14 @@ const firebaseConfig = {
   appId: "1:245750946774:web:821944a85e207094b22277"
 };
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── Session custom ──
+const MOD_SESSION_KEY = 'scp_mod_session';
+function loadModSession()  { try { return JSON.parse(localStorage.getItem(MOD_SESSION_KEY)); } catch { return null; } }
+function saveModSession(u) { localStorage.setItem(MOD_SESSION_KEY, JSON.stringify(u)); }
+function clearModSession() { localStorage.removeItem(MOD_SESSION_KEY); }
 
 let sanctions   = [];
 let currentUser = null;
@@ -735,8 +738,7 @@ function populateServerForm() {
 
 async function saveServerStatus(newOpen) {
   if (currentRole !== 'admin') return;
-  const snap = await getDoc(doc(db, 'users', currentUser.uid));
-  const name = snap.exists() ? (snap.data().name || currentUser.email) : currentUser.email;
+  const name = currentUser?.displayName || currentUser?.username || '—';
   const g = id => document.getElementById(id);
 
   const isOpen = newOpen !== undefined ? newOpen : serverStatus.open;
@@ -797,31 +799,7 @@ document.addEventListener('click', e => {
 
 const PAGE_SIZE = 10;
 
-// ── AUTH STATE ──
-onAuthStateChanged(auth, async user => {
-  if (user) {
-    currentUser = user;
-    try {
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      currentRole = snap.exists() ? (snap.data().role || 'moderateur') : 'moderateur';
-      const name  = snap.exists() ? (snap.data().name || user.email) : user.email;
-      showApp(name, currentRole);
-    } catch {
-      currentRole = 'moderateur';
-      showApp(user.email, 'moderateur');
-    }
-    startListen();
-    startServerListen();
-    startRosterListen();
-  } else {
-    currentUser = null; currentRole = null;
-    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-    if (unsubServer) { unsubServer(); unsubServer = null; }
-    if (unsubRoster) { unsubRoster(); unsubRoster = null; }
-    showLogin();
-  }
-});
-
+// ── AUTH CUSTOM ──
 function showLogin() {
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('appRoot').style.display = 'none';
@@ -839,56 +817,96 @@ function showApp(name, role) {
   const badge = document.getElementById('topbarRoleBadge');
   badge.className = 'role-badge ' + role;
   const roleLabels = {
-    admin:       '🔐 Admin',
-    responsable: '⭐ Responsable',
-    moderateur:  '🛡 Modérateur',
-    junior:      '🔰 Modo Junior',
-    animateur:   '🎭 Animateur',
-    morpheur:    '🎭 Morpheur',
+    admin:'🔐 Admin', responsable:'⭐ Responsable', moderateur:'🛡 Modérateur',
+    junior:'🔰 Modo Junior', animateur:'🎭 Animateur', morpheur:'🎭 Morpheur',
   };
   badge.textContent = roleLabels[role] || ('🛡 ' + role);
   const isAdmin = role === 'admin';
   document.getElementById('adminTab').style.display = isAdmin ? '' : 'none';
   document.getElementById('deleteBtn').style.display = isAdmin ? '' : 'none';
-  // Masquer la gestion des départements roster si rôle insuffisant
   const deptMgr = document.getElementById('rosterDeptManager');
   if (deptMgr) deptMgr.style.display = canEditRoster(role) ? '' : 'none';
   document.getElementById('fDate').value = today();
   toggleDuration();
-  if (role === 'admin') loadUsers();
+  if (isAdmin) loadUsers();
   SCPIntranet.initTabs();
   SCPIntranet.initModalClose();
   SCPIntranet.addHistory('Connecté : ' + name);
 }
 
+// ── Restaurer session au chargement ──
+(async () => {
+  const sess = loadModSession();
+  if (sess?.username && sess?.password) {
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      let found = null;
+      snap.forEach(d => { const u = d.data(); if (u.username?.toLowerCase() === sess.username.toLowerCase()) found = { _id: d.id, ...u }; });
+      if (found && found.password === sess.password) {
+        currentUser = found;
+        currentRole = found.role || 'moderateur';
+        const displayName = found.displayName || found.username;
+        showApp(displayName, currentRole);
+        startListen();
+        startServerListen();
+        startRosterListen();
+        return;
+      }
+    } catch {}
+    clearModSession();
+  }
+  showLogin();
+})();
+
 // ── LOGIN ──
 window.doLogin = async function() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPassword').value;
-  const errEl = document.getElementById('loginError');
+  const username = document.getElementById('loginUsername').value.trim();
+  const pass     = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
   errEl.textContent = '';
+  if (!username || !pass) { errEl.textContent = '⚠ Nom d\'utilisateur et mot de passe requis.'; return; }
   document.getElementById('loginForm').style.display = 'none';
   document.getElementById('loginLoading').style.display = 'block';
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const snap = await getDocs(collection(db, 'users'));
+    let found = null;
+    snap.forEach(d => { const u = d.data(); if (u.username?.toLowerCase() === username.toLowerCase()) found = { _id: d.id, ...u }; });
+    if (!found) {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('loginLoading').style.display = 'none';
+      errEl.textContent = '⚠ Nom d\'utilisateur introuvable.';
+      return;
+    }
+    if (found.password !== pass) {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('loginLoading').style.display = 'none';
+      errEl.textContent = '⚠ Mot de passe incorrect.';
+      return;
+    }
+    currentUser = found;
+    currentRole = found.role || 'moderateur';
+    saveModSession({ username: found.username, password: found.password });
+    const displayName = found.displayName || found.username;
+    showApp(displayName, currentRole);
+    startListen();
+    startServerListen();
+    startRosterListen();
   } catch(e) {
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('loginLoading').style.display = 'none';
-    const msgs = {
-      'auth/invalid-credential':'Email ou mot de passe incorrect.',
-      'auth/user-not-found':'Aucun compte trouvé.',
-      'auth/wrong-password':'Mot de passe incorrect.',
-      'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.',
-      'auth/invalid-email':'Adresse e-mail invalide.',
-    };
-    errEl.textContent = msgs[e.code] || ('Erreur : ' + e.message);
+    errEl.textContent = '⚠ Erreur : ' + e.message;
   }
 };
 document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
-document.getElementById('loginEmail').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('loginPassword').focus(); });
+document.getElementById('loginUsername').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('loginPassword').focus(); });
 
-window.doLogout = async function() {
-  await signOut(auth);
+window.doLogout = function() {
+  currentUser = null; currentRole = null;
+  clearModSession();
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  if (unsubServer) { unsubServer(); unsubServer = null; }
+  if (unsubRoster) { unsubRoster(); unsubRoster = null; }
+  showLogin();
 };
 
 // ── FIRESTORE LISTENER ──
@@ -919,8 +937,7 @@ window.saveSanction = async function() {
   const btn  = document.getElementById('saveSanctionBtn');
   btn.disabled = true; btn.textContent = '…';
   try {
-    const snap = await getDoc(doc(db, 'users', currentUser.uid));
-    const modName = snap.exists() ? (snap.data().name || currentUser.email) : currentUser.email;
+    const modName = currentUser?.displayName || currentUser?.username || '—';
     await addDoc(collection(db, 'sanctions'), {
       player,
       username: document.getElementById('fUsername').value.trim(),
@@ -928,7 +945,7 @@ window.saveSanction = async function() {
       reason,
       details: document.getElementById('fDetails').value.trim(),
       mod: modName,
-      modUid: currentUser.uid,
+      modUid: currentUser?._id || '—',
       duration: ['ban','mute'].includes(type) ? document.getElementById('fDuration').value : '—',
       date: document.getElementById('fDate').value || today(),
       createdAt: new Date().toISOString(),
@@ -979,36 +996,36 @@ window.confirmDelete = async function() {
 };
 
 // ── CREATE USER ──
-// ✅ CORRECTION : deleteApp importé et appelé pour éviter la fuite mémoire
+// ── CREATE USER (custom Firestore) ──
 window.createUser = async function() {
-  const email = document.getElementById('newUserEmail').value.trim();
-  const pass  = document.getElementById('newUserPassword').value;
-  const name  = document.getElementById('newUserName').value.trim();
-  const role  = document.getElementById('newUserRole').value;
-  const msg   = document.getElementById('createUserMsg');
+  const username    = document.getElementById('newUserUsername').value.trim();
+  const pass        = document.getElementById('newUserPassword').value;
+  const displayName = document.getElementById('newUserDisplayName').value.trim();
+  const role        = document.getElementById('newUserRole').value;
+  const msg         = document.getElementById('createUserMsg');
   msg.textContent = ''; msg.style.color = '';
-  if (!email||!pass||!name) { msg.style.color='var(--danger)'; msg.textContent='⚠ Tous les champs sont requis.'; return; }
-  if (pass.length<6) { msg.style.color='var(--danger)'; msg.textContent='⚠ Mot de passe min. 6 caractères.'; return; }
-  let app2 = null;
+  if (!username || !pass) { msg.style.color='var(--danger)'; msg.textContent='⚠ Nom d\'utilisateur et mot de passe requis.'; return; }
+  if (pass.length < 4) { msg.style.color='var(--danger)'; msg.textContent='⚠ Mot de passe min. 4 caractères.'; return; }
   try {
-    app2  = initializeApp(firebaseConfig, 'secondary-' + Date.now());
-    const auth2  = getAuth(app2);
-    const cred   = await createUserWithEmailAndPassword(auth2, email, pass);
-    const uid    = cred.user.uid;
-    await signOut(auth2);
-    // ✅ Nettoyage de l'instance secondaire
-    await deleteApp(app2);
-    app2 = null;
-    await setDoc(doc(db, 'users', uid), { email, name, role, createdAt: new Date().toISOString(), createdBy: currentUser.uid });
+    // Vérifier unicité du username
+    const existing = await getDocs(collection(db, 'users'));
+    let duplicate = false;
+    existing.forEach(d => { if (d.data().username?.toLowerCase() === username.toLowerCase()) duplicate = true; });
+    if (duplicate) { msg.style.color='var(--danger)'; msg.textContent='⚠ Ce nom d\'utilisateur est déjà utilisé.'; return; }
+    await addDoc(collection(db, 'users'), {
+      username, password: pass,
+      displayName: displayName || username,
+      role, createdAt: new Date().toISOString(),
+      createdBy: currentUser?.username || '—'
+    });
     msg.style.color = 'var(--safe)';
-    msg.textContent = '✓ Compte créé : ' + name + ' [' + role + ']';
-    SCPIntranet.addHistory('Compte créé : ' + name);
-    ['newUserEmail','newUserPassword','newUserName'].forEach(id => document.getElementById(id).value = '');
+    msg.textContent = '✓ Compte créé : ' + (displayName || username) + ' [' + role + ']';
+    SCPIntranet.addHistory('Compte créé : ' + (displayName || username));
+    ['newUserUsername','newUserPassword','newUserDisplayName'].forEach(id => document.getElementById(id).value = '');
     loadUsers();
   } catch(e) {
-    if (app2) { try { await deleteApp(app2); } catch {} }
     msg.style.color = 'var(--danger)';
-    msg.textContent = '⚠ ' + (e.code === 'auth/email-already-in-use' ? 'Email déjà utilisé.' : e.message);
+    msg.textContent = '⚠ ' + e.message;
   }
 };
 
@@ -1022,15 +1039,16 @@ window.loadUsers = async function() {
     if (snap.empty) { el.innerHTML = '<div style="padding:14px;color:var(--text-dim);font-family:monospace;font-size:11px;">Aucun utilisateur.</div>'; return; }
     el.innerHTML = snap.docs.map(d => {
       const u = d.data();
-      const isMe = d.id === currentUser.uid;
+      const isMe = d.id === currentUser?._id;
+      const label = esc(u.displayName || u.username || '—');
       return `<div class="user-row">
         <div>
-          <div class="user-email">${esc(u.name||'—')}${isMe?' <span style="font-size:9px;color:var(--text-dim)">(vous)</span>':''}</div>
-          <div class="user-meta">${esc(u.email)}</div>
+          <div class="user-email">${label}${isMe?' <span style="font-size:9px;color:var(--text-dim)">(vous)</span>':''}</div>
+          <div class="user-meta">@${esc(u.username||'—')} · mdp: ${esc(u.password||'—')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <span class="role-badge ${u.role}">${u.role}</span>
-          ${!isMe?`<button class="btn btn-danger btn-xs" onclick="deleteUser('${d.id}','${esc(u.name||'')}')">Supprimer</button>`:''}
+          <span class="role-badge ${u.role||'moderateur'}">${u.role||'moderateur'}</span>
+          ${!isMe?`<button class="btn btn-danger btn-xs" onclick="deleteUser('${d.id}','${esc(u.displayName||u.username||'')}')">Supprimer</button>`:''}
         </div>
       </div>`;
     }).join('');

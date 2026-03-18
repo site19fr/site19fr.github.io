@@ -169,8 +169,8 @@
   <!-- Form (not logged in) -->
   <div id="afLoginPanel">
     <div class="auth-flyout-title">// Authentification agent</div>
-    <div class="af-field"><label>Adresse e-mail</label><input type="email" id="afEmail" placeholder="agent@site19.scp"/></div>
-    <div class="af-field"><label>Mot de passe</label><input type="password" id="afPassword" placeholder="••••••••"/></div>
+    <div class="af-field"><label>Nom d'utilisateur</label><input type="text" id="afUsername" placeholder="Ex: A.MAX" autocomplete="username" spellcheck="false"/></div>
+    <div class="af-field"><label>Mot de passe</label><input type="password" id="afPassword" placeholder="••••••••" autocomplete="current-password"/></div>
     <div class="auth-flyout-err" id="afError"></div>
     <button class="auth-flyout-submit" onclick="doAuthLogin()">→ Accéder</button>
   </div>
@@ -740,18 +740,14 @@ const SCPIntranet = (() => {
 })();
 
 // ══════════════════════════════════════════
-// FIREBASE
+// FIREBASE (sans Auth — système custom)
 // ══════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, collection, doc,
   addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, getDocs
+  onSnapshot, query, orderBy, getDocs, where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAKnnxGUTpNWtkYetID8UwTp6cJgbcj9Kc",
@@ -761,8 +757,7 @@ const app = initializeApp({
   messagingSenderId: "245750946774",
   appId: "1:245750946774:web:821944a85e207094b22277"
 });
-const db   = getFirestore(app);
-const auth = getAuth(app);
+const db = getFirestore(app);
 
 // ── Helpers Firestore ──
 async function fbAdd(col, data)        { return await addDoc(collection(db, col), { ...data, createdAt: new Date().toISOString() }); }
@@ -774,31 +769,57 @@ function fbListen(col, cb) {
 }
 
 // ══════════════════════════════════════════
-// AUTH STATE
+// AUTH CUSTOM — username + password Firestore
+// Session stockée dans localStorage
+// Collection Firestore : "users"
+// Champs attendus : { username, password, role, displayName? }
 // ══════════════════════════════════════════
-let currentUser = null;
-let currentRole = null; // 'admin' | 'moderateur' | null
+const SESSION_KEY = 'scp_sec_session';
+
+let currentUser     = null;   // objet utilisateur Firestore complet
+let currentRole     = null;   // 'admin' | 'moderateur'
 let isAuthenticated = false;
 
-onAuthStateChanged(auth, async user => {
-  if (user) {
-    currentUser = user;
+// ── Restaurer session depuis localStorage au chargement ──
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+function saveSession(userObj) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(userObj));
+}
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+// ── Appelé au démarrage ──
+const savedSession = loadSession();
+if (savedSession) {
+  // Re-vérifier en fond que le compte existe toujours
+  (async () => {
     try {
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      currentRole = snap.exists() ? (snap.data().role || 'moderateur') : 'moderateur';
-      const name  = snap.exists() ? (snap.data().name || user.email) : user.email;
-      isAuthenticated = true;
-      onAuthChange(name, currentRole);
-    } catch {
-      currentRole = 'moderateur';
-      isAuthenticated = true;
-      onAuthChange(user.email, 'moderateur');
-    }
-  } else {
-    currentUser = null; currentRole = null; isAuthenticated = false;
+      const snap = await getDocs(query(collection(db, 'users'), where('username', '==', savedSession.username)));
+      if (!snap.empty) {
+        const u = snap.docs[0].data();
+        if (u.password === savedSession.password) {
+          currentUser = { _id: snap.docs[0].id, ...u };
+          currentRole = u.role || 'moderateur';
+          isAuthenticated = true;
+          onAuthChange(u.displayName || u.username, currentRole);
+          return;
+        }
+      }
+    } catch {}
+    // Session invalide
+    clearSession();
     onAuthChange(null, null);
-  }
-});
+  })();
+} else {
+  onAuthChange(null, null);
+}
 
 function onAuthChange(name, role) {
   applyPermissions(name, role);
@@ -878,7 +899,7 @@ window.toggleAuthFlyout = function() {
 window.openAuthFlyout = function() {
   flyoutOpen = true;
   document.getElementById('authFlyout').classList.add('open');
-  document.getElementById('afEmail')?.focus();
+  document.getElementById('afUsername')?.focus();
 };
 
 // Close flyout on outside click
@@ -895,53 +916,76 @@ document.addEventListener('click', e => {
 document.getElementById('afPassword')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') doAuthLogin();
 });
-document.getElementById('afEmail')?.addEventListener('keydown', e => {
+document.getElementById('afUsername')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('afPassword')?.focus();
 });
 
 function showAuthLoginPanel() {
-  document.getElementById('afLoginPanel').style.display  = 'block';
+  document.getElementById('afLoginPanel').style.display   = 'block';
   document.getElementById('afLoadingPanel').style.display = 'none';
-  document.getElementById('afUserPanel').style.display   = 'none';
+  document.getElementById('afUserPanel').style.display    = 'none';
   document.getElementById('afError').textContent = '';
 }
 function showAuthUserPanel(name, role) {
-  document.getElementById('afLoginPanel').style.display  = 'none';
+  document.getElementById('afLoginPanel').style.display   = 'none';
   document.getElementById('afLoadingPanel').style.display = 'none';
-  document.getElementById('afUserPanel').style.display   = 'block';
+  document.getElementById('afUserPanel').style.display    = 'block';
   document.getElementById('afUserName').textContent = name;
   const roleEl = document.getElementById('afUserRole');
   roleEl.textContent = role === 'admin' ? '🔐 Administrateur' : '🛡 Modérateur';
   roleEl.className = 'auth-user-role ' + (role || 'moderateur');
 }
 
+// ── Login custom Firestore ──
 window.doAuthLogin = async function() {
-  const email = document.getElementById('afEmail').value.trim();
-  const pass  = document.getElementById('afPassword').value;
-  const errEl = document.getElementById('afError');
+  const username = document.getElementById('afUsername').value.trim();
+  const pass     = document.getElementById('afPassword').value;
+  const errEl    = document.getElementById('afError');
   errEl.textContent = '';
-  if (!email || !pass) { errEl.textContent = '⚠ Email et mot de passe requis.'; return; }
-  document.getElementById('afLoginPanel').style.display  = 'none';
+  if (!username || !pass) { errEl.textContent = '⚠ Nom d\'utilisateur et mot de passe requis.'; return; }
+
+  document.getElementById('afLoginPanel').style.display   = 'none';
   document.getElementById('afLoadingPanel').style.display = 'block';
+
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    // onAuthStateChanged will handle the rest
+    // Chercher le compte dans Firestore par username (insensible à la casse)
+    const snap = await getDocs(collection(db, 'users'));
+    let found = null;
+    snap.forEach(d => {
+      const u = d.data();
+      if (u.username?.toLowerCase() === username.toLowerCase()) found = { _id: d.id, ...u };
+    });
+
+    if (!found) {
+      showAuthLoginPanel();
+      errEl.textContent = '⚠ Nom d\'utilisateur introuvable.';
+      return;
+    }
+    if (found.password !== pass) {
+      showAuthLoginPanel();
+      errEl.textContent = '⚠ Mot de passe incorrect.';
+      return;
+    }
+
+    // Succès
+    currentUser     = found;
+    currentRole     = found.role || 'moderateur';
+    isAuthenticated = true;
+    saveSession({ username: found.username, password: found.password });
+    const displayName = found.displayName || found.username;
+    onAuthChange(displayName, currentRole);
+
   } catch(e) {
     showAuthLoginPanel();
-    const msgs = {
-      'auth/invalid-credential':'Email ou mot de passe incorrect.',
-      'auth/user-not-found':'Aucun compte trouvé.',
-      'auth/wrong-password':'Mot de passe incorrect.',
-      'auth/too-many-requests':'Trop de tentatives. Réessayez.',
-      'auth/invalid-email':'Adresse e-mail invalide.',
-    };
-    errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
+    errEl.textContent = '⚠ Erreur : ' + e.message;
   }
 };
 
-window.doAuthLogout = async function() {
-  await signOut(auth);
-  flyoutOpen = true; // keep open to show login form
+window.doAuthLogout = function() {
+  currentUser = null; currentRole = null; isAuthenticated = false;
+  clearSession();
+  onAuthChange(null, null);
+  flyoutOpen = true;
   document.getElementById('authFlyout').classList.add('open');
 };
 
