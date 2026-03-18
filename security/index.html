@@ -973,11 +973,13 @@ window.openAuthFlyout = function() {
 };
 
 // Close flyout on outside click
-document.addEventListener('click', e => {
+// Fermer flyout sur mousedown hors zone (mousedown évite le conflit avec le click du bouton)
+document.addEventListener('mousedown', e => {
   if (!flyoutOpen) return;
   const flyout = document.getElementById('authFlyout');
   const btn = document.getElementById('authBtn');
-  if (!flyout?.contains(e.target) && !btn?.contains(e.target)) {
+  const sideBtn = document.getElementById('sidebarAuthBtn');
+  if (!flyout?.contains(e.target) && !btn?.contains(e.target) && !sideBtn?.contains(e.target)) {
     flyoutOpen = false;
     flyout?.classList.remove('open');
   }
@@ -1141,11 +1143,131 @@ function renderLRC() {
     </div>`;
   }).join('');
 }
-document.addEventListener('click', e => {
-  const lb = e.target.closest('[data-lrc]'); if (!lb) return;
-  const code = lb.dataset.lrc;
-  SCPIntranet.copyText(`ALERTE SITE-19 — CODE: ${code} ACTIVÉ. Toutes les unités appliquer le protocole d'urgence.`, lb, 'Copié');
-  SCPIntranet.addHistory('Alerte LRC copiée: CODE ' + code);
+// ══ DISPATCHER GLOBAL — un seul listener click pour tout ══
+document.addEventListener('click', async e => {
+  // ── LRC ──
+  const lb = e.target.closest('[data-lrc]');
+  if (lb) {
+    const code = lb.dataset.lrc;
+    SCPIntranet.copyText(`ALERTE SITE-19 — CODE: ${code} ACTIVÉ. Toutes les unités appliquer le protocole d'urgence.`, lb, 'Copié');
+    SCPIntranet.addHistory('Alerte LRC copiée: CODE ' + code);
+    return;
+  }
+
+  // ── EFFECTIFS : filtre pills ──
+  const effPill = e.target.closest('[data-eff-filter]');
+  if (effPill) {
+    document.querySelectorAll('[data-eff-filter]').forEach(p => p.classList.remove('active'));
+    effPill.classList.add('active');
+    effectifsFilter = effPill.dataset.effFilter;
+    renderEffectifs();
+    return;
+  }
+
+  // ── EFFECTIFS : supprimer agent ──
+  const dsb = e.target.closest('[data-del-sec-user]');
+  if (dsb) {
+    if (!requireAuth('supprimer un agent')) return;
+    const id = dsb.dataset.delSecUser;
+    const agent = secUsers.find(a => a._id === id);
+    if (!confirm('Supprimer ' + (agent?.name || id) + ' du personnel ?')) return;
+    await secUserDelete(id);
+    SCPIntranet.addHistory('Personnel supprimé : ' + (agent?.name || id));
+    return;
+  }
+
+  // ── EFFECTIFS : toggle en ligne ──
+  const tob = e.target.closest('[data-toggle-online]');
+  if (tob) {
+    if (!requireAuth('modifier le statut')) return;
+    const id = tob.dataset.toggleOnline;
+    const agent = secUsers.find(a => a._id === id);
+    if (!agent) return;
+    await secUserUpdate(id, { online: !agent.online });
+    SCPIntranet.addHistory((agent.online ? '○ Hors ligne' : '⬤ En ligne') + ' : ' + agent.name);
+    return;
+  }
+
+  // ── EFFECTIFS : toggle grade edit ──
+  const rtb = e.target.closest('[data-rank-toggle]');
+  if (rtb) {
+    if (!isAuthenticated) return;
+    const id = rtb.dataset.rankToggle;
+    const input = document.getElementById('rank-input-' + id);
+    if (!input) return;
+    const isVisible = input.style.display === 'block';
+    if (isVisible) { input.style.display = 'none'; rtb.style.display = 'inline-block'; }
+    else { input.style.display = 'block'; rtb.style.display = 'none'; input.focus(); input.select(); }
+    return;
+  }
+
+  // ── EFFECTIFS : copier morph ──
+  const meb = e.target.closest('[data-morph-effectif]');
+  if (meb) {
+    const id = meb.dataset.morphEffectif;
+    const agent = secUsers.find(a => a._id === id);
+    if (!agent) return;
+    const morphEntry = MORPH_DATA.find(m => m.name === agent.name || m.rank === agent.rank);
+    if (!morphEntry) return;
+    await SCPIntranet.copyText(morphEntry.command, meb, 'Copié !');
+    SCPIntranet.addHistory('Morph copié : ' + agent.name);
+    return;
+  }
+
+  // ── PROTOCOLES ──
+  const cp = e.target.closest('[data-copy-p]');
+  if (cp) { const p = protocols.find(x=>x._id===cp.dataset.copyP); if(p) SCPIntranet.copyText(p.content, cp, 'Copié'); return; }
+  const ep = e.target.closest('[data-edit-p]');
+  if (ep) { if(!requireAuth('modifier un protocole')) return; openProtoModal(protocols.find(x=>x._id===ep.dataset.editP)); return; }
+  const dp = e.target.closest('[data-del-p]');
+  if (dp) { if(!requireAuth('supprimer un protocole')) return; if(!confirm('Supprimer ce protocole ?')) return; await fbDelete('sec_protocols', dp.dataset.delP); SCPIntranet.addHistory('Protocole supprimé.'); return; }
+
+  // ── ÉVALUATIONS ──
+  const eb = e.target.closest('[data-edit-ev]');
+  if (eb) { if(!requireAuth('modifier une éval')) return; openEvalForm(evaluations.find(x=>x._id===eb.dataset.editEv)); return; }
+  const db2 = e.target.closest('[data-del-ev]');
+  if (db2) { if(!requireAuth('supprimer une éval')) return; if(!confirm('Supprimer ?')) return; await fbDelete('sec_evals', db2.dataset.delEv); return; }
+
+  // ── RAPPORTS ──
+  const vb = e.target.closest('[data-view-r]');
+  if (vb) { viewRapport(rapports.find(x=>x._id===vb.dataset.viewR)); return; }
+  const exb = e.target.closest('[data-exp-r]');
+  if (exb) { const r=rapports.find(x=>x._id===exb.dataset.expR); if(r) SCPIntranet.exportRapport(r); return; }
+  const db3 = e.target.closest('[data-del-r]');
+  if (db3) { if(!requireAuth('supprimer un rapport')) return; if(!confirm('Supprimer ?')) return; await fbDelete('sec_rapports', db3.dataset.delR); return; }
+
+  // ── MORPHS (copie) ──
+  const mb = e.target.closest('[data-morph-i]');
+  if (mb) { const m = MORPH_DATA[parseInt(mb.dataset.morphI)]; if(!m) return; await SCPIntranet.copyText(m.command, mb, 'Copié !'); SCPIntranet.addHistory('Morph copié: ' + m.name); return; }
+
+  // ── APPEL : status agent ──
+  const sb = e.target.closest('[data-status-agent]');
+  if (sb) { setEntry(sb.dataset.statusAgent, sb.dataset.status); return; }
+
+  // ── APPEL : note agent ──
+  const nb = e.target.closest('[data-note-agent]');
+  if (nb) {
+    noteTargetAgentId = nb.dataset.noteAgent;
+    const agent = agents.find(a => a._id === noteTargetAgentId);
+    document.getElementById('modalNoteTitle').textContent = 'Note — ' + (agent?.name || '');
+    document.getElementById('agentNoteInput').value = getEntry(noteTargetAgentId).note || '';
+    SCPIntranet.openModal('modalNote');
+    return;
+  }
+
+  // ── APPEL historique ──
+  const reexp = e.target.closest('[data-reexport-appel]');
+  if (reexp) { const s = appelSessions.find(x => x._id === reexp.dataset.reexportAppel); if (s) exportAppelRapport(s); return; }
+  const db4 = e.target.closest('[data-del-appel]');
+  if (db4) { if (!requireAuth('supprimer une session')) return; if (!confirm('Supprimer cette session ?')) return; await fbDelete('sec_appel_sessions', db4.dataset.delAppel); return; }
+
+  // ── AGENTS modale : supprimer ──
+  const dag = e.target.closest('[data-del-agent]');
+  if (dag) { if (!requireAuth('supprimer un agent')) return; if (!confirm('Supprimer cet agent ?')) return; await secUserDelete(dag.dataset.delAgent); return; }
+
+  // ── Modales : fermer ──
+  if (e.target.dataset.closeModal) { SCPIntranet.closeModal(e.target.dataset.closeModal); return; }
+  if (e.target.classList.contains('modal-ov')) { SCPIntranet.closeModal(e.target.id); return; }
 });
 
 // ══════════════════════════════════════════
@@ -1325,68 +1447,9 @@ function bindEffectifsForm() {
 // Listeners effectifs
 document.getElementById('effectifsSearch')?.addEventListener('input', renderEffectifs);
 document.getElementById('effectifsFilterSection')?.addEventListener('change', renderEffectifs);
-document.addEventListener('click', e => {
-  const pill = e.target.closest('[data-eff-filter]');
-  if (pill && pill.closest('#view-effectifs')) {
-    document.querySelectorAll('[data-eff-filter]').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-    effectifsFilter = pill.dataset.effFilter;
-    renderEffectifs();
-  }
-});
+// eff-filter pills → dispatcher global
 
-// Délégation d'événements effectifs
-document.addEventListener('click', async e => {
-  // Supprimer un agent sec_users
-  const dsb = e.target.closest('[data-del-sec-user]');
-  if (dsb) {
-    if (!requireAuth('supprimer un agent')) return;
-    const id = dsb.dataset.delSecUser;
-    const agent = secUsers.find(a => a._id === id);
-    if (!confirm('Supprimer ' + (agent?.name || id) + ' du personnel ?')) return;
-    await secUserDelete(id);
-    SCPIntranet.addHistory('Personnel supprimé : ' + (agent?.name || id));
-    return;
-  }
-
-  // Toggle en ligne / hors ligne — écrit dans sec_users
-  const tob = e.target.closest('[data-toggle-online]');
-  if (tob) {
-    if (!requireAuth('modifier le statut')) return;
-    const id = tob.dataset.toggleOnline;
-    const agent = secUsers.find(a => a._id === id);
-    if (!agent) return;
-    await secUserUpdate(id, { online: !agent.online });
-    SCPIntranet.addHistory((agent.online ? '○ Hors ligne' : '⬤ En ligne') + ' : ' + agent.name);
-    return;
-  }
-
-  // Toggle champ grade
-  const rtb = e.target.closest('[data-rank-toggle]');
-  if (rtb) {
-    if (!isAuthenticated) return;
-    const id = rtb.dataset.rankToggle;
-    const input = document.getElementById('rank-input-' + id);
-    if (!input) return;
-    const isVisible = input.style.display === 'block';
-    if (isVisible) { input.style.display = 'none'; rtb.style.display = 'inline-block'; }
-    else { input.style.display = 'block'; rtb.style.display = 'none'; input.focus(); input.select(); }
-    return;
-  }
-
-  // Copier morph depuis effectifs
-  const meb = e.target.closest('[data-morph-effectif]');
-  if (meb) {
-    const id = meb.dataset.morphEffectif;
-    const agent = secUsers.find(a => a._id === id);
-    if (!agent) return;
-    const morphEntry = MORPH_DATA.find(m => m.name === agent.name || m.rank === agent.rank);
-    if (!morphEntry) return;
-    await SCPIntranet.copyText(morphEntry.command, meb, 'Copié !');
-    SCPIntranet.addHistory('Morph copié : ' + agent.name);
-    return;
-  }
-});
+// effectifs actions → dispatcher global
 
 // Sauvegarder grade DSE via Enter ou blur — écrit dans sec_users + sync sec_agents
 document.addEventListener('keydown', async e => {
@@ -1451,14 +1514,7 @@ document.getElementById('protoFilters')?.addEventListener('click', e => {
   document.querySelectorAll('#protoFilters .pill').forEach(p => p.classList.remove('active'));
   pill.classList.add('active'); protoFilter = pill.dataset.cat; renderProtocols();
 });
-document.addEventListener('click', async e => {
-  const cp = e.target.closest('[data-copy-p]');
-  if (cp) { const p = protocols.find(x=>x._id===cp.dataset.copyP); if(p) SCPIntranet.copyText(p.content, cp, 'Copié'); return; }
-  const ep = e.target.closest('[data-edit-p]');
-  if (ep) { if(!requireAuth('modifier un protocole')) return; openProtoModal(protocols.find(x=>x._id===ep.dataset.editP)); return; }
-  const dp = e.target.closest('[data-del-p]');
-  if (dp) { if(!requireAuth('supprimer un protocole')) return; if(!confirm('Supprimer ce protocole ?')) return; await fbDelete('sec_protocols', dp.dataset.delP); SCPIntranet.addHistory('Protocole supprimé.'); return; }
-});
+// protocoles → dispatcher global
 document.getElementById('btnNewProto')?.addEventListener('click', () => {
   if (!requireAuth('créer un protocole')) return; openProtoModal(null);
 });
@@ -1516,12 +1572,7 @@ document.getElementById('evalFilters')?.addEventListener('click', e => {
   document.querySelectorAll('#evalFilters .pill').forEach(p=>p.classList.remove('active'));
   pill.classList.add('active'); activeEvalFilter = pill.dataset.evalFilter; renderEvals();
 });
-document.addEventListener('click', async e => {
-  const eb = e.target.closest('[data-edit-ev]');
-  if (eb) { if(!requireAuth('modifier une éval')) return; openEvalForm(evaluations.find(x=>x._id===eb.dataset.editEv)); return; }
-  const db2 = e.target.closest('[data-del-ev]');
-  if (db2) { if(!requireAuth('supprimer une éval')) return; if(!confirm('Supprimer ?')) return; await fbDelete('sec_evals', db2.dataset.delEv); return; }
-});
+// évals → dispatcher global
 document.getElementById('btnNewEval')?.addEventListener('click', () => {
   if (!requireAuth('créer une évaluation')) return; openEvalForm(null);
 });
@@ -1591,11 +1642,7 @@ document.getElementById('rapportFilters')?.addEventListener('click',e=>{
   document.querySelectorAll('#rapportFilters .pill').forEach(p=>p.classList.remove('active'));
   pill.classList.add('active');activeRapportFilter=pill.dataset.rFilter;renderRapports();
 });
-document.addEventListener('click', async e=>{
-  const vb=e.target.closest('[data-view-r]');if(vb){viewRapport(rapports.find(x=>x._id===vb.dataset.viewR));return;}
-  const eb=e.target.closest('[data-exp-r]');if(eb){const r=rapports.find(x=>x._id===eb.dataset.expR);if(r)SCPIntranet.exportRapport(r);return;}
-  const db3=e.target.closest('[data-del-r]');if(db3){if(!requireAuth('supprimer un rapport')) return; if(!confirm('Supprimer ?'))return; await fbDelete('sec_rapports', db3.dataset.delR); return;}
-});
+// rapports → dispatcher global
 function viewRapport(r){
   if(!r)return;currentRapport=r;
   const sev=SCPIntranet.getSevStyle(r.severity);
@@ -1841,18 +1888,7 @@ function renderAppelSession() {
   el.innerHTML = html;
 }
 
-document.getElementById('appelAgentList')?.addEventListener('click', e => {
-  const sb = e.target.closest('[data-status-agent]');
-  if (sb) { setEntry(sb.dataset.statusAgent, sb.dataset.status); return; }
-  const nb = e.target.closest('[data-note-agent]');
-  if (nb) {
-    noteTargetAgentId = nb.dataset.noteAgent;
-    const agent = agents.find(a => a._id === noteTargetAgentId);
-    document.getElementById('modalNoteTitle').textContent = 'Note — ' + (agent?.name || '');
-    document.getElementById('agentNoteInput').value = getEntry(noteTargetAgentId).note || '';
-    SCPIntranet.openModal('modalNote');
-  }
-});
+// appel status/note → dispatcher global
 
 document.getElementById('agentNoteSaveBtn')?.addEventListener('click', () => {
   if (!noteTargetAgentId) return;
@@ -1980,12 +2016,7 @@ function renderAppelHistorique() {
   }).join('');
 }
 
-document.getElementById('appelHistoList')?.addEventListener('click', async e => {
-  const eb = e.target.closest('[data-reexport-appel]');
-  if (eb) { const s = appelSessions.find(x => x._id === eb.dataset.reexportAppel); if (s) exportAppelRapport(s); return; }
-  const db4 = e.target.closest('[data-del-appel]');
-  if (db4) { if (!requireAuth('supprimer une session')) return; if (!confirm('Supprimer cette session ?')) return; await fbDelete('sec_appel_sessions', db4.dataset.delAppel); }
-});
+// historique appel → dispatcher global
 
 // ══════════════════════════════════════════
 // INIT
