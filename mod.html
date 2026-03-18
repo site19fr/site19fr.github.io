@@ -834,6 +834,24 @@ function showApp(name, role) {
   SCPIntranet.addHistory('Connecté : ' + name);
 }
 
+// ── Chercher un user par identifiant (username OU name ancien format) ──
+function matchUser(u, input) {
+  const q = input.toLowerCase();
+  // Nouveau format : champ username
+  if (u.username?.toLowerCase() === q) return true;
+  // Ancien format Firebase Auth : champ name (ex "A.MAX") ou email
+  if (u.name?.toLowerCase() === q) return true;
+  if (u.email?.toLowerCase() === q) return true;
+  return false;
+}
+function getDisplayName(u) {
+  return u.displayName || u.username || u.name || u.email || '—';
+}
+function getLoginKey(u) {
+  // Pour la session : préférer username, sinon name
+  return u.username || u.name || u.email || '';
+}
+
 // ── Restaurer session au chargement ──
 (async () => {
   const sess = loadModSession();
@@ -841,18 +859,17 @@ function showApp(name, role) {
     try {
       const snap = await getDocs(collection(db, 'users'));
       let found = null;
-      snap.forEach(d => { const u = d.data(); if (u.username?.toLowerCase() === sess.username.toLowerCase()) found = { _id: d.id, ...u }; });
+      snap.forEach(d => { const u = d.data(); if (matchUser(u, sess.username)) found = { _id: d.id, ...u }; });
       if (found && found.password === sess.password) {
         currentUser = found;
         currentRole = found.role || 'moderateur';
-        const displayName = found.displayName || found.username;
-        showApp(displayName, currentRole);
+        showApp(getDisplayName(found), currentRole);
         startListen();
         startServerListen();
         startRosterListen();
         return;
       }
-    } catch {}
+    } catch(e) { console.warn('Session restore error:', e); }
     clearModSession();
   }
   showLogin();
@@ -870,24 +887,28 @@ window.doLogin = async function() {
   try {
     const snap = await getDocs(collection(db, 'users'));
     let found = null;
-    snap.forEach(d => { const u = d.data(); if (u.username?.toLowerCase() === username.toLowerCase()) found = { _id: d.id, ...u }; });
+    snap.forEach(d => { const u = d.data(); if (!found && matchUser(u, username)) found = { _id: d.id, ...u }; });
+
     if (!found) {
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('loginLoading').style.display = 'none';
-      errEl.textContent = '⚠ Nom d\'utilisateur introuvable.';
+      errEl.textContent = '⚠ Identifiant introuvable.';
       return;
     }
     if (found.password !== pass) {
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('loginLoading').style.display = 'none';
-      errEl.textContent = '⚠ Mot de passe incorrect.';
+      if (!found.password) {
+        errEl.textContent = '⚠ Ce compte (ancien format) n\'a pas de mot de passe défini. Demandez à un admin de le configurer dans la section Admin.';
+      } else {
+        errEl.textContent = '⚠ Mot de passe incorrect.';
+      }
       return;
     }
     currentUser = found;
     currentRole = found.role || 'moderateur';
-    saveModSession({ username: found.username, password: found.password });
-    const displayName = found.displayName || found.username;
-    showApp(displayName, currentRole);
+    saveModSession({ username: getLoginKey(found), password: found.password });
+    showApp(getDisplayName(found), currentRole);
     startListen();
     startServerListen();
     startRosterListen();
@@ -1040,15 +1061,18 @@ window.loadUsers = async function() {
     el.innerHTML = snap.docs.map(d => {
       const u = d.data();
       const isMe = d.id === currentUser?._id;
-      const label = esc(u.displayName || u.username || '—');
+      const displayName = u.displayName || u.username || u.name || '—';
+      const loginId = u.username || u.name || u.email || '—';
+      const hasPwd = !!u.password;
       return `<div class="user-row">
         <div>
-          <div class="user-email">${label}${isMe?' <span style="font-size:9px;color:var(--text-dim)">(vous)</span>':''}</div>
-          <div class="user-meta">@${esc(u.username||'—')} · mdp: ${esc(u.password||'—')}</div>
+          <div class="user-email">${esc(displayName)}${isMe?' <span style="font-size:9px;color:var(--text-dim)">(vous)</span>':''}</div>
+          <div class="user-meta">@${esc(loginId)} · mdp: ${hasPwd ? esc(u.password) : '<span style="color:var(--warn)">⚠ non défini</span>'}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="role-badge ${u.role||'moderateur'}">${u.role||'moderateur'}</span>
-          ${!isMe?`<button class="btn btn-danger btn-xs" onclick="deleteUser('${d.id}','${esc(u.displayName||u.username||'')}')">Supprimer</button>`:''}
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="role-badge ${roleStr}">${roleStr}</span>
+          ${!hasPwd ? `<button class="btn btn-ghost btn-xs" onclick="setUserPassword('${d.id}','${esc(displayName)}')">🔑 Définir mdp</button>` : ''}
+          ${!isMe?`<button class="btn btn-danger btn-xs" onclick="deleteUser('${d.id}','${esc(displayName)}')">Supprimer</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -1060,6 +1084,16 @@ window.deleteUser = async function(uid, name) {
   try {
     await deleteDoc(doc(db, 'users', uid));
     SCPIntranet.addHistory('Compte supprimé : ' + name);
+    loadUsers();
+  } catch(e) { alert('Erreur : ' + e.message); }
+};
+
+window.setUserPassword = async function(uid, name) {
+  const newPwd = prompt('Définir le mot de passe pour ' + name + ' :');
+  if (!newPwd || newPwd.trim().length < 2) return;
+  try {
+    await setDoc(doc(db, 'users', uid), { password: newPwd.trim() }, { merge: true });
+    SCPIntranet.addHistory('Mot de passe défini pour : ' + name);
     loadUsers();
   } catch(e) { alert('Erreur : ' + e.message); }
 };
