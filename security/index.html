@@ -864,29 +864,30 @@ function clearSession() {
   localStorage.removeItem(SESSION_KEY);
 }
 
-// ── Appelé au démarrage ──
-const savedSession = loadSession();
-if (savedSession) {
-  // Re-vérifier en fond que le compte existe toujours
-  (async () => {
+// ── Init au chargement — après que tout le JS soit parsé ──
+// On utilise DOMContentLoaded pour garantir que toutes les fonctions sont déclarées
+async function initApp() {
+  const savedSession = loadSession();
+  if (savedSession?.username && savedSession?.password) {
     try {
-      const snap = await getDocs(query(collection(db, 'users'), where('username', '==', savedSession.username)));
-      if (!snap.empty) {
-        const u = snap.docs[0].data();
-        if (u.password === savedSession.password) {
-          currentUser = { _id: snap.docs[0].id, ...u };
-          currentRole = u.role || 'moderateur';
-          isAuthenticated = true;
-          onAuthChange(u.displayName || u.username, currentRole);
-          return;
-        }
+      // Récupérer tous les users et chercher par username ou name (compatibilité)
+      const snap = await getDocs(collection(db, 'users'));
+      let found = null;
+      snap.forEach(d => {
+        const u = d.data();
+        const id = u.username || u.name || '';
+        if (id.toLowerCase() === savedSession.username.toLowerCase()) found = { _id: d.id, ...u };
+      });
+      if (found && found.password === savedSession.password) {
+        currentUser = found;
+        currentRole = found.role || 'moderateur';
+        isAuthenticated = true;
+        onAuthChange(found.displayName || found.username || found.name, currentRole);
+        return;
       }
-    } catch {}
-    // Session invalide
+    } catch(e) { console.warn('Session restore failed:', e); }
     clearSession();
-    onAuthChange(null, null);
-  })();
-} else {
+  }
   onAuthChange(null, null);
 }
 
@@ -2019,7 +2020,7 @@ function renderAppelHistorique() {
 // historique appel → dispatcher global
 
 // ══════════════════════════════════════════
-// INIT
+// INIT — toutes les fonctions sont déclarées ici
 // ══════════════════════════════════════════
 SCPIntranet.initTabs('.nav-tab','view-');
 SCPIntranet.initModalClose();
@@ -2028,10 +2029,9 @@ SCPIntranet.fillSelect('rSev',  SCPIntranet.RAPPORT_SEV);
 SCPIntranet.initEvalSliders();
 renderLRC();
 updateStats();
-// Init permissions for non-authenticated state
-applyPermissions(null, null);
-updateSidebarAuth(null, null);
 SCPIntranet.addHistory('Intranet Sécurité chargé.');
+// Auth en dernier — garantit que toutes les fonctions render* sont disponibles
+initApp();
 </script>
 </body>
 </html>
