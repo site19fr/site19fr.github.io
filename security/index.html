@@ -810,7 +810,6 @@ function fbListen(col, cb) {
 // sec_users — Personnel DSE
 // Écrit simultanément dans sec_agents (même ID) pour l'appel nominal
 // ══════════════════════════════════════════
-let secUsers = []; // source Effectifs
 
 async function secUserAdd(data) {
   // Créer dans sec_users, récupérer l'ID, puis créer dans sec_agents avec le même ID
@@ -1098,6 +1097,12 @@ let protocols   = [];
 let evaluations = [];
 let rapports    = [];
 let sanctions   = []; // pour stats effectifs
+let secUsers    = []; // source Effectifs (sec_users)
+let agents      = []; // appel nominal (sec_agents)
+let appelSessions   = [];
+let currentAppel    = null;
+let activeAppelFilter = 'all';
+let noteTargetAgentId = null;
 let editingProtoId = null, editingEvalId = null, editingRapportId = null;
 let activeRapportFilter = 'all', activeEvalFilter = 'all', protoFilter = 'all';
 let currentRapport = null;
@@ -1699,12 +1704,7 @@ document.getElementById('rapportSaveBtn')?.addEventListener('click', async ()=>{
 // ══════════════════════════════════════════
 // APPEL NOMINAL
 // ══════════════════════════════════════════
-let agents = [];
-let appelSessions = [];
-let currentAppel = null;
-let activeAppelFilter = 'all';
-let noteTargetAgentId = null;
-
+// agents/secUsers/appelSessions déclarés plus haut avec les autres états
 fbListen('sec_users',          d => { secUsers      = d; renderEffectifs(); });
 fbListen('sec_agents',         d => { agents        = d; renderAgentMgmt(); if(currentAppel) renderAppelSession(); });
 fbListen('sec_appel_sessions', d => { appelSessions = d; renderAppelHistorique(); renderEffectifs(); });
