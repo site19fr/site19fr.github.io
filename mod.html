@@ -254,7 +254,33 @@
       </div>
       <button class="login-btn" onclick="doLogin()">→ Accéder au registre</button>
       <div class="login-error" id="loginError"></div>
+      <div style="text-align:center;margin-top:14px;">
+        <span onclick="toggleRecovery()" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);cursor:pointer;letter-spacing:0.1em;text-decoration:underline;opacity:0.5;">Récupération compte</span>
+      </div>
     </div>
+
+    <!-- PANNEAU RÉCUPÉRATION -->
+    <div id="recoveryPanel" style="display:none;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--warn);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:14px;text-align:center;">⚠ Récupération d'urgence</div>
+      <div class="login-field">
+        <label>Code secret</label>
+        <input type="password" id="recoveryCode" placeholder="Code admin…" />
+      </div>
+      <div class="login-field">
+        <label>Identifiant du compte (nom ou email)</label>
+        <input type="text" id="recoveryUsername" placeholder="A.MAX ou admin@site19.scp" />
+      </div>
+      <div class="login-field">
+        <label>Nouveau mot de passe</label>
+        <input type="password" id="recoveryNewPwd" placeholder="Nouveau mot de passe" />
+      </div>
+      <button class="login-btn" onclick="doRecovery()" style="border-color:var(--warn);color:var(--warn);">→ Réinitialiser</button>
+      <div class="login-error" id="recoveryError"></div>
+      <div style="text-align:center;margin-top:10px;">
+        <span onclick="toggleRecovery()" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);cursor:pointer;letter-spacing:0.1em;text-decoration:underline;">← Retour connexion</span>
+      </div>
+    </div>
+
     <div class="login-loading" id="loginLoading" style="display:none;">AUTHENTIFICATION EN COURS…</div>
   </div>
 </div>
@@ -920,6 +946,54 @@ window.doLogin = async function() {
 };
 document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 document.getElementById('loginUsername').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('loginPassword').focus(); });
+
+// ── RÉCUPÉRATION D'URGENCE ──
+const RECOVERY_SECRET = 'site19-admin-recovery';
+
+window.toggleRecovery = function() {
+  const form  = document.getElementById('loginForm');
+  const panel = document.getElementById('recoveryPanel');
+  const isShowing = panel.style.display !== 'none';
+  form.style.display  = isShowing ? 'block' : 'none';
+  panel.style.display = isShowing ? 'none'  : 'block';
+  document.getElementById('recoveryError').textContent = '';
+  if (!isShowing) document.getElementById('recoveryCode').focus();
+};
+
+window.doRecovery = async function() {
+  const code   = document.getElementById('recoveryCode').value;
+  const ident  = document.getElementById('recoveryUsername').value.trim();
+  const newPwd = document.getElementById('recoveryNewPwd').value;
+  const errEl  = document.getElementById('recoveryError');
+  errEl.textContent = ''; errEl.style.color = 'var(--danger)';
+
+  if (code !== RECOVERY_SECRET) { errEl.textContent = '⚠ Code secret incorrect.'; return; }
+  if (!ident || !newPwd || newPwd.length < 2) { errEl.textContent = '⚠ Identifiant et nouveau mot de passe requis.'; return; }
+
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    let found = null;
+    snap.forEach(d => { const u = d.data(); if (!found && matchUser(u, ident)) found = { _id: d.id, ...u }; });
+    if (!found) { errEl.textContent = '⚠ Compte introuvable.'; return; }
+
+    await setDoc(doc(db, 'users', found._id), {
+      password: newPwd,
+      username: found.username || found.name || ident
+    }, { merge: true });
+
+    errEl.style.color = 'var(--safe)';
+    errEl.textContent = '✓ Mot de passe mis à jour pour ' + (found.displayName || found.username || found.name) + '. Connexion dans 2s…';
+    document.getElementById('recoveryCode').value = '';
+    document.getElementById('recoveryNewPwd').value = '';
+    setTimeout(() => {
+      window.toggleRecovery();
+      document.getElementById('loginUsername').value = found.username || found.name || ident;
+      document.getElementById('loginPassword').focus();
+    }, 2000);
+  } catch(e) {
+    errEl.textContent = '⚠ Erreur : ' + e.message;
+  }
+};
 
 window.doLogout = function() {
   currentUser = null; currentRole = null;
