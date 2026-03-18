@@ -10,21 +10,68 @@
 .topbar-dept { color: var(--dept-color) !important; }
 .widget-hdr::before { background: var(--dept-color) !important; }
 .dept-badge { color: var(--dept-color); border-color: var(--dept-color); }
-.lrc-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 10px; }
-.lrc-card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border2); padding: 16px; transition: all 0.2s; }
-.lrc-card:hover { background: var(--surface2); }
-.lrc-card--amber { border-left-color: #ffa500; }
-.lrc-card--blue { border-left-color: #4cc3ff; }
-.lrc-card--superblue { border-left-color: #4466ff; }
-.lrc-card--green { border-left-color: #00e676; }
-.lrc-card--red { border-left-color: #ff3355; }
-.lrc-card--black { border-left-color: #445566; }
-.lrc-card--white { border-left-color: #cce0ff; }
-.lrc-card--gray { border-left-color: #7090b0; }
-.lrc-card--magenta { border-left-color: #cc55ff; }
-.lrc-card--blank { border-left-color: #334455; }
-.lrc-card--superblank { border-left-color: #223344; }
-.lrc-card--coldsilver { border-left-color: #90a0b8; }
+
+/* ── AUTH BUTTON / PANEL ── */
+.auth-btn {
+  font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.15em;
+  text-transform:uppercase; padding:6px 14px; border:1px solid var(--border2);
+  background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s;
+}
+.auth-btn:hover { border-color:var(--dept-color); color:var(--dept-color); }
+.auth-btn.connected { border-color:var(--safe); color:var(--safe); background:rgba(0,230,118,0.06); }
+.auth-btn.connected:hover { background:rgba(0,230,118,0.12); }
+
+/* ── AUTH FLYOUT ── */
+.auth-flyout {
+  position:fixed; top:52px; right:16px; width:300px; z-index:400;
+  background:var(--surface); border:1px solid var(--border2); border-top:2px solid var(--dept-color);
+  box-shadow:0 12px 40px rgba(0,0,0,0.7), 0 0 20px rgba(76,195,255,0.08);
+  display:none; padding:20px;
+}
+.auth-flyout.open { display:block; animation:flyout-in 0.18s ease; }
+@keyframes flyout-in { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.auth-flyout-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; color:var(--dept-color); margin-bottom:14px; }
+.auth-flyout .af-field { margin-bottom:10px; }
+.auth-flyout .af-field label { font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-dim); display:block; margin-bottom:5px; }
+.auth-flyout .af-field input { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--white); font-family:'Share Tech Mono',monospace; font-size:12px; padding:8px 10px; outline:none; transition:border-color 0.2s; }
+.auth-flyout .af-field input:focus { border-color:var(--dept-color); }
+.auth-flyout-err { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--danger); min-height:14px; margin-bottom:8px; }
+.auth-flyout-submit { width:100%; padding:9px; background:rgba(76,195,255,0.08); border:1px solid var(--dept-color); color:var(--dept-color); font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
+.auth-flyout-submit:hover { background:rgba(76,195,255,0.18); }
+.auth-flyout-loading { text-align:center; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); padding:8px; letter-spacing:0.15em; animation:blink 1s step-end infinite; }
+@keyframes blink { 50%{opacity:0.3} }
+
+/* Connected state in flyout */
+.auth-user-panel { text-align:center; padding:4px 0; }
+.auth-user-name { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:var(--white); text-transform:uppercase; margin-bottom:4px; }
+.auth-user-role { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.2em; padding:2px 10px; border:1px solid; text-transform:uppercase; display:inline-block; margin-bottom:14px; }
+.auth-user-role.admin { color:var(--danger); border-color:rgba(192,57,43,0.5); background:rgba(192,57,43,0.08); }
+.auth-user-role.moderateur { color:var(--accent); border-color:rgba(232,200,74,0.4); background:rgba(232,200,74,0.06); }
+.auth-logout-btn { width:100%; padding:8px; background:rgba(192,57,43,0.06); border:1px solid rgba(192,57,43,0.4); color:var(--danger); font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
+.auth-logout-btn:hover { background:rgba(192,57,43,0.14); }
+
+/* ── READONLY LOCK OVERLAY ── */
+.ro-lock { display:none; align-items:center; gap:8px; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); background:rgba(76,195,255,0.04); border:1px solid rgba(76,195,255,0.15); padding:8px 14px; margin-bottom:16px; letter-spacing:0.1em; }
+.ro-lock.visible { display:flex; }
+.ro-lock-icon { font-size:14px; }
+.ro-lock-link { color:var(--dept-color); cursor:pointer; text-decoration:underline; margin-left:4px; }
+
+/* ── LRC ── */
+.lrc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+.lrc-card { background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--border2); padding:16px; transition:all 0.2s; }
+.lrc-card:hover { background:var(--surface2); }
+.lrc-card--amber { border-left-color:#ffa500; }
+.lrc-card--blue { border-left-color:#4cc3ff; }
+.lrc-card--superblue { border-left-color:#4466ff; }
+.lrc-card--green { border-left-color:#00e676; }
+.lrc-card--red { border-left-color:#ff3355; }
+.lrc-card--black { border-left-color:#445566; }
+.lrc-card--white { border-left-color:#cce0ff; }
+.lrc-card--gray { border-left-color:#7090b0; }
+.lrc-card--magenta { border-left-color:#cc55ff; }
+.lrc-card--blank { border-left-color:#334455; }
+.lrc-card--superblank { border-left-color:#223344; }
+.lrc-card--coldsilver { border-left-color:#90a0b8; }
 .lrc-name { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--white); text-transform:uppercase; margin-bottom:4px; }
 .lrc-pri { font-family:'Share Tech Mono',monospace; font-size:9px; padding:2px 8px; border:1px solid; border-radius:2px; text-transform:uppercase; letter-spacing:0.1em; display:inline-block; margin-bottom:10px; }
 .lrc-pri.critical { border-color:rgba(192,57,43,0.6); color:var(--danger); background:rgba(192,57,43,0.08); }
@@ -34,6 +81,8 @@
 .lrc-guid { font-family:'Courier Prime',monospace; font-size:11px; color:var(--text-dim); line-height:1.5; font-style:italic; margin-bottom:6px; }
 .lrc-mtf { font-family:'Share Tech Mono',monospace; font-size:9px; color:#4cc3ff; letter-spacing:0.05em; margin-bottom:10px; }
 .lrc-acts { display:flex; gap:5px; }
+
+/* ── MORPHS ── */
 .morph-list { display:flex; flex-direction:column; gap:10px; }
 .morph-card { background:var(--surface2); border:1px solid var(--border); padding:14px; }
 .morph-name { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--dept-color); }
@@ -91,6 +140,9 @@
 .appel-section-hdr { display:flex; justify-content:space-between; align-items:center; font-family:'Share Tech Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.14em; padding:8px 10px; background:var(--surface2); border:1px solid var(--border); border-left:3px solid; margin-bottom:4px; margin-top:10px; }
 .appel-section-hdr:first-child { margin-top:0; }
 .appel-section-count { color:var(--text-dim); }
+
+/* ── DISABLED ACTIONS (read-only) ── */
+.action-locked { opacity:0.35; pointer-events:none; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -107,8 +159,33 @@
   <div class="topbar-right">
     <div class="topbar-status"><div class="status-dot"></div>ALERTE ACTIVE</div>
     <div class="topbar-clearance dept-badge">NIVEAU 2</div>
+    <!-- ✅ AUTH BUTTON -->
+    <button class="auth-btn" id="authBtn" onclick="toggleAuthFlyout()">🔑 Connexion</button>
   </div>
 </header>
+
+<!-- ✅ AUTH FLYOUT -->
+<div class="auth-flyout" id="authFlyout">
+  <!-- Form (not logged in) -->
+  <div id="afLoginPanel">
+    <div class="auth-flyout-title">// Authentification agent</div>
+    <div class="af-field"><label>Adresse e-mail</label><input type="email" id="afEmail" placeholder="agent@site19.scp"/></div>
+    <div class="af-field"><label>Mot de passe</label><input type="password" id="afPassword" placeholder="••••••••"/></div>
+    <div class="auth-flyout-err" id="afError"></div>
+    <button class="auth-flyout-submit" onclick="doAuthLogin()">→ Accéder</button>
+  </div>
+  <!-- Loading -->
+  <div id="afLoadingPanel" style="display:none" class="auth-flyout-loading">AUTHENTIFICATION…</div>
+  <!-- Connected -->
+  <div id="afUserPanel" style="display:none">
+    <div class="auth-flyout-title">// Agent authentifié</div>
+    <div class="auth-user-panel">
+      <div class="auth-user-name" id="afUserName">—</div>
+      <div class="auth-user-role" id="afUserRole">—</div>
+    </div>
+    <button class="auth-logout-btn" onclick="doAuthLogout()">↩ Déconnexion</button>
+  </div>
+</div>
 
 <nav class="dept-nav">
   <button class="nav-tab active" data-view="protocoles"><span class="nav-tab-icon">▢</span> Protocoles</button>
@@ -131,12 +208,13 @@
         <div class="sec-sub" id="protoCount">0 protocoles chargés</div>
       </div>
       <div class="sec-actions">
-        <button class="btn btn-primary btn-sm" id="btnNewProto">+ Nouveau</button>
+        <button class="btn btn-primary btn-sm action-write" id="btnNewProto">+ Nouveau</button>
       </div>
     </div>
-
-    
-
+    <div class="ro-lock" id="roProto">
+      <span class="ro-lock-icon">🔒</span>
+      <span>Lecture seule — <span class="ro-lock-link" onclick="openAuthFlyout()">Connectez-vous</span> pour créer ou modifier des protocoles</span>
+    </div>
     <div class="search-row">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
@@ -153,8 +231,6 @@
     <div class="item-list" id="protoList">
       <div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-text">Aucun protocole enregistré</div></div>
     </div>
-
-    <!-- Proto Form Modal -->
     <div class="modal-ov" id="modalProto">
       <div class="modal-box">
         <div class="modal-hdr">
@@ -166,12 +242,7 @@
             <div class="form-field full"><label>Titre *</label><input id="pTitle" type="text" placeholder="Ex: Protocole Brèche Alpha"/></div>
             <div class="form-field">
               <label>Catégorie</label>
-              <select id="pCat">
-                <option value="urgent">Urgence</option>
-                <option value="confinement">Confinement</option>
-                <option value="patrouille">Patrouille</option>
-                <option value="personnel">Personnel</option>
-              </select>
+              <select id="pCat"><option value="urgent">Urgence</option><option value="confinement">Confinement</option><option value="patrouille">Patrouille</option><option value="personnel">Personnel</option></select>
             </div>
             <div class="form-field"><label>Statut</label><input id="pStatus" value="Actif"/></div>
             <div class="form-field full"><label>Contenu *</label><textarea id="pContent" rows="8" placeholder="Décrivez le protocole en détail…"></textarea></div>
@@ -218,10 +289,13 @@
         <div class="sec-sub" id="evalCount">0 évaluations enregistrées</div>
       </div>
       <div class="sec-actions">
-        <button class="btn btn-primary btn-sm" id="btnNewEval">+ Nouvelle évaluation</button>
+        <button class="btn btn-primary btn-sm action-write" id="btnNewEval">+ Nouvelle évaluation</button>
       </div>
     </div>
-
+    <div class="ro-lock" id="roEval">
+      <span class="ro-lock-icon">🔒</span>
+      <span>Lecture seule — <span class="ro-lock-link" onclick="openAuthFlyout()">Connectez-vous</span> pour créer ou modifier des évaluations</span>
+    </div>
     <div class="form-panel" id="evalFormPanel" style="display:none">
       <div class="form-title">
         <span id="evalFormTitle">Nouvelle évaluation</span>
@@ -266,7 +340,6 @@
         <button class="btn btn-primary btn-sm" id="evalSaveBtn">💾 Enregistrer</button>
       </div>
     </div>
-
     <div class="filter-row" id="evalFilters">
       <button class="pill active" data-eval-filter="all">Tous</button>
       <button class="pill" data-eval-filter="promu">Promus</button>
@@ -288,10 +361,13 @@
         <div class="sec-sub" id="rapportCount">0 rapports enregistrés</div>
       </div>
       <div class="sec-actions">
-        <button class="btn btn-primary btn-sm" id="btnNewRapport">+ Nouveau rapport</button>
+        <button class="btn btn-primary btn-sm action-write" id="btnNewRapport">+ Nouveau rapport</button>
       </div>
     </div>
-
+    <div class="ro-lock" id="roRapport">
+      <span class="ro-lock-icon">🔒</span>
+      <span>Lecture seule — <span class="ro-lock-link" onclick="openAuthFlyout()">Connectez-vous</span> pour rédiger des rapports</span>
+    </div>
     <div class="form-panel" id="rapportFormPanel" style="display:none">
       <div class="form-title">
         <span id="rapportFormTitle">Nouveau rapport</span>
@@ -323,7 +399,6 @@
         <button class="btn btn-primary btn-sm" id="rapportSaveBtn">💾 Enregistrer</button>
       </div>
     </div>
-
     <div class="filter-row" id="rapportFilters">
       <button class="pill active" data-r-filter="all">Tous</button>
       <button class="pill" data-r-filter="incident">Incidents</button>
@@ -374,12 +449,15 @@
         <div class="sec-sub" id="appelCount">Aucune session en cours</div>
       </div>
       <div class="sec-actions">
-        <button class="btn btn-primary btn-sm" id="btnNewAppel">+ Nouvelle session</button>
-        <button class="btn btn-ghost btn-sm" id="btnManageAgents">⚙ Agents</button>
+        <button class="btn btn-primary btn-sm action-write" id="btnNewAppel">+ Nouvelle session</button>
+        <button class="btn btn-ghost btn-sm action-write" id="btnManageAgents">⚙ Agents</button>
       </div>
     </div>
+    <div class="ro-lock" id="roAppel">
+      <span class="ro-lock-icon">🔒</span>
+      <span>Lecture seule — <span class="ro-lock-link" onclick="openAuthFlyout()">Connectez-vous</span> pour démarrer un appel ou gérer les agents</span>
+    </div>
 
-    <!-- Session active -->
     <div id="appelSessionPanel" style="display:none">
       <div class="form-panel" style="margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -389,9 +467,7 @@
             <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px" id="appelSessionMeta">—</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
-            <div class="appel-progress-wrap">
-              <div class="appel-progress-bar" id="appelProgressBar" style="width:0%"></div>
-            </div>
+            <div class="appel-progress-wrap"><div class="appel-progress-bar" id="appelProgressBar" style="width:0%"></div></div>
             <span id="appelProgressText" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);white-space:nowrap">0/0</span>
           </div>
         </div>
@@ -402,8 +478,6 @@
           <div class="appel-stat appel-stat--nc"><span id="acntNC">0</span><small>Non répondu</small></div>
         </div>
       </div>
-
-      <!-- Quick filters -->
       <div class="filter-row" style="margin-bottom:12px" id="appelFilters">
         <button class="pill active" data-appel-filter="all">Tous</button>
         <button class="pill" data-appel-filter="nc">Non répondu</button>
@@ -411,17 +485,13 @@
         <button class="pill" data-appel-filter="absent">Absents</button>
         <button class="pill" data-appel-filter="retard">Retards</button>
       </div>
-
-      <!-- Search -->
       <div class="search-row" style="margin-bottom:12px">
         <div class="search-wrap">
           <span class="search-icon">⌕</span>
           <input class="search-input" id="appelSearch" placeholder="Rechercher un agent…" autocomplete="off"/>
         </div>
       </div>
-
       <div id="appelAgentList" class="appel-agent-list"></div>
-
       <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" id="appelMarkAllPresent">✓ Tous présents</button>
         <button class="btn btn-ghost btn-sm" id="appelReset">↺ Réinitialiser</button>
@@ -429,7 +499,6 @@
       </div>
     </div>
 
-    <!-- Empty state -->
     <div id="appelEmptyState">
       <div class="empty-state" style="margin-top:40px">
         <div class="empty-icon">📣</div>
@@ -437,12 +506,9 @@
       </div>
     </div>
 
-    <!-- Historique des sessions -->
     <div id="appelHistoSection" style="margin-top:24px">
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px">Historique des sessions</div>
-      <div id="appelHistoList">
-        <div class="empty-state"><div class="empty-text" style="font-size:11px">Aucune session archivée</div></div>
-      </div>
+      <div id="appelHistoList"><div class="empty-state"><div class="empty-text" style="font-size:11px">Aucune session archivée</div></div></div>
     </div>
   </section>
 
@@ -460,12 +526,7 @@
           <div class="form-field"><label>Date *</label><input id="appelDate" type="date"/></div>
           <div class="form-field">
             <label>Type</label>
-            <select id="appelType">
-              <option value="rotation">Rotation</option>
-              <option value="urgence">Urgence</option>
-              <option value="formation">Formation</option>
-              <option value="exercice">Exercice</option>
-            </select>
+            <select id="appelType"><option value="rotation">Rotation</option><option value="urgence">Urgence</option><option value="formation">Formation</option><option value="exercice">Exercice</option></select>
           </div>
           <div class="form-field full"><label>Notes (optionnel)</label><input id="appelNotes" type="text" placeholder="Ex: Brèche en cours — présence obligatoire"/></div>
         </div>
@@ -527,7 +588,6 @@
 </main>
 
 <aside class="sidebar">
-  <!-- STATS -->
   <div class="widget">
     <div class="widget-hdr"><span class="widget-title">Statistiques — Sécurité</span></div>
     <div class="stat-grid">
@@ -538,7 +598,20 @@
     </div>
   </div>
 
-  <!-- TERMINAL -->
+  <!-- ✅ AUTH STATUS WIDGET -->
+  <div class="widget" id="sidebarAuthWidget">
+    <div class="widget-hdr"><span class="widget-title">Accès</span></div>
+    <div class="widget-body" style="padding:12px 14px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:2.2">
+        <div>STATUT : <span id="sidebarAuthStatus" style="color:var(--text-dim)">NON CONNECTÉ</span></div>
+        <div>AGENT  : <span id="sidebarAuthName" style="color:var(--white)">—</span></div>
+        <div>RÔLE   : <span id="sidebarAuthRole" style="color:var(--text-dim)">LECTURE</span></div>
+        <div>ACCÈS  : <span id="sidebarAuthLevel" style="color:var(--text-dim)">PUBLIC</span></div>
+      </div>
+      <button class="auth-btn" style="width:100%;margin-top:10px;text-align:center" id="sidebarAuthBtn" onclick="toggleAuthFlyout()">🔑 Se connecter</button>
+    </div>
+  </div>
+
   <div class="widget">
     <div class="widget-hdr"><span class="widget-title">Terminal Site-19</span></div>
     <div class="widget-body" style="padding:0">
@@ -553,7 +626,6 @@
     </div>
   </div>
 
-  <!-- JOURNAL -->
   <div class="widget">
     <div class="widget-hdr"><span class="widget-title">Journal</span></div>
     <div class="hlog" id="historyList">
@@ -565,7 +637,7 @@
 
 <script type="module">
 // ══════════════════════════════════════════
-// SHARED.JS — INLINE
+// SHARED INLINE
 // ══════════════════════════════════════════
 const SCPIntranet = (() => {
   const store = {
@@ -655,23 +727,7 @@ const SCPIntranet = (() => {
   function getTypeLabel(val) { return (RAPPORT_TYPES.find(t => t.value === val) || {}).label || val; }
   function exportRapport(r) {
     const sev = getSevStyle(r.severity); const typeLabel = getTypeLabel(r.type);
-    const text = [
-      '══════════════════════════════════════════',
-      'SCP FOUNDATION — SITE-19', typeLabel.toUpperCase(),
-      '══════════════════════════════════════════',
-      `ID              : ${r._id?.slice(-8)||'—'}`,
-      `DATE            : ${r.date}`,
-      `AUTEUR          : ${r.author}${r.username?' (@'+r.username+')':''}`,
-      `DÉPARTEMENT     : ${r.dept||'Département de la Sécurité'}`,
-      `SÉVÉRITÉ        : ${sev.label}`,
-      '══════════════════════════════════════════',
-      `TITRE : ${r.title}`,
-      '══════════════════════════════════════════',
-      '', 'DESCRIPTION :', r.description, '', 'CONCLUSION :', r.conclusion||'—',
-      '', `TÉMOINS : ${r.witnesses?.join(', ')||'—'}`,
-      '══════════════════════════════════════════',
-      `[Généré le ${new Date().toLocaleString('fr-FR')}]`,
-    ].join('\n');
+    const text = ['══════════════════════════════════════════','SCP FOUNDATION — SITE-19',typeLabel.toUpperCase(),'══════════════════════════════════════════',`ID              : ${r._id?.slice(-8)||'—'}`,`DATE            : ${r.date}`,`AUTEUR          : ${r.author}${r.username?' (@'+r.username+')':''}`,`DÉPARTEMENT     : ${r.dept||'Département de la Sécurité'}`,`SÉVÉRITÉ        : ${sev.label}`,'══════════════════════════════════════════',`TITRE : ${r.title}`,'══════════════════════════════════════════','','DESCRIPTION :',r.description,'','CONCLUSION :',r.conclusion||'—','',`TÉMOINS : ${r.witnesses?.join(', ')||'—'}`,'══════════════════════════════════════════',`[Généré le ${new Date().toLocaleString('fr-FR')}]`].join('\n');
     const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = (r._id||'rapport') + '_' + r.title.replace(/[^a-z0-9]/gi,'_') + '.txt'; a.click();
@@ -683,12 +739,19 @@ const SCPIntranet = (() => {
   return { store, addHistory, initTabs, copyText, openModal, closeModal, initModalClose, genId, today, fmtDate, updateStat, EVAL_CRITERIA, EVAL_LABELS, getEvalMention, computeEvalTotal, updateEvalUI, initEvalSliders, RAPPORT_TYPES, RAPPORT_SEV, getSevStyle, getTypeLabel, exportRapport, fillSelect };
 })();
 
+// ══════════════════════════════════════════
+// FIREBASE
+// ══════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, collection, doc,
-  addDoc, updateDoc, deleteDoc, setDoc,
+  addDoc, updateDoc, deleteDoc,
   onSnapshot, query, orderBy, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAKnnxGUTpNWtkYetID8UwTp6cJgbcj9Kc",
@@ -698,17 +761,193 @@ const app = initializeApp({
   messagingSenderId: "245750946774",
   appId: "1:245750946774:web:821944a85e207094b22277"
 });
-const db = getFirestore(app);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
 // ── Helpers Firestore ──
-async function fbAdd(col, data)          { return await addDoc(collection(db, col), { ...data, createdAt: new Date().toISOString() }); }
-async function fbUpdate(col, id, data)   { await updateDoc(doc(db, col, id), data); }
-async function fbDelete(col, id)         { await deleteDoc(doc(db, col, id)); }
+async function fbAdd(col, data)        { return await addDoc(collection(db, col), { ...data, createdAt: new Date().toISOString() }); }
+async function fbUpdate(col, id, data) { await updateDoc(doc(db, col, id), data); }
+async function fbDelete(col, id)       { await deleteDoc(doc(db, col, id)); }
 function fbListen(col, cb) {
   const q = query(collection(db, col), orderBy('createdAt', 'asc'));
   return onSnapshot(q, snap => cb(snap.docs.map(d => ({ _id: d.id, ...d.data() }))));
 }
 
+// ══════════════════════════════════════════
+// AUTH STATE
+// ══════════════════════════════════════════
+let currentUser = null;
+let currentRole = null; // 'admin' | 'moderateur' | null
+let isAuthenticated = false;
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      currentRole = snap.exists() ? (snap.data().role || 'moderateur') : 'moderateur';
+      const name  = snap.exists() ? (snap.data().name || user.email) : user.email;
+      isAuthenticated = true;
+      onAuthChange(name, currentRole);
+    } catch {
+      currentRole = 'moderateur';
+      isAuthenticated = true;
+      onAuthChange(user.email, 'moderateur');
+    }
+  } else {
+    currentUser = null; currentRole = null; isAuthenticated = false;
+    onAuthChange(null, null);
+  }
+});
+
+function onAuthChange(name, role) {
+  applyPermissions(name, role);
+  updateSidebarAuth(name, role);
+  updateAuthButton(name, role);
+  if (name) {
+    SCPIntranet.addHistory('Connecté : ' + name);
+    showAuthUserPanel(name, role);
+  } else {
+    SCPIntranet.addHistory('Mode lecture seule — non authentifié');
+    showAuthLoginPanel();
+  }
+  // Re-render cards to show/hide action buttons
+  renderEvals();
+  renderRapports();
+  renderProtocols();
+  renderAppelHistorique();
+}
+
+// ── Apply / remove write permissions ──
+function applyPermissions(name, role) {
+  const canWrite = !!name;
+  // Write buttons
+  document.querySelectorAll('.action-write').forEach(el => {
+    el.classList.toggle('action-locked', !canWrite);
+  });
+  // Read-only banners
+  ['roProto','roEval','roRapport','roAppel'].forEach(id => {
+    document.getElementById(id)?.classList.toggle('visible', !canWrite);
+  });
+}
+
+// ── Sidebar auth widget ──
+function updateSidebarAuth(name, role) {
+  const statusEl = document.getElementById('sidebarAuthStatus');
+  const nameEl   = document.getElementById('sidebarAuthName');
+  const roleEl   = document.getElementById('sidebarAuthRole');
+  const levelEl  = document.getElementById('sidebarAuthLevel');
+  const btn      = document.getElementById('sidebarAuthBtn');
+  if (name) {
+    if (statusEl) { statusEl.textContent = 'CONNECTÉ'; statusEl.style.color = 'var(--safe)'; }
+    if (nameEl)   nameEl.textContent = name;
+    if (roleEl)   { roleEl.textContent = role?.toUpperCase() || 'MODÉRATEUR'; roleEl.style.color = role === 'admin' ? 'var(--danger)' : 'var(--accent)'; }
+    if (levelEl)  { levelEl.textContent = role === 'admin' ? 'ADMIN COMPLET' : 'ÉCRITURE'; levelEl.style.color = 'var(--safe)'; }
+    if (btn)      { btn.textContent = '↩ Déconnexion'; btn.className = 'auth-btn connected'; btn.style.width='100%'; btn.style.marginTop='10px'; btn.style.textAlign='center'; btn.onclick = doAuthLogout; }
+  } else {
+    if (statusEl) { statusEl.textContent = 'NON CONNECTÉ'; statusEl.style.color = 'var(--text-dim)'; }
+    if (nameEl)   nameEl.textContent = '—';
+    if (roleEl)   { roleEl.textContent = 'LECTURE'; roleEl.style.color = 'var(--text-dim)'; }
+    if (levelEl)  { levelEl.textContent = 'PUBLIC'; levelEl.style.color = 'var(--text-dim)'; }
+    if (btn)      { btn.textContent = '🔑 Se connecter'; btn.className = 'auth-btn'; btn.style.width='100%'; btn.style.marginTop='10px'; btn.style.textAlign='center'; btn.onclick = toggleAuthFlyout; }
+  }
+}
+
+// ── Topbar auth button ──
+function updateAuthButton(name, role) {
+  const btn = document.getElementById('authBtn');
+  if (!btn) return;
+  if (name) {
+    btn.textContent = '✓ ' + name.split(' ')[0];
+    btn.className = 'auth-btn connected';
+  } else {
+    btn.textContent = '🔑 Connexion';
+    btn.className = 'auth-btn';
+  }
+}
+
+// ══════════════════════════════════════════
+// AUTH FLYOUT UI
+// ══════════════════════════════════════════
+let flyoutOpen = false;
+
+window.toggleAuthFlyout = function() {
+  flyoutOpen = !flyoutOpen;
+  document.getElementById('authFlyout').classList.toggle('open', flyoutOpen);
+};
+window.openAuthFlyout = function() {
+  flyoutOpen = true;
+  document.getElementById('authFlyout').classList.add('open');
+  document.getElementById('afEmail')?.focus();
+};
+
+// Close flyout on outside click
+document.addEventListener('click', e => {
+  if (!flyoutOpen) return;
+  const flyout = document.getElementById('authFlyout');
+  const btn = document.getElementById('authBtn');
+  if (!flyout?.contains(e.target) && !btn?.contains(e.target)) {
+    flyoutOpen = false;
+    flyout?.classList.remove('open');
+  }
+});
+
+document.getElementById('afPassword')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doAuthLogin();
+});
+document.getElementById('afEmail')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('afPassword')?.focus();
+});
+
+function showAuthLoginPanel() {
+  document.getElementById('afLoginPanel').style.display  = 'block';
+  document.getElementById('afLoadingPanel').style.display = 'none';
+  document.getElementById('afUserPanel').style.display   = 'none';
+  document.getElementById('afError').textContent = '';
+}
+function showAuthUserPanel(name, role) {
+  document.getElementById('afLoginPanel').style.display  = 'none';
+  document.getElementById('afLoadingPanel').style.display = 'none';
+  document.getElementById('afUserPanel').style.display   = 'block';
+  document.getElementById('afUserName').textContent = name;
+  const roleEl = document.getElementById('afUserRole');
+  roleEl.textContent = role === 'admin' ? '🔐 Administrateur' : '🛡 Modérateur';
+  roleEl.className = 'auth-user-role ' + (role || 'moderateur');
+}
+
+window.doAuthLogin = async function() {
+  const email = document.getElementById('afEmail').value.trim();
+  const pass  = document.getElementById('afPassword').value;
+  const errEl = document.getElementById('afError');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = '⚠ Email et mot de passe requis.'; return; }
+  document.getElementById('afLoginPanel').style.display  = 'none';
+  document.getElementById('afLoadingPanel').style.display = 'block';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    // onAuthStateChanged will handle the rest
+  } catch(e) {
+    showAuthLoginPanel();
+    const msgs = {
+      'auth/invalid-credential':'Email ou mot de passe incorrect.',
+      'auth/user-not-found':'Aucun compte trouvé.',
+      'auth/wrong-password':'Mot de passe incorrect.',
+      'auth/too-many-requests':'Trop de tentatives. Réessayez.',
+      'auth/invalid-email':'Adresse e-mail invalide.',
+    };
+    errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
+  }
+};
+
+window.doAuthLogout = async function() {
+  await signOut(auth);
+  flyoutOpen = true; // keep open to show login form
+  document.getElementById('authFlyout').classList.add('open');
+};
+
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
 const DEPT = 'security';
 const MORPH_DATA = [
   {name:'"ECHO"',username:'alcbasket',rank:'[D.SE-SF] Agent de 1ère Classe',date:'13/02/2026',command:`run team alcbasket Département de la Sécurité F & permntag alcbasket "ECHO" & permrtag alcbasket [D.SE-SF] Agent de 1ère Classe & permmorph alc reset & permhat alc Vest & permhat alc holster & permhat alc kneepads & permhat alc 11515337829,11515333598 & permhat alc 15081386107 & permhat alc helmet & permhat alc 15949578750 & permhat alc 4684658997 & permmorph alcbasket DSF Cadet & startergear alcbasket laser pistol & startergear alcbasket L4 & res alcbasket`},
@@ -745,22 +984,33 @@ let editingProtoId = null, editingEvalId = null, editingRapportId = null;
 let activeRapportFilter = 'all', activeEvalFilter = 'all', protoFilter = 'all';
 let currentRapport = null;
 
-fbListen('sec_protocols',   d => { protocols   = d; renderProtocols(); updateStats(); });
-fbListen('sec_evals',       d => { evaluations = d; renderEvals();     updateStats(); });
-fbListen('sec_rapports',    d => { rapports    = d; renderRapports();  updateStats(); });
+fbListen('sec_protocols',  d => { protocols   = d; renderProtocols(); updateStats(); });
+fbListen('sec_evals',      d => { evaluations = d; renderEvals();     updateStats(); });
+fbListen('sec_rapports',   d => { rapports    = d; renderRapports();  updateStats(); });
 
-function save() { updateStats(); }
 function updateStats() {
-  SCPIntranet.updateStat('statProto', protocols.length);
-  SCPIntranet.updateStat('statEval', evaluations.length);
+  SCPIntranet.updateStat('statProto',   protocols.length);
+  SCPIntranet.updateStat('statEval',    evaluations.length);
   SCPIntranet.updateStat('statRapport', rapports.length);
-  SCPIntranet.updateStat('statMorph', MORPH_DATA.length);
-  SCPIntranet.updateStat('protoCount', protocols.length + ' protocoles chargés');
-  SCPIntranet.updateStat('evalCount', evaluations.length + ' évaluations');
-  SCPIntranet.updateStat('rapportCount', rapports.length + ' rapports');
+  SCPIntranet.updateStat('statMorph',   MORPH_DATA.length);
+  SCPIntranet.updateStat('protoCount',  protocols.length + ' protocoles chargés');
+  SCPIntranet.updateStat('evalCount',   evaluations.length + ' évaluations');
+  SCPIntranet.updateStat('rapportCount',rapports.length + ' rapports');
 }
 
-// ── LRC ──
+// ── Guard: require auth for write operations ──
+function requireAuth(action) {
+  if (!isAuthenticated) {
+    openAuthFlyout();
+    SCPIntranet.addHistory('⚠ Connexion requise pour: ' + action);
+    return false;
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════
+// LRC
+// ══════════════════════════════════════════
 function renderLRC() {
   const el = document.getElementById('lrcGrid'); if (!el) return;
   el.innerHTML = LRC_CODES.map(l => {
@@ -771,21 +1021,20 @@ function renderLRC() {
       <div class="lrc-desc">${l.description}</div>
       <div class="lrc-guid">${l.guidance}</div>
       <div class="lrc-mtf">MTF: ${l.mtf}</div>
-      <div class="lrc-acts">
-        <button class="btn btn-xs btn-ghost" data-lrc="${l.code}">⧉ Copier alerte</button>
-      </div>
+      <div class="lrc-acts"><button class="btn btn-xs btn-ghost" data-lrc="${l.code}">⧉ Copier alerte</button></div>
     </div>`;
   }).join('');
 }
 document.addEventListener('click', e => {
-  const lb = e.target.closest('[data-lrc]');
-  if (!lb) return;
+  const lb = e.target.closest('[data-lrc]'); if (!lb) return;
   const code = lb.dataset.lrc;
   SCPIntranet.copyText(`ALERTE SITE-19 — CODE: ${code} ACTIVÉ. Toutes les unités appliquer le protocole d'urgence.`, lb, 'Copié');
   SCPIntranet.addHistory('Alerte LRC copiée: CODE ' + code);
 });
 
-// ── MORPHS ──
+// ══════════════════════════════════════════
+// MORPHS
+// ══════════════════════════════════════════
 function renderMorphs() {
   const el = document.getElementById('morphList'); if (!el) return;
   el.innerHTML = MORPH_DATA.map((m, i) => `
@@ -802,15 +1051,15 @@ function renderMorphs() {
   `).join('');
 }
 document.addEventListener('click', async e => {
-  const mb = e.target.closest('[data-morph-i]');
-  if (!mb) return;
-  const m = MORPH_DATA[parseInt(mb.dataset.morphI)];
-  if (!m) return;
+  const mb = e.target.closest('[data-morph-i]'); if (!mb) return;
+  const m = MORPH_DATA[parseInt(mb.dataset.morphI)]; if (!m) return;
   await SCPIntranet.copyText(m.command, mb, 'Copié !');
   SCPIntranet.addHistory('Morph copié: ' + m.name);
 });
 
-// ── PROTOCOLS ──
+// ══════════════════════════════════════════
+// PROTOCOLS
+// ══════════════════════════════════════════
 function renderProtocols() {
   const el = document.getElementById('protoList'); if (!el) return;
   const q = document.getElementById('protoSearch')?.value.toLowerCase() || '';
@@ -836,8 +1085,7 @@ function renderProtocols() {
       <div class="item-body">${p.content.substring(0,200)}${p.content.length>200?'…':''}</div>
       <div class="item-actions">
         <button class="btn btn-xs btn-ghost" data-copy-p="${p._id}">⧉ Copier</button>
-        <button class="btn btn-xs btn-primary" data-edit-p="${p._id}">✎ Modifier</button>
-        <button class="btn btn-xs btn-danger" data-del-p="${p._id}">✕</button>
+        ${isAuthenticated ? `<button class="btn btn-xs btn-primary" data-edit-p="${p._id}">✎ Modifier</button><button class="btn btn-xs btn-danger" data-del-p="${p._id}">✕</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -846,19 +1094,19 @@ document.getElementById('protoSearch')?.addEventListener('input', renderProtocol
 document.getElementById('protoFilters')?.addEventListener('click', e => {
   const pill = e.target.closest('.pill'); if (!pill) return;
   document.querySelectorAll('#protoFilters .pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  protoFilter = pill.dataset.cat;
-  renderProtocols();
+  pill.classList.add('active'); protoFilter = pill.dataset.cat; renderProtocols();
 });
 document.addEventListener('click', async e => {
   const cp = e.target.closest('[data-copy-p]');
   if (cp) { const p = protocols.find(x=>x._id===cp.dataset.copyP); if(p) SCPIntranet.copyText(p.content, cp, 'Copié'); return; }
   const ep = e.target.closest('[data-edit-p]');
-  if (ep) { openProtoModal(protocols.find(x=>x._id===ep.dataset.editP)); return; }
+  if (ep) { if(!requireAuth('modifier un protocole')) return; openProtoModal(protocols.find(x=>x._id===ep.dataset.editP)); return; }
   const dp = e.target.closest('[data-del-p]');
-  if (dp) { if(!confirm('Supprimer ce protocole ?')) return; await fbDelete('sec_protocols', dp.dataset.delP); SCPIntranet.addHistory('Protocole supprimé.'); return; }
+  if (dp) { if(!requireAuth('supprimer un protocole')) return; if(!confirm('Supprimer ce protocole ?')) return; await fbDelete('sec_protocols', dp.dataset.delP); SCPIntranet.addHistory('Protocole supprimé.'); return; }
 });
-document.getElementById('btnNewProto')?.addEventListener('click', () => openProtoModal(null));
+document.getElementById('btnNewProto')?.addEventListener('click', () => {
+  if (!requireAuth('créer un protocole')) return; openProtoModal(null);
+});
 function openProtoModal(p=null) {
   editingProtoId = p?._id || null;
   document.getElementById('protoModalTitle').textContent = p ? 'Modifier protocole' : 'Nouveau protocole';
@@ -869,6 +1117,7 @@ function openProtoModal(p=null) {
   SCPIntranet.openModal('modalProto');
 }
 document.getElementById('saveProtoBtn')?.addEventListener('click', async () => {
+  if (!requireAuth('sauvegarder un protocole')) return;
   const title = document.getElementById('pTitle').value.trim();
   const content = document.getElementById('pContent').value.trim();
   if (!title || !content) { alert('Titre et contenu requis.'); return; }
@@ -881,7 +1130,9 @@ document.getElementById('saveProtoBtn')?.addEventListener('click', async () => {
   SCPIntranet.addHistory((wasEditing ? 'Protocole modifié' : 'Nouveau protocole') + ': ' + title);
 });
 
-// ── EVALUATIONS ──
+// ══════════════════════════════════════════
+// EVALUATIONS
+// ══════════════════════════════════════════
 function renderEvals() {
   const el = document.getElementById('evalList'); if (!el) return;
   let list = activeEvalFilter==='all' ? evaluations : evaluations.filter(e=>e.decision===activeEvalFilter);
@@ -900,8 +1151,7 @@ function renderEvals() {
       <div class="card-meta"><span>${dec[ev.decision]||ev.decision}</span><span>${ev.date}</span><span>Éval: ${ev.author}</span></div>
       ${ev.comments?`<div class="card-excerpt">${ev.comments}</div>`:''}
       <div class="card-acts">
-        <button class="btn btn-xs btn-primary" data-edit-ev="${ev._id}">✎</button>
-        <button class="btn btn-xs btn-danger" data-del-ev="${ev._id}">✕</button>
+        ${isAuthenticated ? `<button class="btn btn-xs btn-primary" data-edit-ev="${ev._id}">✎</button><button class="btn btn-xs btn-danger" data-del-ev="${ev._id}">✕</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -913,25 +1163,26 @@ document.getElementById('evalFilters')?.addEventListener('click', e => {
 });
 document.addEventListener('click', async e => {
   const eb = e.target.closest('[data-edit-ev]');
-  if (eb) { openEvalForm(evaluations.find(x=>x._id===eb.dataset.editEv)); return; }
-  const db = e.target.closest('[data-del-ev]');
-  if (db) { if(!confirm('Supprimer ?')) return; await fbDelete('sec_evals', db.dataset.delEv); return; }
+  if (eb) { if(!requireAuth('modifier une éval')) return; openEvalForm(evaluations.find(x=>x._id===eb.dataset.editEv)); return; }
+  const db2 = e.target.closest('[data-del-ev]');
+  if (db2) { if(!requireAuth('supprimer une éval')) return; if(!confirm('Supprimer ?')) return; await fbDelete('sec_evals', db2.dataset.delEv); return; }
 });
-document.getElementById('btnNewEval')?.addEventListener('click', () => openEvalForm(null));
+document.getElementById('btnNewEval')?.addEventListener('click', () => {
+  if (!requireAuth('créer une évaluation')) return; openEvalForm(null);
+});
 ['evalCancelBtn','evalCancelBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { document.getElementById('evalFormPanel').style.display='none'; editingEvalId=null; }));
 function openEvalForm(ev=null) {
   editingEvalId = ev?._id || null;
   document.getElementById('evalFormTitle').textContent = ev ? 'Modifier — '+ev.name : 'Nouvelle évaluation';
-  document.getElementById('evalName').value = ev?.name || '';
-  document.getElementById('evalUser').value = ev?.username || '';
-  document.getElementById('evalRank').value = ev?.rank || '';
-  document.getElementById('evalAuthor').value = ev?.author || '';
-  document.getElementById('evalDate').value = ev?.date || SCPIntranet.today();
-  document.getElementById('evalDecision').value = ev?.decision || 'valide';
-  document.getElementById('evalComments').value = ev?.comments || '';
+  document.getElementById('evalName').value    = ev?.name || '';
+  document.getElementById('evalUser').value    = ev?.username || '';
+  document.getElementById('evalRank').value    = ev?.rank || '';
+  document.getElementById('evalAuthor').value  = ev?.author || '';
+  document.getElementById('evalDate').value    = ev?.date || SCPIntranet.today();
+  document.getElementById('evalDecision').value= ev?.decision || 'valide';
+  document.getElementById('evalComments').value= ev?.comments || '';
   SCPIntranet.EVAL_CRITERIA.forEach(k => {
-    const sl = document.getElementById('score'+k);
-    const vl = document.getElementById('val'+k);
+    const sl = document.getElementById('score'+k); const vl = document.getElementById('val'+k);
     if(sl) sl.value = ev?.scores?.[k] || 5;
     if(vl) vl.textContent = ev?.scores?.[k] || 5;
   });
@@ -941,6 +1192,7 @@ function openEvalForm(ev=null) {
   panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 document.getElementById('evalSaveBtn')?.addEventListener('click', async () => {
+  if (!requireAuth('sauvegarder une évaluation')) return;
   const name = document.getElementById('evalName').value.trim();
   const author = document.getElementById('evalAuthor').value.trim();
   const date = document.getElementById('evalDate').value;
@@ -955,7 +1207,9 @@ document.getElementById('evalSaveBtn')?.addEventListener('click', async () => {
   SCPIntranet.addHistory('Évaluation enregistrée: '+name);
 });
 
-// ── RAPPORTS ──
+// ══════════════════════════════════════════
+// RAPPORTS
+// ══════════════════════════════════════════
 function renderRapports() {
   const el = document.getElementById('rapportList'); if (!el) return;
   let list = activeRapportFilter==='all' ? rapports : rapports.filter(r=>r.type===activeRapportFilter);
@@ -972,7 +1226,7 @@ function renderRapports() {
       <div class="card-acts">
         <button class="btn btn-xs btn-primary" data-view-r="${r._id}">📄 Voir</button>
         <button class="btn btn-xs btn-ghost" data-exp-r="${r._id}">⬇</button>
-        <button class="btn btn-xs btn-danger" data-del-r="${r._id}">✕</button>
+        ${isAuthenticated ? `<button class="btn btn-xs btn-danger" data-del-r="${r._id}">✕</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -985,7 +1239,7 @@ document.getElementById('rapportFilters')?.addEventListener('click',e=>{
 document.addEventListener('click', async e=>{
   const vb=e.target.closest('[data-view-r]');if(vb){viewRapport(rapports.find(x=>x._id===vb.dataset.viewR));return;}
   const eb=e.target.closest('[data-exp-r]');if(eb){const r=rapports.find(x=>x._id===eb.dataset.expR);if(r)SCPIntranet.exportRapport(r);return;}
-  const db=e.target.closest('[data-del-r]');if(db){if(!confirm('Supprimer ?'))return; await fbDelete('sec_rapports', db.dataset.delR); return;}
+  const db3=e.target.closest('[data-del-r]');if(db3){if(!requireAuth('supprimer un rapport')) return; if(!confirm('Supprimer ?'))return; await fbDelete('sec_rapports', db3.dataset.delR); return;}
 });
 function viewRapport(r){
   if(!r)return;currentRapport=r;
@@ -1003,7 +1257,9 @@ function viewRapport(r){
   SCPIntranet.openModal('modalRapportView');
 }
 document.getElementById('rvExportBtn')?.addEventListener('click',()=>{if(currentRapport)SCPIntranet.exportRapport(currentRapport);});
-document.getElementById('btnNewRapport')?.addEventListener('click',()=>openRapportForm(null));
+document.getElementById('btnNewRapport')?.addEventListener('click',()=>{
+  if(!requireAuth('créer un rapport')) return; openRapportForm(null);
+});
 ['rapportCancelBtn','rapportCancelBtn2'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{document.getElementById('rapportFormPanel').style.display='none';editingRapportId=null;}));
 function openRapportForm(r=null){
   editingRapportId=r?._id||null;
@@ -1022,6 +1278,7 @@ function openRapportForm(r=null){
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 document.getElementById('rapportSaveBtn')?.addEventListener('click', async ()=>{
+  if(!requireAuth('sauvegarder un rapport')) return;
   const title=document.getElementById('rTitle').value.trim();
   const author=document.getElementById('rAuthor').value.trim();
   const desc=document.getElementById('rDesc').value.trim();
@@ -1035,30 +1292,26 @@ document.getElementById('rapportSaveBtn')?.addEventListener('click', async ()=>{
   SCPIntranet.addHistory('Rapport enregistré: '+title);
 });
 
-// ── APPEL NOMINAL ──
+// ══════════════════════════════════════════
+// APPEL NOMINAL
+// ══════════════════════════════════════════
 let agents = [];
 let appelSessions = [];
 let currentAppel = null;
 let activeAppelFilter = 'all';
 let noteTargetAgentId = null;
 
-fbListen('sec_agents',          d => { agents        = d; renderAgentMgmt(); if(currentAppel) renderAppelSession(); });
-fbListen('sec_appel_sessions',  d => { appelSessions = d; renderAppelHistorique(); });
+fbListen('sec_agents',         d => { agents        = d; renderAgentMgmt(); if(currentAppel) renderAppelSession(); });
+fbListen('sec_appel_sessions', d => { appelSessions = d; renderAppelHistorique(); });
 
-function saveAgents()       { /* Firebase */ }
-function saveAppelSessions(){ /* Firebase */ }
-
-// ── Parse classe from grade tag ──
-// Ex: "[D.SE-SF] Agent de 1ère Classe" → { tag:"D.SE-SF", section:"SF", base:"D.SE" }
 function parseClasse(rank) {
   if (!rank) return { tag: '—', section: '', base: '', label: '—', color: '#7090b0' };
   const m = rank.match(/^\[([^\]]+)\]/);
   if (!m) return { tag: rank.substring(0,15), section: '', base: '', label: rank.substring(0,15), color: '#7090b0' };
-  const tag = m[1]; // e.g. "D.SE-SF" or "D.SE-DIR." or "D.SE"
+  const tag = m[1];
   const parts = tag.split('-');
-  const base = parts[0]; // "D.SE"
-  const section = parts.slice(1).join('-') || ''; // "SF", "DSI", "BSI", "SC", "DIR.", ""
-
+  const base = parts[0];
+  const section = parts.slice(1).join('-') || '';
   const SECTION_MAP = {
     '':     { label: 'Standard',          color: '#4cc3ff' },
     'SF':   { label: 'SF — Spéc. Forces', color: '#ffa500' },
@@ -1077,15 +1330,12 @@ function classBadge(rank) {
   return `<span class="appel-class-badge" style="border-color:${c.color};color:${c.color}">[${c.tag}]</span>`;
 }
 
-// ── Render agent management list ──
 function renderAgentMgmt() {
-  const el = document.getElementById('agentMgmtList');
-  if (!el) return;
+  const el = document.getElementById('agentMgmtList'); if (!el) return;
   if (!agents.length) {
     el.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--text-dim);padding:10px">Aucun agent enregistré. Utilisez le bouton « Importer depuis Morphs » pour charger automatiquement les agents.</div>';
     return;
   }
-  // Group by section
   const grouped = {};
   agents.forEach(a => {
     const c = parseClasse(a.rank);
@@ -1109,8 +1359,8 @@ function renderAgentMgmt() {
   el.innerHTML = html;
 }
 
-// Import from MORPH_DATA
 document.getElementById('agentImportMorphBtn')?.addEventListener('click', async () => {
+  if (!requireAuth('importer des agents')) return;
   if (!confirm('Importer tous les agents depuis la liste Morphs ? Les doublons (même username) seront ignorés.')) return;
   let added = 0;
   for (const m of MORPH_DATA) {
@@ -1124,12 +1374,14 @@ document.getElementById('agentImportMorphBtn')?.addEventListener('click', async 
 });
 
 document.getElementById('agentClearAll')?.addEventListener('click', async () => {
+  if (!requireAuth('vider la liste agents')) return;
   if (!confirm('Vider toute la liste des agents ?')) return;
   const snap = await getDocs(collection(db, 'sec_agents'));
   for (const d of snap.docs) await fbDelete('sec_agents', d.id);
 });
 
 document.getElementById('agentAddBtn')?.addEventListener('click', async () => {
+  if (!requireAuth('ajouter un agent')) return;
   const name = document.getElementById('agentInputName').value.trim();
   if (!name) return;
   await fbAdd('sec_agents', { name, username: document.getElementById('agentInputUser').value.trim(), rank: document.getElementById('agentInputRank').value.trim() });
@@ -1140,21 +1392,19 @@ document.getElementById('agentAddBtn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('agentMgmtList')?.addEventListener('click', async e => {
-  const btn = e.target.closest('[data-del-agent]');
-  if (!btn) return;
+  const btn = e.target.closest('[data-del-agent]'); if (!btn) return;
+  if (!requireAuth('supprimer un agent')) return;
   if (!confirm('Supprimer cet agent ?')) return;
   await fbDelete('sec_agents', btn.dataset.delAgent);
 });
 
 document.getElementById('btnManageAgents')?.addEventListener('click', () => {
+  if (!requireAuth('gérer les agents')) return;
   renderAgentMgmt();
   SCPIntranet.openModal('modalAgents');
 });
 
-// ── Appel session entries ──
-function getEntry(agentId) {
-  return currentAppel?.entries.find(e => e.agentId === agentId) || { agentId, status: 'nc', note: '' };
-}
+function getEntry(agentId) { return currentAppel?.entries.find(e => e.agentId === agentId) || { agentId, status: 'nc', note: '' }; }
 function setEntry(agentId, status) {
   if (!currentAppel) return;
   const i = currentAppel.entries.findIndex(e => e.agentId === agentId);
@@ -1171,8 +1421,8 @@ function setEntryNote(agentId, note) {
 function appelCounts() {
   const entries = currentAppel?.entries || [];
   const present = entries.filter(e => e.status === 'present').length;
-  const absent = entries.filter(e => e.status === 'absent').length;
-  const retard = entries.filter(e => e.status === 'retard').length;
+  const absent  = entries.filter(e => e.status === 'absent').length;
+  const retard  = entries.filter(e => e.status === 'retard').length;
   const nc = Math.max(0, agents.length - present - absent - retard);
   return { present, absent, retard, nc };
 }
@@ -1181,28 +1431,22 @@ function renderAppelSession() {
   if (!currentAppel) return;
   const counts = appelCounts();
   document.getElementById('acntPresent').textContent = counts.present;
-  document.getElementById('acntAbsent').textContent = counts.absent;
-  document.getElementById('acntRetard').textContent = counts.retard;
-  document.getElementById('acntNC').textContent = counts.nc;
+  document.getElementById('acntAbsent').textContent  = counts.absent;
+  document.getElementById('acntRetard').textContent  = counts.retard;
+  document.getElementById('acntNC').textContent      = counts.nc;
   const responded = counts.present + counts.absent + counts.retard;
   const pct = agents.length ? Math.round(responded / agents.length * 100) : 0;
   document.getElementById('appelProgressBar').style.width = pct + '%';
   document.getElementById('appelProgressText').textContent = responded + '/' + agents.length;
-
   const search = (document.getElementById('appelSearch')?.value || '').toLowerCase();
-
-  // Filter agents
   let list = agents.filter(a => {
     if (search && !a.name.toLowerCase().includes(search) && !(a.username||'').toLowerCase().includes(search)) return false;
     const status = getEntry(a._id).status;
     if (activeAppelFilter !== 'all' && status !== activeAppelFilter) return false;
     return true;
   });
-
   const el = document.getElementById('appelAgentList');
   if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="empty-text" style="font-size:11px">Aucun agent correspondant</div></div>'; return; }
-
-  // Group by section
   const grouped = {};
   list.forEach(a => {
     const c = parseClasse(a.rank);
@@ -1210,17 +1454,11 @@ function renderAppelSession() {
     if (!grouped[key]) grouped[key] = { info: c, list: [] };
     grouped[key].list.push(a);
   });
-
   let html = '';
   Object.entries(grouped).forEach(([key, g]) => {
-    const sectionAgents = g.list;
-    const sPresent = sectionAgents.filter(a => getEntry(a._id).status === 'present').length;
-    const sTotal = sectionAgents.length;
-    html += `<div class="appel-section-hdr" style="border-color:${g.info.color}">
-      <span style="color:${g.info.color}">${g.info.label}</span>
-      <span class="appel-section-count">${sPresent}/${sTotal} présents</span>
-    </div>`;
-    sectionAgents.forEach(a => {
+    const sPresent = g.list.filter(a => getEntry(a._id).status === 'present').length;
+    html += `<div class="appel-section-hdr" style="border-color:${g.info.color}"><span style="color:${g.info.color}">${g.info.label}</span><span class="appel-section-count">${sPresent}/${g.list.length} présents</span></div>`;
+    g.list.forEach(a => {
       const entry = getEntry(a._id);
       const cls = parseClasse(a.rank);
       html += `<div class="appel-agent-row ${entry.status !== 'nc' ? 'is-'+entry.status : ''}" style="${entry.status !== 'nc' ? '' : 'border-left:3px solid '+cls.color}">
@@ -1265,11 +1503,8 @@ document.getElementById('agentNoteSaveBtn')?.addEventListener('click', () => {
 document.getElementById('appelFilters')?.addEventListener('click', e => {
   const pill = e.target.closest('.pill'); if (!pill) return;
   document.querySelectorAll('#appelFilters .pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  activeAppelFilter = pill.dataset.appelFilter;
-  renderAppelSession();
+  pill.classList.add('active'); activeAppelFilter = pill.dataset.appelFilter; renderAppelSession();
 });
-
 document.getElementById('appelSearch')?.addEventListener('input', () => renderAppelSession());
 
 document.getElementById('appelMarkAllPresent')?.addEventListener('click', () => {
@@ -1281,15 +1516,13 @@ document.getElementById('appelMarkAllPresent')?.addEventListener('click', () => 
   });
   renderAppelSession();
 });
-
 document.getElementById('appelReset')?.addEventListener('click', () => {
   if (!currentAppel || !confirm('Réinitialiser toutes les présences ?')) return;
-  currentAppel.entries = [];
-  renderAppelSession();
+  currentAppel.entries = []; renderAppelSession();
 });
 
-// ── Start session ──
 document.getElementById('btnNewAppel')?.addEventListener('click', () => {
+  if (!requireAuth('démarrer un appel')) return;
   document.getElementById('appelDate').value = SCPIntranet.today();
   document.getElementById('appelTitle').value = '';
   document.getElementById('appelResponsable').value = '';
@@ -1299,13 +1532,12 @@ document.getElementById('btnNewAppel')?.addEventListener('click', () => {
 
 document.getElementById('appelStartBtn')?.addEventListener('click', () => {
   const title = document.getElementById('appelTitle').value.trim();
-  const resp = document.getElementById('appelResponsable').value.trim();
-  const date = document.getElementById('appelDate').value;
+  const resp  = document.getElementById('appelResponsable').value.trim();
+  const date  = document.getElementById('appelDate').value;
   if (!title || !resp || !date) { alert('Remplir les champs obligatoires.'); return; }
-  if (!agents.length) { alert('Aucun agent dans la liste. Ajoutez des agents via ⚙ Agents d\'abord.'); return; }
+  if (!agents.length) { alert('Aucun agent dans la liste. Ajoutez des agents via ⚙ Agents.'); return; }
   currentAppel = {
-    id: SCPIntranet.genId('APPEL'),
-    title, responsable: resp, date,
+    id: SCPIntranet.genId('APPEL'), title, responsable: resp, date,
     type: document.getElementById('appelType').value,
     notes: document.getElementById('appelNotes').value.trim(),
     entries: [], startedAt: new Date().toISOString(), closed: false
@@ -1321,7 +1553,6 @@ document.getElementById('appelStartBtn')?.addEventListener('click', () => {
   SCPIntranet.addHistory('Appel démarré: ' + title);
 });
 
-// ── Close & export ──
 document.getElementById('appelCloseSession')?.addEventListener('click', async () => {
   if (!currentAppel) return;
   if (!confirm('Clôturer la session et exporter le rapport ?')) return;
@@ -1339,76 +1570,33 @@ document.getElementById('appelCloseSession')?.addEventListener('click', async ()
 
 function exportAppelRapport(session) {
   const snap = session.snapshot || [];
-  // Group by section for export
   const grouped = {};
-  snap.forEach(a => {
-    const key = a.classe?.section || 'STD';
-    const label = a.classe?.label || 'Standard';
-    if (!grouped[key]) grouped[key] = { label, list: [] };
-    grouped[key].list.push(a);
-  });
+  snap.forEach(a => { const key = a.classe?.section || 'STD'; const label = a.classe?.label || 'Standard'; if (!grouped[key]) grouped[key] = { label, list: [] }; grouped[key].list.push(a); });
   const statusIcon = { present:'✓', absent:'✕', retard:'⏱', nc:'?' };
   const present = snap.filter(a => a.entry.status === 'present').length;
-  const absent = snap.filter(a => a.entry.status === 'absent').length;
-  const retard = snap.filter(a => a.entry.status === 'retard').length;
-  const nc = snap.filter(a => a.entry.status === 'nc').length;
-
-  const lines = [
-    '══════════════════════════════════════════',
-    'SCP FOUNDATION — SITE-19',
-    'RAPPORT D\'APPEL NOMINAL',
-    '══════════════════════════════════════════',
-    `ID SESSION    : ${session.id}`,
-    `TITRE         : ${session.title}`,
-    `TYPE          : ${session.type.toUpperCase()}`,
-    `DATE          : ${session.date}`,
-    `RESPONSABLE   : ${session.responsable}`,
-    `NOTES         : ${session.notes || '—'}`,
-    '══════════════════════════════════════════',
-    `TOTAL AGENTS  : ${snap.length}`,
-    `PRÉSENTS      : ${present}`,
-    `RETARDS       : ${retard}`,
-    `ABSENTS       : ${absent}`,
-    `NON RÉPONDUS  : ${nc}`,
-    `TAUX PRÉSENCE : ${snap.length ? Math.round((present+retard)/snap.length*100) : 0}%`,
-    '══════════════════════════════════════════',
-    '',
-  ];
-
+  const absent  = snap.filter(a => a.entry.status === 'absent').length;
+  const retard  = snap.filter(a => a.entry.status === 'retard').length;
+  const nc      = snap.filter(a => a.entry.status === 'nc').length;
+  const lines = ['══════════════════════════════════════════','SCP FOUNDATION — SITE-19','RAPPORT D\'APPEL NOMINAL','══════════════════════════════════════════',`ID SESSION    : ${session.id}`,`TITRE         : ${session.title}`,`TYPE          : ${session.type.toUpperCase()}`,`DATE          : ${session.date}`,`RESPONSABLE   : ${session.responsable}`,`NOTES         : ${session.notes || '—'}`,'══════════════════════════════════════════',`TOTAL AGENTS  : ${snap.length}`,`PRÉSENTS      : ${present}`,`RETARDS       : ${retard}`,`ABSENTS       : ${absent}`,`NON RÉPONDUS  : ${nc}`,`TAUX PRÉSENCE : ${snap.length ? Math.round((present+retard)/snap.length*100) : 0}%`,'══════════════════════════════════════════',''];
   Object.entries(grouped).forEach(([, g]) => {
     const gPresent = g.list.filter(a => a.entry.status === 'present').length;
     lines.push(`── ${g.label.toUpperCase()} (${gPresent}/${g.list.length}) ──`);
-    g.list.forEach(a => {
-      const icon = statusIcon[a.entry.status] || '?';
-      const noteStr = a.entry.note ? ` [${a.entry.note}]` : '';
-      lines.push(`  ${icon}  [${a.rank?.match(/^\[([^\]]+)\]/)?.[1]||'—'}] ${a.name}${a.username?' (@'+a.username+')':''}${noteStr}`);
-    });
+    g.list.forEach(a => { const icon = statusIcon[a.entry.status] || '?'; const noteStr = a.entry.note ? ` [${a.entry.note}]` : ''; lines.push(`  ${icon}  [${a.rank?.match(/^\[([^\]]+)\]/)?.[1]||'—'}] ${a.name}${a.username?' (@'+a.username+')':''}${noteStr}`); });
     lines.push('');
   });
-
   lines.push('══════════════════════════════════════════');
   lines.push(`[Généré le ${new Date().toLocaleString('fr-FR')}]`);
-
   const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = session.id + '_appel_' + session.date + '.txt';
-  a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = session.id + '_appel_' + session.date + '.txt'; a.click();
 }
 
-// ── Historique ──
 function renderAppelHistorique() {
   const el = document.getElementById('appelHistoList'); if (!el) return;
-  if (!appelSessions.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-text" style="font-size:11px">Aucune session archivée</div></div>';
-    return;
-  }
+  if (!appelSessions.length) { el.innerHTML = '<div class="empty-state"><div class="empty-text" style="font-size:11px">Aucune session archivée</div></div>'; return; }
   el.innerHTML = [...appelSessions].reverse().map(s => {
     const snap = s.snapshot || [];
-    const p = snap.filter(a => a.entry.status === 'present').length;
-    const ab = snap.filter(a => a.entry.status === 'absent').length;
-    const r = snap.filter(a => a.entry.status === 'retard').length;
-    const nc = snap.filter(a => a.entry.status === 'nc').length;
+    const p=snap.filter(a=>a.entry.status==='present').length, ab=snap.filter(a=>a.entry.status==='absent').length, r=snap.filter(a=>a.entry.status==='retard').length, nc=snap.filter(a=>a.entry.status==='nc').length;
     const pct = snap.length ? Math.round((p+r)/snap.length*100) : 0;
     return `<div class="appel-histo-card">
       <div class="appel-histo-info">
@@ -1424,7 +1612,7 @@ function renderAppelHistorique() {
       </div>
       <div style="display:flex;gap:6px">
         <button class="btn btn-xs btn-ghost" data-reexport-appel="${s._id}">⬇ Export</button>
-        <button class="btn btn-xs btn-danger" data-del-appel="${s._id}">✕</button>
+        ${isAuthenticated ? `<button class="btn btn-xs btn-danger" data-del-appel="${s._id}">✕</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1433,19 +1621,24 @@ function renderAppelHistorique() {
 document.getElementById('appelHistoList')?.addEventListener('click', async e => {
   const eb = e.target.closest('[data-reexport-appel]');
   if (eb) { const s = appelSessions.find(x => x._id === eb.dataset.reexportAppel); if (s) exportAppelRapport(s); return; }
-  const db = e.target.closest('[data-del-appel]');
-  if (db) { if (!confirm('Supprimer cette session ?')) return; await fbDelete('sec_appel_sessions', db.dataset.delAppel); }
+  const db4 = e.target.closest('[data-del-appel]');
+  if (db4) { if (!requireAuth('supprimer une session')) return; if (!confirm('Supprimer cette session ?')) return; await fbDelete('sec_appel_sessions', db4.dataset.delAppel); }
 });
 
-
-// ── INIT — module runs after DOM is ready, no DOMContentLoaded needed ──
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
 SCPIntranet.initTabs('.nav-tab','view-');
 SCPIntranet.initModalClose();
-SCPIntranet.fillSelect('rType',SCPIntranet.RAPPORT_TYPES);
-SCPIntranet.fillSelect('rSev',SCPIntranet.RAPPORT_SEV);
+SCPIntranet.fillSelect('rType', SCPIntranet.RAPPORT_TYPES);
+SCPIntranet.fillSelect('rSev',  SCPIntranet.RAPPORT_SEV);
 SCPIntranet.initEvalSliders();
-renderLRC(); renderMorphs();
+renderLRC();
+renderMorphs();
 updateStats();
+// Init permissions for non-authenticated state
+applyPermissions(null, null);
+updateSidebarAuth(null, null);
 SCPIntranet.addHistory('Intranet Sécurité chargé.');
 </script>
 </body>
