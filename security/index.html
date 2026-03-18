@@ -1170,7 +1170,7 @@ document.addEventListener('click', async e => {
   if (dsb) {
     if (!requireAuth('supprimer un agent')) return;
     const id = dsb.dataset.delSecUser;
-    const agent = secUsers.find(a => a._id === id);
+    const agent = (secUsers.length > 0 ? secUsers : agents).find(a => a._id === id);
     if (!confirm('Supprimer ' + (agent?.name || id) + ' du personnel ?')) return;
     await secUserDelete(id);
     SCPIntranet.addHistory('Personnel supprimé : ' + (agent?.name || id));
@@ -1182,7 +1182,7 @@ document.addEventListener('click', async e => {
   if (tob) {
     if (!requireAuth('modifier le statut')) return;
     const id = tob.dataset.toggleOnline;
-    const agent = secUsers.find(a => a._id === id);
+    const agent = (secUsers.length > 0 ? secUsers : agents).find(a => a._id === id);
     if (!agent) return;
     await secUserUpdate(id, { online: !agent.online });
     SCPIntranet.addHistory((agent.online ? '○ Hors ligne' : '⬤ En ligne') + ' : ' + agent.name);
@@ -1206,9 +1206,9 @@ document.addEventListener('click', async e => {
   const meb = e.target.closest('[data-morph-effectif]');
   if (meb) {
     const id = meb.dataset.morphEffectif;
-    const agent = secUsers.find(a => a._id === id);
+    const agent = (secUsers.length > 0 ? secUsers : agents).find(a => a._id === id);
     if (!agent) return;
-    const morphEntry = MORPH_DATA.find(m => m.name === agent.name || m.rank === agent.rank);
+    const morphEntry = MORPH_DATA.find(m => m.name === agent.name || m.username === agent.username);
     if (!morphEntry) return;
     await SCPIntranet.copyText(morphEntry.command, meb, 'Copié !');
     SCPIntranet.addHistory('Morph copié : ' + agent.name);
@@ -1305,8 +1305,9 @@ function renderEffectifs() {
   const search = (document.getElementById('effectifsSearch')?.value || '').toLowerCase();
   const sectionFilter = document.getElementById('effectifsFilterSection')?.value || '';
 
-  // Source : sec_users (pas sec_agents)
-  let list = [...secUsers];
+  // Source : sec_users — fallback sur sec_agents si sec_users est vide
+  const source = secUsers.length > 0 ? secUsers : agents;
+  let list = [...source];
   if (search) list = list.filter(a =>
     a.name?.toLowerCase().includes(search) ||
     (a.rank || '').toLowerCase().includes(search)
@@ -1320,12 +1321,12 @@ function renderEffectifs() {
   if (effectifsFilter === 'online')  list = list.filter(a => !!a.online);
   if (effectifsFilter === 'offline') list = list.filter(a => !a.online);
 
-  const onlineCount = secUsers.filter(a => a.online).length;
+  const onlineCount = source.filter(a => a.online).length;
   const totalEl = document.getElementById('effectifsCount');
   const onlineEl = document.getElementById('effectifsOnlineCount');
-  if (totalEl) totalEl.textContent = secUsers.length + ' agent' + (secUsers.length > 1 ? 's' : '') + ' — ' + onlineCount + ' en ligne';
+  if (totalEl) totalEl.textContent = source.length + ' agent' + (source.length > 1 ? 's' : '') + ' — ' + onlineCount + ' en ligne';
   if (onlineEl) onlineEl.textContent = '⬤ ' + onlineCount + ' EN LIGNE';
-  SCPIntranet.updateStat('statMorph', secUsers.length);
+  SCPIntranet.updateStat('statMorph', source.length);
 
   // Formulaire ajout agent (connecté seulement)
   const addForm = isAuthenticated ? `
