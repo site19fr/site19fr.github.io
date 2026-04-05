@@ -468,6 +468,20 @@
         </div>
       </div>
 
+      <!-- Barre de recherche roster -->
+<div style="margin-bottom:12px;">
+  <input type="text" id="rosterSearch" placeholder="🔍  Rechercher un agent, username, grade…"
+    oninput="filterRoster()"
+    style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);
+           font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px 14px;outline:none;
+           box-sizing:border-box;"
+    onfocus="this.style.borderColor='var(--accent2)'"
+    onblur="this.style.borderColor='var(--border2)'"
+  />
+  <div id="rosterSearchInfo" style="font-family:'Share Tech Mono',monospace;font-size:9px;
+    color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;margin-top:5px;min-height:14px;"></div>
+</div>
+
       <!-- Tabs et panels générés dynamiquement -->
       <div class="roster-tabs" id="rosterTabs"></div>
       <div id="rosterPanels"></div>
@@ -1652,7 +1666,57 @@ async function copyAgentCommand(deptId, agentId) {
 // ── Échappement HTML (roster) ──
 function escR(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// ── RECHERCHE ROSTER ──
+window.filterRoster = function() {
+  const q = document.getElementById('rosterSearch')?.value.trim().toLowerCase() || '';
+  const infoEl = document.getElementById('rosterSearchInfo');
 
+  if (!q) {
+    // Pas de recherche : affichage normal
+    document.querySelectorAll('.roster-agent-card, .roster-edit-form, .roster-add-zone').forEach(el => {
+      el.style.display = '';
+    });
+    document.querySelectorAll('.roster-dept-panel').forEach(p => {
+      p.style.display = p.classList.contains('active') ? '' : 'none';
+    });
+    if (infoEl) infoEl.textContent = '';
+    return;
+  }
+
+  // Mode recherche : afficher TOUS les panels
+  document.querySelectorAll('.roster-dept-panel').forEach(p => p.style.display = '');
+  document.querySelectorAll('.roster-add-zone').forEach(z => z.style.display = 'none');
+
+  let totalFound = 0;
+
+  // Parcourir chaque département
+  Object.values(rosterData).forEach(dept => {
+    const panel = document.getElementById(`roster-panel-${dept.id}`);
+    if (!panel) return;
+
+    let deptFound = 0;
+    (dept.agents || []).forEach(agent => {
+      const card = document.getElementById(`card-${dept.id}-${agent.id}`);
+      const form = document.getElementById(`editform-${dept.id}-${agent.id}`);
+      const match = [agent.name, agent.username, agent.rank, agent.date, agent.command]
+        .some(v => v && v.toLowerCase().includes(q));
+      if (card) card.style.display = match ? '' : 'none';
+      if (form) form.style.display = 'none'; // fermer les forms ouverts
+      if (match) deptFound++;
+    });
+    totalFound += deptFound;
+
+    // Masquer le panel si aucun résultat dans ce dept
+    if (panel) panel.style.display = deptFound === 0 ? 'none' : '';
+  });
+
+  if (infoEl) {
+    infoEl.textContent = totalFound === 0
+      ? '⚠ Aucun agent trouvé'
+      : `${totalFound} agent${totalFound > 1 ? 's' : ''} trouvé${totalFound > 1 ? 's' : ''}`;
+    infoEl.style.color = totalFound === 0 ? 'var(--danger)' : 'var(--safe)';
+  }
+};
 // ── Délégation d'événements roster ──
 document.addEventListener('click', e => {
 
