@@ -454,6 +454,156 @@
   letter-spacing: 0.15em; pointer-events: none;
   user-select: none; white-space: nowrap;
 }
+
+/* ══ ÉVALUATIONS REFONTE ══ */
+:root { --promo:#a855f7; }
+.eval-stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:20px}
+.eval-stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;text-align:center}
+.eval-stat-card--promo{border-left:3px solid var(--promo)}
+.eval-stat-card--valide{border-left:3px solid var(--safe)}
+.eval-stat-card--awarn{border-left:3px solid var(--warn)}
+.eval-stat-card--danger{border-left:3px solid var(--danger)}
+.eval-stat-card--pending{border-left:3px solid var(--text-dim)}
+.eval-stat-card--total{border-left:3px solid var(--dept-color)}
+.eval-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;line-height:1}
+.eval-stat-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:var(--text-dim);margin-top:3px}
+.eval-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.eval-search-input{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 14px;outline:none;transition:border-color .2s}
+.eval-search-input:focus{border-color:var(--dept-color)}
+.eval-sort-select{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 10px;outline:none;cursor:pointer}
+.eval-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.eval-card-new{background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;cursor:pointer;transition:all .2s}
+.eval-card-new:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-1px)}
+.eval-card-new--promu{border-top:3px solid var(--promo)}
+.eval-card-new--valide{border-top:3px solid var(--safe)}
+.eval-card-new--avertissement{border-top:3px solid var(--warn)}
+.eval-card-new--recale{border-top:3px solid var(--danger)}
+.eval-card-new--expulse{border-top:3px solid #444}
+.eval-valid-badge{position:absolute;top:10px;right:10px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.15em;text-transform:uppercase;padding:2px 7px;border:1px solid}
+.eval-valid-badge--pending{color:var(--text-dim);border-color:rgba(136,136,136,.35);background:rgba(136,136,136,.05)}
+.eval-valid-badge--partial{color:var(--warn);border-color:rgba(255,170,0,.4);background:rgba(255,170,0,.06)}
+.eval-valid-badge--complete{color:var(--safe);border-color:rgba(0,217,126,.4);background:rgba(0,217,126,.07)}
+.eval-valid-badge--rejected{color:var(--danger);border-color:rgba(255,51,85,.4);background:rgba(255,51,85,.07)}
+.eval-card-head{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
+.eval-card-agent-name{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:900;text-transform:uppercase;color:var(--white);line-height:1;padding-right:64px}
+.eval-card-rank-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dept-color);margin-top:3px;letter-spacing:.05em}
+.eval-card-dec-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.eval-dec-badge{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border:1px solid}
+.eval-dec-badge--promu{color:var(--promo);border-color:rgba(168,85,247,.5);background:rgba(168,85,247,.08)}
+.eval-dec-badge--valide{color:var(--safe);border-color:rgba(0,217,126,.4);background:rgba(0,217,126,.06)}
+.eval-dec-badge--avertissement{color:var(--warn);border-color:rgba(255,170,0,.4);background:rgba(255,170,0,.06)}
+.eval-dec-badge--recale{color:var(--danger);border-color:rgba(255,51,85,.4);background:rgba(255,51,85,.06)}
+.eval-dec-badge--expulse{color:#666;border-color:rgba(100,100,100,.4);background:rgba(100,100,100,.06)}
+.eval-card-meta-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:3px}
+.eval-card-scores-wrap{padding:10px 14px;display:flex;flex-direction:column;gap:4px}
+.eval-score-row2{display:flex;align-items:center;gap:8px}
+.eval-score-lbl2{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);min-width:64px;flex-shrink:0}
+.eval-score-bar-wrap2{flex:1;height:4px;background:var(--surface3)}
+.eval-score-bar-fill2{height:100%}
+.eval-score-val2{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;min-width:16px;text-align:right}
+.eval-card-foot{padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.eval-total-num2{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;line-height:1}
+.eval-total-max2{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)}
+.eval-mention2{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border:1px solid}
+.eval-card-sigs-row{display:flex;gap:6px;padding:7px 14px;background:rgba(0,0,0,.2);border-top:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.eval-sig-mini2{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);display:flex;align-items:center;gap:4px}
+.eval-sig-mini2.signed{color:var(--safe)}
+.eval-sig-mini2.rejected{color:var(--danger)}
+.eval-sig-dot2{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
+/* Modal détail */
+.eval-modal-detail .modal-box{max-width:820px;width:95%}
+.eval-dtabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px}
+.eval-dtab{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text-dim);cursor:pointer;transition:all .18s}
+.eval-dtab:hover{color:var(--white)}
+.eval-dtab.active{color:var(--dept-color);border-bottom-color:var(--dept-color);background:rgba(76,195,255,.04)}
+.eval-dpanel{display:none}
+.eval-dpanel.active{display:block}
+.eval-detail-hdr{background:linear-gradient(90deg,rgba(76,195,255,.07) 0%,transparent 100%);border:1px solid rgba(76,195,255,.2);border-left:4px solid var(--dept-color);padding:14px 18px;margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.eval-criteria-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;margin-bottom:18px}
+.eval-crit-card2{background:var(--surface2);border:1px solid var(--border);padding:13px}
+.eval-crit-name2{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:var(--text-dim);margin-bottom:6px}
+.eval-crit-score2{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;line-height:1}
+.eval-crit-bar2{height:3px;margin-top:7px;overflow:hidden}
+.eval-crit-desc2{font-family:'Courier Prime',monospace;font-size:9px;color:var(--text-dim);margin-top:5px;font-style:italic}
+.eval-comments-box{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 14px;margin-bottom:18px}
+.eval-comments-lbl2{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.18em;color:var(--text-dim);margin-bottom:6px}
+/* Signatures */
+.eval-validation-bar2{background:var(--surface2);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.eval-val-dots{display:flex;gap:5px}
+.eval-val-dot{width:10px;height:10px;border:1px solid var(--border2);background:transparent;transition:all .2s}
+.eval-val-dot.done{background:var(--safe);border-color:var(--safe)}
+.eval-val-dot.rejected{background:var(--danger);border-color:var(--danger)}
+.eval-val-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.1em}
+.eval-finalize2{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:7px 16px;cursor:pointer;transition:all .2s}
+.eval-finalize2--ready{border:1px solid rgba(0,217,126,.5);background:rgba(0,217,126,.08);color:var(--safe)}
+.eval-finalize2--ready:hover{background:rgba(0,217,126,.18)}
+.eval-finalize2--disabled{border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:not-allowed}
+.eval-sigs-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:10px;margin-bottom:12px}
+.eval-sig-card2{background:var(--surface2);border:1px solid var(--border);padding:13px;position:relative}
+.eval-sig-card2--signed{border-left:3px solid var(--safe)}
+.eval-sig-card2--pending{border-left:3px solid var(--text-dim)}
+.eval-sig-card2--rejected{border-left:3px solid var(--danger)}
+.eval-sig-role2{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);margin-bottom:4px}
+.eval-sig-name2{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;color:var(--white)}
+.eval-sig-status2{font-family:'Share Tech Mono',monospace;font-size:9px;margin-top:7px;display:flex;align-items:center;gap:5px}
+.eval-sig-status2.signed{color:var(--safe)}
+.eval-sig-status2.pending{color:var(--text-dim)}
+.eval-sig-status2.rejected{color:var(--danger)}
+.eval-sig-ts{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);margin-top:2px}
+.eval-sig-action{width:100%;margin-top:8px;padding:5px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .18s}
+.eval-sig-action--sign{border:1px solid rgba(0,217,126,.4);background:rgba(0,217,126,.06);color:var(--safe)}
+.eval-sig-action--sign:hover{background:rgba(0,217,126,.14)}
+.eval-sig-action--reject{border:1px solid rgba(255,51,85,.3);background:rgba(255,51,85,.04);color:rgba(255,51,85,.6);font-size:8px;margin-top:4px}
+.eval-sig-action--reject:hover{background:rgba(255,51,85,.1);color:var(--danger)}
+.eval-sig-revoke{font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,51,85,.4);background:none;border:none;cursor:pointer;margin-top:3px;transition:color .18s;display:block}
+.eval-sig-revoke:hover{color:var(--danger)}
+.eval-sig-stamp2{position:absolute;bottom:8px;right:8px;width:30px;height:30px;border:2px solid rgba(0,217,126,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:6px;color:rgba(0,217,126,.5);text-transform:uppercase;transform:rotate(-15deg);pointer-events:none}
+/* Wizard */
+.eval-modal-form .modal-box{max-width:760px;width:95%}
+.eval-wiz-steps{display:flex;gap:0;margin-bottom:24px;position:relative}
+.eval-wiz-steps::before{content:'';position:absolute;top:14px;left:0;right:0;height:1px;background:var(--border);z-index:0}
+.eval-wiz-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;position:relative;z-index:1}
+.eval-wiz-dot{width:28px;height:28px;border:1px solid var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);transition:all .2s}
+.eval-wiz-step.active .eval-wiz-dot{border-color:var(--dept-color);background:rgba(76,195,255,.1);color:var(--dept-color)}
+.eval-wiz-step.done .eval-wiz-dot{border-color:var(--safe);background:rgba(0,217,126,.1);color:var(--safe)}
+.eval-wiz-lbl{font-family:'Share Tech Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);text-align:center}
+.eval-wiz-step.active .eval-wiz-lbl{color:var(--dept-color)}
+.eval-wiz-step.done .eval-wiz-lbl{color:var(--safe)}
+.eval-step-panel2{display:none}
+.eval-step-panel2.active{display:block}
+.eval-step-tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dept-color);margin-bottom:16px}
+.eval-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.eval-fgrid .full{grid-column:1/-1}
+.eval-flabel{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:var(--text-dim);margin-bottom:4px;display:block}
+.eval-finput,.eval-fselect,.eval-ftextarea{background:var(--surface2);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 10px;outline:none;transition:border-color .2s;width:100%}
+.eval-finput:focus,.eval-fselect:focus,.eval-ftextarea:focus{border-color:var(--dept-color)}
+.eval-ftextarea{resize:vertical}
+.eval-comp-item{background:var(--surface2);border:1px solid var(--border);padding:14px;margin-bottom:12px}
+.eval-comp-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.eval-comp-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:var(--white)}
+.eval-comp-disp{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;line-height:1}
+.eval-comp-desc{font-family:'Courier Prime',monospace;font-size:10px;color:var(--text-dim);margin-bottom:10px;font-style:italic}
+.eval-comp-slider{flex:1;height:4px;-webkit-appearance:none;background:var(--surface3);outline:none;cursor:pointer;accent-color:var(--dept-color)}
+.eval-comp-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--dept-color);background:var(--surface2);cursor:pointer}
+.eval-recap-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.eval-recap-item2{background:var(--surface2);border:1px solid var(--border);padding:10px 13px}
+.eval-recap-lbl2{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.13em;color:var(--text-dim);margin-bottom:3px}
+.eval-recap-val2{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--white)}
+.eval-total-bar2{background:var(--surface2);border:1px solid var(--border);border-left:4px solid var(--dept-color);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.eval-total-score2{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;line-height:1}
+.eval-total-mention2{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:2px 8px;border:1px solid;margin-top:3px;display:inline-block}
+.eval-sig-setup-card{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--text-dim);padding:10px 12px;margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.eval-wiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+.eval-wiz-btn{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:9px 20px;cursor:pointer;transition:all .2s}
+.eval-wiz-btn--next{border:1px solid var(--dept-color);background:rgba(76,195,255,.08);color:var(--dept-color)}
+.eval-wiz-btn--next:hover{background:rgba(76,195,255,.18)}
+.eval-wiz-btn--back{border:1px solid var(--border2);background:transparent;color:var(--text-dim)}
+.eval-wiz-btn--back:hover{border-color:var(--dept-color);color:var(--dept-color)}
+.eval-wiz-btn--save{border:1px solid rgba(0,217,126,.5);background:rgba(0,217,126,.08);color:var(--safe)}
+.eval-wiz-btn--save:hover{background:rgba(0,217,126,.18)}
+.eval-wiz-info{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)}
+@media(max-width:600px){.eval-fgrid,.eval-recap-grid2{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -623,58 +773,38 @@
       <span class="ro-lock-icon">🔒</span>
       <span>Lecture seule — <span class="ro-lock-link" onclick="openAuthFlyout()">Connectez-vous</span> pour créer ou modifier des évaluations</span>
     </div>
-    <div class="form-panel" id="evalFormPanel" style="display:none">
-      <div class="form-title">
-        <span id="evalFormTitle">Nouvelle évaluation</span>
-        <button class="btn btn-ghost btn-sm" id="evalCancelBtn">✕ Annuler</button>
-      </div>
-      <div class="form-grid">
-        <div class="form-field"><label>Nom de l'agent *</label><input id="evalName" type="text" placeholder="Ex: M.NOWAK"/></div>
-        <div class="form-field"><label>Username Roblox</label><input id="evalUser" type="text" placeholder="Ex: FlofloParis"/></div>
-        <div class="form-field"><label>Grade actuel</label><input id="evalRank" type="text" placeholder="Ex: [D.SE] Cadet"/></div>
-        <div class="form-field"><label>Évaluateur *</label><input id="evalAuthor" type="text" placeholder="Votre nom"/></div>
-        <div class="form-field"><label>Date *</label><input id="evalDate" type="date"/></div>
-        <div class="form-field">
-          <label>Décision</label>
-          <select id="evalDecision">
-            <option value="promu">✅ Promu au grade supérieur</option>
-            <option value="valide" selected>✔ Validé — maintien du grade</option>
-            <option value="avertissement">⚠ Avertissement</option>
-            <option value="recale">❌ Recalé</option>
-            <option value="expulse">🚫 Expulsion</option>
-          </select>
-        </div>
-      </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px;">Critères (0–10)</div>
-      <div class="eval-crit-grid">
-        <div class="eval-crit"><label>Discipline</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreDisc"/><span class="score-val" id="valDisc">5</span></div></div>
-        <div class="eval-crit"><label>Connaissance protocoles</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreProto"/><span class="score-val" id="valProto">5</span></div></div>
-        <div class="eval-crit"><label>Réactivité</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreReact"/><span class="score-val" id="valReact">5</span></div></div>
-        <div class="eval-crit"><label>Communication</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreComm"/><span class="score-val" id="valComm">5</span></div></div>
-        <div class="eval-crit"><label>Respect hiérarchie</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreHier"/><span class="score-val" id="valHier">5</span></div></div>
-        <div class="eval-crit"><label>Comportement</label><div class="score-row"><input type="range" min="0" max="10" value="5" id="scoreComp"/><span class="score-val" id="valComp">5</span></div></div>
-      </div>
-      <div class="eval-total">
-        <div><div class="eval-total-lbl">SCORE TOTAL</div><div class="eval-total-score" id="evalTotalScore">30 / 60</div></div>
-        <div class="eval-total-mention" id="evalTotalMention">— SATISFAISANT</div>
-      </div>
-      <div class="form-field full" style="margin-bottom:0">
-        <label>Commentaires</label>
-        <textarea id="evalComments" rows="3" placeholder="Observations de l'évaluateur…"></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-ghost btn-sm" id="evalCancelBtn2">Annuler</button>
-        <button class="btn btn-primary btn-sm" id="evalSaveBtn">💾 Enregistrer</button>
-      </div>
+
+    <!-- Stats bar -->
+    <div class="eval-stats-bar">
+      <div class="eval-stat-card eval-stat-card--promo"><div class="eval-stat-val" id="evalStatPromu" style="color:var(--promo)">0</div><div class="eval-stat-lbl">Promus</div></div>
+      <div class="eval-stat-card eval-stat-card--valide"><div class="eval-stat-val" id="evalStatValide" style="color:var(--safe)">0</div><div class="eval-stat-lbl">Validés</div></div>
+      <div class="eval-stat-card eval-stat-card--awarn"><div class="eval-stat-val" id="evalStatAvert" style="color:var(--warn)">0</div><div class="eval-stat-lbl">Avertissements</div></div>
+      <div class="eval-stat-card eval-stat-card--danger"><div class="eval-stat-val" id="evalStatRecale" style="color:var(--danger)">0</div><div class="eval-stat-lbl">Recalés</div></div>
+      <div class="eval-stat-card eval-stat-card--pending"><div class="eval-stat-val" id="evalStatPending" style="color:var(--text-dim)">0</div><div class="eval-stat-lbl">En attente sig.</div></div>
+      <div class="eval-stat-card eval-stat-card--total"><div class="eval-stat-val" id="evalStatTotal" style="color:var(--dept-color)">0</div><div class="eval-stat-lbl">Total</div></div>
     </div>
-    <div class="filter-row" id="evalFilters">
-      <button class="pill active" data-eval-filter="all">Tous</button>
-      <button class="pill" data-eval-filter="promu">Promus</button>
-      <button class="pill" data-eval-filter="valide">Validés</button>
-      <button class="pill" data-eval-filter="avertissement">Avertissements</button>
-      <button class="pill" data-eval-filter="recale">Recalés</button>
+
+    <!-- Toolbar -->
+    <div class="eval-toolbar">
+      <input class="eval-search-input" id="evalSearch" placeholder="⌕ Rechercher agent, évaluateur…" autocomplete="off"/>
+      <div class="filter-row" id="evalFilters" style="margin:0">
+        <button class="pill active" data-eval-filter="all">Tous</button>
+        <button class="pill" data-eval-filter="promu">Promus</button>
+        <button class="pill" data-eval-filter="valide">Validés</button>
+        <button class="pill" data-eval-filter="avertissement">Avertissements</button>
+        <button class="pill" data-eval-filter="recale">Recalés</button>
+        <button class="pill" data-eval-filter="pending">En attente</button>
+      </div>
+      <select class="eval-sort-select" id="evalSort">
+        <option value="date-desc">Plus récent</option>
+        <option value="date-asc">Plus ancien</option>
+        <option value="score-desc">Score ↓</option>
+        <option value="score-asc">Score ↑</option>
+      </select>
     </div>
-    <div class="card-grid" id="evalList">
+
+    <!-- Grille cartes -->
+    <div class="eval-cards-grid" id="evalList">
       <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✦</div><div class="empty-text">Aucune évaluation</div></div>
     </div>
   </section>
@@ -1041,6 +1171,173 @@
       <div class="modal-footer">
         <button class="btn btn-ghost btn-sm" data-close-modal="modalDossier">Fermer</button>
         <button class="btn btn-sm" id="dossierExportBtn" style="border-color:rgba(192,57,43,0.5);color:var(--danger);background:rgba(192,57,43,0.06)">⬇ Exporter dossier</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ MODAL DÉTAIL ÉVALUATION ══ -->
+  <div class="modal-ov eval-modal-detail" id="modalEvalDetail">
+    <div class="modal-box" style="max-width:820px;width:95%">
+      <div class="modal-hdr">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-dim)">📋 DOSSIER D'ÉVALUATION</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;color:var(--white);margin-top:4px" id="detailEvalTitle">—</div>
+        </div>
+        <button class="modal-close" data-close-modal="modalEvalDetail">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="eval-dtabs">
+          <button class="eval-dtab active" data-eval-dtab="resume">📊 Résumé</button>
+          <button class="eval-dtab" data-eval-dtab="competences">⭐ Compétences</button>
+          <button class="eval-dtab" data-eval-dtab="signatures">✍ Signatures</button>
+        </div>
+
+        <!-- Panneau Résumé -->
+        <div class="eval-dpanel active" id="evalDPanel-resume">
+          <div class="eval-detail-hdr">
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;line-height:1" id="detailEvalName">—</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dept-color);margin-top:4px" id="detailEvalRank">—</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:46px;font-weight:900;line-height:1">
+                <span id="detailEvalScore" style="color:var(--safe)">—</span>
+                <span style="font-size:18px;font-weight:400;color:var(--text-dim)">/60</span>
+              </div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px" id="detailEvalMention">—</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <span id="detailEvalDecBadge" class="eval-dec-badge">—</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)" id="detailEvalMeta">—</span>
+          </div>
+          <div class="eval-comments-box" id="detailEvalCommentsBox" style="display:none">
+            <div class="eval-comments-lbl2">Commentaires de l'évaluateur</div>
+            <div style="font-family:'Courier Prime',monospace;font-size:12px;color:var(--text);line-height:1.7;font-style:italic" id="detailEvalComments">—</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);padding:14px">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.18em;color:var(--text-dim);margin-bottom:10px">Répartition des scores</div>
+            <div id="detailEvalScoresBrief" style="display:flex;flex-direction:column;gap:7px"></div>
+          </div>
+        </div>
+
+        <!-- Panneau Compétences -->
+        <div class="eval-dpanel" id="evalDPanel-competences">
+          <div class="eval-criteria-grid2" id="detailEvalCritGrid"></div>
+        </div>
+
+        <!-- Panneau Signatures -->
+        <div class="eval-dpanel" id="evalDPanel-signatures">
+          <div class="eval-validation-bar2">
+            <div style="display:flex;align-items:center;gap:10px;flex:1">
+              <div class="eval-val-dots" id="evalValDots"></div>
+              <div class="eval-val-lbl" id="evalValLabel">0 / 0 validations</div>
+            </div>
+            <button class="eval-finalize2 eval-finalize2--disabled" id="evalFinalizeBtn">✓ Finaliser</button>
+          </div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">// Signatures requises</div>
+          <div class="eval-sigs-grid2" id="evalSigsGrid"></div>
+          <div id="evalRejectedPanel" style="display:none;background:rgba(255,51,85,.04);border:1px solid rgba(255,51,85,.25);padding:12px;margin-top:8px">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.18em;color:var(--danger);margin-bottom:6px">⛔ Refus signalé</div>
+            <div style="font-family:'Courier Prime',monospace;font-size:11px;color:var(--text)" id="evalRejectedReason">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" data-close-modal="modalEvalDetail">Fermer</button>
+        <button class="btn btn-sm btn-danger" id="evalDetailDeleteBtn">✕ Supprimer</button>
+        <button class="btn btn-sm btn-primary" id="evalDetailExportBtn">⬇ Exporter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL WIZARD NOUVELLE ÉVALUATION ══ -->
+  <div class="modal-ov eval-modal-form" id="modalEvalForm">
+    <div class="modal-box" style="max-width:760px;width:95%">
+      <div class="modal-hdr">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--dept-color)">+ NOUVELLE ÉVALUATION</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;color:var(--white);margin-top:4px" id="evalWizTitle">Informations de base</div>
+        </div>
+        <button class="modal-close" data-close-modal="modalEvalForm">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Steps -->
+        <div class="eval-wiz-steps">
+          <div class="eval-wiz-step active" data-wstep="0"><div class="eval-wiz-dot">01</div><div class="eval-wiz-lbl">Identité</div></div>
+          <div class="eval-wiz-step" data-wstep="1"><div class="eval-wiz-dot">02</div><div class="eval-wiz-lbl">Compétences</div></div>
+          <div class="eval-wiz-step" data-wstep="2"><div class="eval-wiz-dot">03</div><div class="eval-wiz-lbl">Récapitulatif</div></div>
+          <div class="eval-wiz-step" data-wstep="3"><div class="eval-wiz-dot">04</div><div class="eval-wiz-lbl">Validation</div></div>
+        </div>
+
+        <!-- Étape 1 — Identité -->
+        <div class="eval-step-panel2 active" id="evalStep-0">
+          <div class="eval-step-tag">// 01 — Informations agent & évaluation</div>
+          <div class="eval-fgrid">
+            <div class="eval-form-field"><label class="eval-flabel">Nom de l'agent *</label><input class="eval-finput" id="ewName" placeholder="Ex: M.NOWAK"/></div>
+            <div class="eval-form-field"><label class="eval-flabel">Username Roblox</label><input class="eval-finput" id="ewUser" placeholder="Ex: FlofloParis"/></div>
+            <div class="eval-form-field"><label class="eval-flabel">Grade actuel</label><input class="eval-finput" id="ewRank" placeholder="Ex: [D.SE] Cadet"/></div>
+            <div class="eval-form-field"><label class="eval-flabel">Date *</label><input class="eval-finput" id="ewDate" type="date"/></div>
+            <div class="eval-form-field"><label class="eval-flabel">Évaluateur principal *</label><input class="eval-finput" id="ewAuthor" placeholder="Votre nom"/></div>
+            <div class="eval-form-field"><label class="eval-flabel">Décision finale *</label>
+              <select class="eval-fselect" id="ewDecision">
+                <option value="promu">✅ Promu au grade supérieur</option>
+                <option value="valide" selected>✔ Validé — maintien du grade</option>
+                <option value="avertissement">⚠ Avertissement formel</option>
+                <option value="recale">❌ Recalé</option>
+                <option value="expulse">🚫 Expulsion</option>
+              </select>
+            </div>
+            <div class="eval-form-field full"><label class="eval-flabel">Contexte de l'évaluation</label><textarea class="eval-ftextarea" id="ewContext" rows="2" placeholder="Fin de période d'essai, montée en grade, contrôle disciplinaire…"></textarea></div>
+          </div>
+          <!-- Signataires -->
+          <div style="background:var(--surface2);border:1px solid var(--border);padding:14px">
+            <div class="eval-step-tag" style="margin-bottom:10px">// Chaîne de validation — définir les signataires</div>
+            <div id="ewSigList"></div>
+            <button class="btn btn-ghost btn-sm" id="ewAddSigBtn" style="margin-top:8px">+ Ajouter un palier</button>
+          </div>
+        </div>
+
+        <!-- Étape 2 — Compétences -->
+        <div class="eval-step-panel2" id="evalStep-1">
+          <div class="eval-step-tag">// 02 — Notation par compétences (0–10)</div>
+          <div id="ewCompList"></div>
+        </div>
+
+        <!-- Étape 3 — Récapitulatif -->
+        <div class="eval-step-panel2" id="evalStep-2">
+          <div class="eval-step-tag">// 03 — Récapitulatif avant enregistrement</div>
+          <div class="eval-total-bar2">
+            <div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:var(--text-dim);margin-bottom:3px">Score global</div>
+              <div class="eval-total-score2" id="ewRecapScore" style="color:var(--safe)">—</div>
+              <div class="eval-total-mention2" id="ewRecapMention">—</div>
+            </div>
+            <div style="display:flex;gap:14px;flex-wrap:wrap" id="ewRecapBreakdown"></div>
+          </div>
+          <div class="eval-recap-grid2" id="ewRecapInfoGrid"></div>
+          <div class="eval-form-field full">
+            <label class="eval-flabel">Commentaires de l'évaluateur</label>
+            <textarea class="eval-ftextarea" id="ewComments" rows="4" placeholder="Observations, points forts, axes d'amélioration…"></textarea>
+          </div>
+        </div>
+
+        <!-- Étape 4 — Validation -->
+        <div class="eval-step-panel2" id="evalStep-3">
+          <div class="eval-step-tag">// 04 — Chaîne de validation multi-niveaux</div>
+          <div style="background:var(--surface2);border:1px solid rgba(76,195,255,.15);border-left:3px solid var(--dept-color);padding:12px 14px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);line-height:1.8">
+            L'évaluation sera enregistrée avec le statut <span style="color:var(--warn)">EN ATTENTE</span>. Chaque signataire devra valider depuis son compte. L'évaluation est finalisée lorsque tous les paliers requis ont été signés.
+          </div>
+          <div class="eval-sigs-grid2" id="ewSigPreviewGrid"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="eval-wiz-nav">
+          <button class="eval-wiz-btn eval-wiz-btn--back" id="ewBackBtn" style="visibility:hidden">← Retour</button>
+          <span class="eval-wiz-info" id="ewStepInfo">Étape 1 / 4</span>
+          <button class="eval-wiz-btn eval-wiz-btn--next" id="ewNextBtn">Suivant →</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1775,11 +2072,15 @@ document.addEventListener('click', async e => {
   const dp = e.target.closest('[data-del-p]');
   if (dp) { if(!requireAuth('supprimer un protocole')) return; if(!confirm('Supprimer ce protocole ?')) return; await fbDelete('sec_protocols', dp.dataset.delP); SCPIntranet.addHistory('Protocole supprimé.'); return; }
 
-  // ÉVALUATIONS
-  const eb = e.target.closest('[data-edit-ev]');
-  if (eb) { if(!requireAuth('modifier une éval')) return; openEvalForm(evaluations.find(x=>x._id===eb.dataset.editEv)); return; }
-  const db2 = e.target.closest('[data-del-ev]');
-  if (db2) { if(!requireAuth('supprimer une éval')) return; if(!confirm('Supprimer ?')) return; await fbDelete('sec_evals', db2.dataset.delEv); return; }
+  // ÉVALUATIONS (nouveau système)
+  const eDetBtn = e.target.closest('[data-eval-open]');
+  if (eDetBtn) { openEvalDetail(eDetBtn.dataset.evalOpen); return; }
+  const eSignBtn = e.target.closest('[data-eval-sign]');
+  if (eSignBtn) { await evalSign(eSignBtn.dataset.evalSign, parseInt(eSignBtn.dataset.evalSigIdx)); return; }
+  const eRejectBtn = e.target.closest('[data-eval-reject]');
+  if (eRejectBtn) { await evalReject(eRejectBtn.dataset.evalReject, parseInt(eRejectBtn.dataset.evalSigIdx)); return; }
+  const eRevokeBtn = e.target.closest('[data-eval-revoke]');
+  if (eRevokeBtn) { await evalRevoke(eRevokeBtn.dataset.evalRevoke, parseInt(eRevokeBtn.dataset.evalSigIdx)); return; }
 
   // RAPPORTS
   const vb = e.target.closest('[data-view-r]');
@@ -2012,57 +2313,387 @@ document.getElementById('saveProtoBtn')?.addEventListener('click', async () => {
 });
 
 // ══════════════════════════════════════════
-// EVALUATIONS
 // ══════════════════════════════════════════
-function renderEvals() {
-  const el = document.getElementById('evalList'); if (!el) return;
-  let list = activeEvalFilter==='all' ? evaluations : evaluations.filter(e=>e.decision===activeEvalFilter);
-  SCPIntranet.updateStat('evalCount', evaluations.length + ' évaluations');
-  if (!list.length) { el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✦</div><div class="empty-text">Aucune évaluation</div></div>'; return; }
-  const dec={promu:'✅ Promu',valide:'✔ Validé',avertissement:'⚠ Avertissement',recale:'❌ Recalé',expulse:'🚫 Expulsé'};
-  el.innerHTML=[...list].reverse().map(ev=>{
-    const m = SCPIntranet.getEvalMention(ev.total);
-    return `<div class="card">
-      <div class="card-hdr"><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--white)">${ev.name}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:${m.color}">${ev.total}/60</div></div>
-      <div class="card-type">${ev.rank} — @${ev.username||'—'}</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${m.color};letter-spacing:0.1em;text-transform:uppercase">${m.text}</div>
-      <div class="card-meta"><span>${dec[ev.decision]||ev.decision}</span><span>${ev.date}</span><span>Éval: ${ev.author}</span></div>
-      ${ev.comments?`<div class="card-excerpt">${ev.comments}</div>`:''}
-      <div class="card-acts">${isAuthenticated ? `<button class="btn btn-xs btn-primary" data-edit-ev="${ev._id}">✎</button><button class="btn btn-xs btn-danger" data-del-ev="${ev._id}">✕</button>` : ''}</div>
+// ÉVALUATIONS — Nouveau système
+// ══════════════════════════════════════════
+const EVAL_CRIT_DEF = [
+  { key:'Disc',  label:'Discipline',           desc:'Respect des règles, ponctualité, comportement en service', color:'#4cc3ff' },
+  { key:'Proto', label:'Protocoles',            desc:'Maîtrise et application des procédures D.SE',             color:'#7ab0ff' },
+  { key:'React', label:'Réactivité',            desc:'Capacité à répondre rapidement aux incidents',            color:'#00d97e' },
+  { key:'Comm',  label:'Communication',         desc:'Clarté des rapports, coordination avec les unités',       color:'#e8c84a' },
+  { key:'Hier',  label:'Hiérarchie',            desc:'Attitude vis-à-vis de la chaîne de commandement',         color:'#ffaa00' },
+  { key:'Comp',  label:'Comportement',          desc:'Professionnalisme, esprit d\'équipe, initiative',          color:'#a855f7' },
+];
+const EVAL_DEC_LABELS = { promu:'✅ PROMU', valide:'✔ VALIDÉ', avertissement:'⚠ AVERTISSEMENT', recale:'❌ RECALÉ', expulse:'🚫 EXPULSÉ' };
+const EVAL_DEC_COLORS = { promu:'var(--promo)', valide:'var(--safe)', avertissement:'var(--warn)', recale:'var(--danger)', expulse:'#555' };
+let activeEvalFilter = 'all';
+let activeEvalSort = 'date-desc';
+let currentEvalDetailId = null;
+let ewStep = 0;
+let ewSigs = [];
+let ewScores = {};
+
+function evalScoreColor(s){ return s>=8?'var(--safe)':s>=6?'#7ab0ff':s>=4?'var(--warn)':'var(--danger)'; }
+function evalGetMention(total){
+  const MAP=[{min:54,text:'EXCEPTIONNEL',color:'var(--safe)'},{min:48,text:'EXCELLENT',color:'var(--safe)'},{min:42,text:'TRÈS BON',color:'#7ab0ff'},{min:36,text:'SATISFAISANT',color:'var(--accent)'},{min:27,text:'INSUFFISANT',color:'var(--warn)'},{min:0,text:'RECALÉ',color:'var(--danger)'}];
+  return MAP.find(m=>total>=m.min)||MAP[MAP.length-1];
+}
+function evalGetValidStatus(ev){
+  if(!ev.signataires||!ev.signataires.length) return 'pending';
+  const req=ev.signataires.filter(s=>s.required);
+  if(req.every(s=>s.status==='signed')) return 'complete';
+  if(ev.signataires.some(s=>s.status==='rejected')) return 'rejected';
+  if(ev.signataires.some(s=>s.status==='signed')) return 'partial';
+  return 'pending';
+}
+function evalValidBadge(status){
+  return {pending:{text:'EN ATTENTE',cls:'eval-valid-badge--pending'},partial:{text:'PARTIEL',cls:'eval-valid-badge--partial'},complete:{text:'VALIDÉ ✓',cls:'eval-valid-badge--complete'},rejected:{text:'REFUSÉ',cls:'eval-valid-badge--rejected'}}[status]||{text:'—',cls:'eval-valid-badge--pending'};
+}
+
+function renderEvals(){
+  const el=document.getElementById('evalList'); if(!el) return;
+  const q=(document.getElementById('evalSearch')?.value||'').toLowerCase();
+  const sort=document.getElementById('evalSort')?.value||'date-desc';
+  SCPIntranet.updateStat('evalCount', evaluations.length+' évaluations enregistrées');
+
+  // Stats bar
+  const cnt={promu:0,valide:0,avertissement:0,recale:0,pending:0};
+  evaluations.forEach(e=>{
+    if(cnt[e.decision]!==undefined) cnt[e.decision]++;
+    if(evalGetValidStatus(e)!=='complete') cnt.pending++;
+  });
+  ['Promu','Valide','Avert','Recale','Pending','Total'].forEach(k=>{
+    const id='evalStat'+k; const el2=document.getElementById(id);
+    if(!el2) return;
+    if(k==='Total') el2.textContent=evaluations.length;
+    else if(k==='Avert') el2.textContent=cnt.avertissement||0;
+    else el2.textContent=cnt[k.toLowerCase()]||0;
+  });
+
+  let list=[...evaluations];
+  if(activeEvalFilter==='pending') list=list.filter(e=>evalGetValidStatus(e)!=='complete');
+  else if(activeEvalFilter!=='all') list=list.filter(e=>e.decision===activeEvalFilter);
+  if(q) list=list.filter(e=>(e.name||'').toLowerCase().includes(q)||(e.author||'').toLowerCase().includes(q)||(e.username||'').toLowerCase().includes(q));
+  if(sort==='date-desc') list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  else if(sort==='date-asc') list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  else if(sort==='score-desc') list.sort((a,b)=>(b.total||0)-(a.total||0));
+  else if(sort==='score-asc') list.sort((a,b)=>(a.total||0)-(b.total||0));
+
+  if(!list.length){ el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✦</div><div class="empty-text">Aucune évaluation trouvée</div></div>'; return; }
+
+  el.innerHTML=list.map(ev=>{
+    const total=ev.total||0;
+    const m=evalGetMention(total);
+    const vs=evalGetValidStatus(ev);
+    const vb=evalValidBadge(vs);
+    const decColor=EVAL_DEC_COLORS[ev.decision]||'#888';
+    const scoresHtml=EVAL_CRIT_DEF.map(c=>{
+      const s=ev.scores?.[c.key]??5;
+      return `<div class="eval-score-row2">
+        <span class="eval-score-lbl2">${c.label.split(' ')[0]}</span>
+        <div class="eval-score-bar-wrap2"><div class="eval-score-bar-fill2" style="width:${s*10}%;background:${c.color}55;outline:1px solid ${c.color}60"></div></div>
+        <span class="eval-score-val2" style="color:${evalScoreColor(s)}">${s}</span>
+      </div>`;
+    }).join('');
+    const sigsHtml=(ev.signataires||[]).map(s=>{
+      const dc=s.status==='signed'?'var(--safe)':s.status==='rejected'?'var(--danger)':'var(--border2)';
+      return `<span class="eval-sig-mini2 ${s.status}"><span class="eval-sig-dot2" style="background:${dc}"></span>${esc((s.role||'').split('/')[0].trim().substring(0,12))}</span>`;
+    }).join('');
+    return `<div class="eval-card-new eval-card-new--${ev.decision||'valide'}" data-eval-open="${ev._id}" onclick="openEvalDetail('${ev._id}')">
+      <span class="eval-valid-badge ${vb.cls}">${vb.text}</span>
+      <div class="eval-card-head">
+        <div class="eval-card-agent-name">${esc(ev.name||'—')}</div>
+        <div class="eval-card-rank-lbl">${esc(ev.rank||'—')}</div>
+        <div class="eval-card-dec-row">
+          <span class="eval-dec-badge eval-dec-badge--${ev.decision}" style="color:${decColor}">${EVAL_DEC_LABELS[ev.decision]||ev.decision}</span>
+        </div>
+        <div class="eval-card-meta-lbl">${ev.date||'—'} — Éval. ${esc(ev.author||'—')}</div>
+      </div>
+      <div class="eval-card-scores-wrap">${scoresHtml}</div>
+      <div class="eval-card-foot">
+        <div style="display:flex;align-items:baseline;gap:3px">
+          <div class="eval-total-num2" style="color:${m.color}">${total}</div>
+          <div class="eval-total-max2">/60</div>
+        </div>
+        <span class="eval-mention2" style="color:${m.color};border-color:${m.color}40">${m.text}</span>
+      </div>
+      ${sigsHtml?`<div class="eval-card-sigs-row">${sigsHtml}</div>`:''}
     </div>`;
   }).join('');
 }
-document.getElementById('evalFilters')?.addEventListener('click', e => { const pill = e.target.closest('.pill'); if (!pill) return; document.querySelectorAll('#evalFilters .pill').forEach(p=>p.classList.remove('active')); pill.classList.add('active'); activeEvalFilter = pill.dataset.evalFilter; renderEvals(); });
-document.getElementById('btnNewEval')?.addEventListener('click', () => { if (!requireAuth('créer une évaluation')) return; openEvalForm(null); });
-['evalCancelBtn','evalCancelBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { document.getElementById('evalFormPanel').style.display='none'; editingEvalId=null; }));
-function openEvalForm(ev=null) {
-  editingEvalId = ev?._id || null;
-  document.getElementById('evalFormTitle').textContent = ev ? 'Modifier — '+ev.name : 'Nouvelle évaluation';
-  document.getElementById('evalName').value    = ev?.name || '';
-  document.getElementById('evalUser').value    = ev?.username || '';
-  document.getElementById('evalRank').value    = ev?.rank || '';
-  document.getElementById('evalAuthor').value  = ev?.author || '';
-  document.getElementById('evalDate').value    = ev?.date || SCPIntranet.today();
-  document.getElementById('evalDecision').value= ev?.decision || 'valide';
-  document.getElementById('evalComments').value= ev?.comments || '';
-  SCPIntranet.EVAL_CRITERIA.forEach(k => { const sl = document.getElementById('score'+k); const vl = document.getElementById('val'+k); if(sl) sl.value = ev?.scores?.[k] || 5; if(vl) vl.textContent = ev?.scores?.[k] || 5; });
-  SCPIntranet.updateEvalUI();
-  const panel = document.getElementById('evalFormPanel'); panel.style.display='block'; panel.scrollIntoView({behavior:'smooth',block:'start'});
+
+document.getElementById('evalFilters')?.addEventListener('click',e=>{
+  const pill=e.target.closest('.pill'); if(!pill||!pill.dataset.evalFilter) return;
+  document.querySelectorAll('#evalFilters .pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active'); activeEvalFilter=pill.dataset.evalFilter; renderEvals();
+});
+document.getElementById('evalSearch')?.addEventListener('input',renderEvals);
+document.getElementById('evalSort')?.addEventListener('change',renderEvals);
+
+// ── MODAL DÉTAIL ──
+function openEvalDetail(id){
+  const ev=evaluations.find(e=>e._id===id); if(!ev) return;
+  currentEvalDetailId=id;
+  const total=ev.total||0; const m=evalGetMention(total);
+  document.getElementById('detailEvalTitle').textContent=ev.name||'—';
+  document.getElementById('detailEvalName').textContent=ev.name||'—';
+  document.getElementById('detailEvalRank').textContent=ev.rank||'—';
+  document.getElementById('detailEvalScore').textContent=total;
+  document.getElementById('detailEvalScore').style.color=m.color;
+  document.getElementById('detailEvalMention').textContent=m.text;
+  document.getElementById('detailEvalMention').style.color=m.color;
+  const db=document.getElementById('detailEvalDecBadge');
+  db.textContent=EVAL_DEC_LABELS[ev.decision]||ev.decision;
+  db.className='eval-dec-badge eval-dec-badge--'+(ev.decision||'valide');
+  document.getElementById('detailEvalMeta').textContent=`${ev.date||'—'} — Évaluateur: ${ev.author||'—'}${ev.username?' | @'+ev.username:''}`;
+  const cb=document.getElementById('detailEvalCommentsBox');
+  if(ev.comments){ cb.style.display='block'; document.getElementById('detailEvalComments').textContent=ev.comments; } else cb.style.display='none';
+  document.getElementById('detailEvalScoresBrief').innerHTML=EVAL_CRIT_DEF.map(c=>{
+    const s=ev.scores?.[c.key]??5;
+    return `<div class="eval-score-row2"><span class="eval-score-lbl2" style="min-width:110px">${c.label}</span><div class="eval-score-bar-wrap2"><div class="eval-score-bar-fill2" style="width:${s*10}%;background:${c.color}"></div></div><span class="eval-score-val2" style="color:${evalScoreColor(s)}">${s}<span style="font-size:9px;color:var(--text-dim)">/10</span></span></div>`;
+  }).join('');
+  document.getElementById('detailEvalCritGrid').innerHTML=EVAL_CRIT_DEF.map(c=>{
+    const s=ev.scores?.[c.key]??5;
+    return `<div class="eval-crit-card2"><div class="eval-crit-name2">${c.label}</div><div class="eval-crit-score2" style="color:${c.color}">${s}<span style="font-size:13px;font-weight:400;color:var(--text-dim)">/10</span></div><div class="eval-crit-bar2"><div style="height:100%;width:${s*10}%;background:${c.color}"></div></div><div class="eval-crit-desc2">${c.desc}</div></div>`;
+  }).join('');
+  renderEvalSigsPanel(ev);
+  activateEvalDTab('resume');
+  SCPIntranet.openModal('modalEvalDetail');
 }
-document.getElementById('evalSaveBtn')?.addEventListener('click', async () => {
-  if (!requireAuth('sauvegarder une évaluation')) return;
-  const name = document.getElementById('evalName').value.trim(); const author = document.getElementById('evalAuthor').value.trim(); const date = document.getElementById('evalDate').value;
-  if(!name||!author||!date){alert('Champs requis manquants.');return;}
-  const scores={}; SCPIntranet.EVAL_CRITERIA.forEach(k=>scores[k]=parseInt(document.getElementById('score'+k).value));
-  const total=Object.values(scores).reduce((a,b)=>a+b,0);
-  const data={name,username:document.getElementById('evalUser').value.trim(),rank:document.getElementById('evalRank').value.trim(),author,date,decision:document.getElementById('evalDecision').value,comments:document.getElementById('evalComments').value.trim(),scores,total};
-  if(editingEvalId){ await fbUpdate('sec_evals', editingEvalId, data); } else { await fbAdd('sec_evals', data); }
-  document.getElementById('evalFormPanel').style.display='none'; editingEvalId=null; SCPIntranet.addHistory('Évaluation enregistrée: '+name);
+function renderEvalSigsPanel(ev){
+  const sigs=ev.signataires||[];
+  const req=sigs.filter(s=>s.required);
+  const signedReq=req.filter(s=>s.status==='signed').length;
+  const hasRejected=sigs.some(s=>s.status==='rejected');
+  document.getElementById('evalValDots').innerHTML=sigs.map(s=>`<div class="eval-val-dot ${s.status==='signed'?'done':s.status==='rejected'?'rejected':''}" title="${esc(s.role)}"></div>`).join('');
+  document.getElementById('evalValLabel').textContent=`${signedReq} / ${req.length} validation${req.length>1?'s':''} requise${req.length>1?'s':''}`;
+  const allDone=req.length>0&&req.every(s=>s.status==='signed');
+  const fb=document.getElementById('evalFinalizeBtn');
+  fb.className=allDone?'eval-finalize2 eval-finalize2--ready':'eval-finalize2 eval-finalize2--disabled';
+  fb.textContent=allDone?'✓ Finaliser':`En attente (${req.length-signedReq} sig.)`;
+  document.getElementById('evalSigsGrid').innerHTML=sigs.map((s,i)=>{
+    const sc=s.status==='signed'?'signed':s.status==='rejected'?'rejected':'pending';
+    const st=s.status==='signed'?'✓ SIGNÉ':s.status==='rejected'?'✕ REFUSÉ':'○ EN ATTENTE';
+    const canSign=isAuthenticated&&!s.status||s.status==='pending';
+    return `<div class="eval-sig-card2 eval-sig-card2--${sc}">
+      <div class="eval-sig-role2">Niveau ${s.level||i+1}${s.required?' <span style="color:var(--danger)">*</span>':''}</div>
+      <div class="eval-sig-name2">${esc(s.role||'—')}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);margin-top:2px">${esc(s.name||'—')}</div>
+      <div class="eval-sig-status2 ${sc}">${st}</div>
+      ${s.signedAt?`<div class="eval-sig-ts">${s.signedAt}</div>`:''}
+      ${canSign&&isAuthenticated?`<button class="eval-sig-action eval-sig-action--sign" data-eval-sign="${ev._id}" data-eval-sig-idx="${i}">✍ Signer</button><button class="eval-sig-action eval-sig-action--reject" data-eval-reject="${ev._id}" data-eval-sig-idx="${i}">✕ Refuser</button>`:''}
+      ${s.status==='signed'?`<div class="eval-sig-stamp2">OK</div>${isAuthenticated?`<button class="eval-sig-revoke" data-eval-revoke="${ev._id}" data-eval-sig-idx="${i}">↩ Révoquer</button>`:''}` :''}
+    </div>`;
+  }).join('');
+  const rejs=sigs.find(s=>s.status==='rejected');
+  const rp=document.getElementById('evalRejectedPanel');
+  if(rejs){ rp.style.display='block'; document.getElementById('evalRejectedReason').textContent=`Refusé par: ${rejs.name||rejs.role} — ${rejs.signedAt||''}`; } else rp.style.display='none';
+}
+function activateEvalDTab(tab){
+  document.querySelectorAll('.eval-dtab').forEach(t=>t.classList.toggle('active',t.dataset.evalDtab===tab));
+  document.querySelectorAll('.eval-dpanel').forEach(p=>p.classList.toggle('active',p.id==='evalDPanel-'+tab));
+}
+document.addEventListener('click',e=>{
+  const dt=e.target.closest('.eval-dtab'); if(dt&&dt.dataset.evalDtab){ activateEvalDTab(dt.dataset.evalDtab); return; }
+});
+
+// Signer / refuser / révoquer
+async function evalSign(evalId,idx){
+  if(!requireAuth('signer')) return;
+  const ev=evaluations.find(e=>e._id===evalId); if(!ev) return;
+  if(!ev.signataires[idx]) return;
+  ev.signataires[idx].status='signed';
+  ev.signataires[idx].signedAt=new Date().toLocaleString('fr-FR');
+  await fbUpdate('sec_evals',evalId,{signataires:ev.signataires});
+  renderEvalSigsPanel(ev); renderEvals();
+  SCPIntranet.addHistory('Signature apposée sur éval: '+ev.name);
+}
+async function evalReject(evalId,idx){
+  if(!requireAuth('refuser')) return;
+  const ev=evaluations.find(e=>e._id===evalId); if(!ev) return;
+  if(!ev.signataires[idx]) return;
+  ev.signataires[idx].status='rejected';
+  ev.signataires[idx].signedAt=new Date().toLocaleString('fr-FR');
+  await fbUpdate('sec_evals',evalId,{signataires:ev.signataires});
+  renderEvalSigsPanel(ev); renderEvals();
+  SCPIntranet.addHistory('Évaluation refusée: '+ev.name);
+}
+async function evalRevoke(evalId,idx){
+  if(!requireAuth('révoquer')) return;
+  if(!confirm('Révoquer cette signature ?')) return;
+  const ev=evaluations.find(e=>e._id===evalId); if(!ev) return;
+  if(!ev.signataires[idx]) return;
+  ev.signataires[idx].status='pending';
+  ev.signataires[idx].signedAt=null;
+  await fbUpdate('sec_evals',evalId,{signataires:ev.signataires});
+  renderEvalSigsPanel(ev); renderEvals();
+}
+document.getElementById('evalFinalizeBtn')?.addEventListener('click',async()=>{
+  const ev=evaluations.find(e=>e._id===currentEvalDetailId); if(!ev) return;
+  if(!ev.signataires.filter(s=>s.required).every(s=>s.status==='signed')) return;
+  await fbUpdate('sec_evals',currentEvalDetailId,{finalized:true});
+  SCPIntranet.addHistory('Évaluation finalisée: '+ev.name);
+});
+document.getElementById('evalDetailDeleteBtn')?.addEventListener('click',async()=>{
+  if(!requireAuth('supprimer')) return;
+  if(!confirm('Supprimer cette évaluation ?')) return;
+  await fbDelete('sec_evals',currentEvalDetailId);
+  SCPIntranet.closeModal('modalEvalDetail');
+  SCPIntranet.addHistory('Évaluation supprimée.');
+});
+document.getElementById('evalDetailExportBtn')?.addEventListener('click',()=>{
+  const ev=evaluations.find(e=>e._id===currentEvalDetailId); if(!ev) return;
+  const m=evalGetMention(ev.total||0);
+  const lines=['══════════════════════════════════════════','SCP FOUNDATION — SITE-19','RAPPORT D\'ÉVALUATION — DÉPARTEMENT SÉCURITÉ','══════════════════════════════════════════',
+    `ID       : ${ev._id}`,`DATE     : ${ev.date||'—'}`,`AGENT    : ${ev.name||'—'}`,`USERNAME : ${ev.username?'@'+ev.username:'—'}`,`GRADE    : ${ev.rank||'—'}`,`ÉVAL.    : ${ev.author||'—'}`,
+    '══════════════════════════════════════════',`SCORE    : ${ev.total||0} / 60 — ${m.text}`,`DÉCISION : ${EVAL_DEC_LABELS[ev.decision]||ev.decision}`,'══════════════════════════════════════════','COMPÉTENCES',
+    ...EVAL_CRIT_DEF.map(c=>`  ${(c.label).padEnd(20)}: ${ev.scores?.[c.key]??5}/10`),
+    '','══════════════════════════════════════════','COMMENTAIRES',(ev.comments||'(aucun)'),
+    '','══════════════════════════════════════════','SIGNATURES',
+    ...(ev.signataires||[]).map(s=>`  Niv.${s.level||'?'} ${(s.role||'').padEnd(28)}: ${s.status==='signed'?'✓ SIGNÉ':s.status==='rejected'?'✕ REFUSÉ':'○ EN ATTENTE'} ${s.signedAt||''}`),
+    '',`[Généré le ${new Date().toLocaleString('fr-FR')}]`,'══════════════════════════════════════════'];
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`EVAL_${(ev.name||'agent').replace(/[^a-z0-9]/gi,'_')}_${ev.date||'nodate'}.txt`; a.click();
+  SCPIntranet.addHistory('Export évaluation: '+ev.name);
+});
+
+// ── WIZARD NOUVELLE ÉVALUATION ──
+const EW_STEP_TITLES=['Informations de base','Notation par compétences','Récapitulatif','Validation & Signatures'];
+const EW_DEFAULT_SIGS=[
+  {level:1,role:'Évaluateur direct',name:'',required:true,status:'pending',signedAt:null},
+  {level:2,role:'Superviseur / Chef de section',name:'',required:true,status:'pending',signedAt:null},
+  {level:3,role:'Direction D.SE',name:'',required:false,status:'pending',signedAt:null},
+];
+function ewResetForm(){
+  ewStep=0;
+  ewSigs=EW_DEFAULT_SIGS.map(s=>({...s}));
+  EVAL_CRIT_DEF.forEach(c=>ewScores[c.key]=5);
+  const today=SCPIntranet.today();
+  ['ewName','ewUser','ewRank','ewAuthor','ewContext','ewComments'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const ed=document.getElementById('ewDate'); if(ed) ed.value=today;
+  const edec=document.getElementById('ewDecision'); if(edec) edec.value='valide';
+  ewRenderSigList(); ewRenderCompSliders(); ewUpdateUI();
+}
+function ewRenderSigList(){
+  const el=document.getElementById('ewSigList'); if(!el) return;
+  el.innerHTML=ewSigs.map((s,i)=>`
+    <div class="eval-sig-setup-card">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);white-space:nowrap">NIV.${s.level}</span>
+      <input class="eval-finput" style="flex:2;min-width:110px" placeholder="Rôle" value="${esc(s.role)}" oninput="ewSigs[${i}].role=this.value"/>
+      <input class="eval-finput" style="flex:2;min-width:110px" placeholder="Nom du signataire" value="${esc(s.name)}" oninput="ewSigs[${i}].name=this.value"/>
+      <label style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap">
+        <input type="checkbox" ${s.required?'checked':''} onchange="ewSigs[${i}].required=this.checked"/> Requis
+      </label>
+      ${ewSigs.length>1?`<button class="btn btn-xs btn-danger" onclick="ewRemoveSig(${i})">✕</button>`:''}
+    </div>`).join('');
+}
+function ewRemoveSig(i){ewSigs.splice(i,1);ewSigs.forEach((s,idx)=>s.level=idx+1);ewRenderSigList();}
+document.getElementById('ewAddSigBtn')?.addEventListener('click',()=>{
+  ewSigs.push({level:ewSigs.length+1,role:'',name:'',required:false,status:'pending',signedAt:null});
+  ewRenderSigList();
+});
+function ewRenderCompSliders(){
+  const el=document.getElementById('ewCompList'); if(!el) return;
+  el.innerHTML=EVAL_CRIT_DEF.map(c=>`
+    <div class="eval-comp-item">
+      <div class="eval-comp-hdr">
+        <div class="eval-comp-name">${c.label}</div>
+        <div class="eval-comp-disp" id="ewDisp_${c.key}" style="color:${c.color}">${ewScores[c.key]||5}</div>
+      </div>
+      <div class="eval-comp-desc">${c.desc}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)">0</span>
+        <input type="range" class="eval-comp-slider" min="0" max="10" step="1" value="${ewScores[c.key]||5}" style="flex:1;accent-color:${c.color}" oninput="ewUpdateScore('${c.key}',this.value)"/>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)">10</span>
+      </div>
+    </div>`).join('');
+}
+function ewUpdateScore(key,val){
+  ewScores[key]=parseInt(val);
+  const el=document.getElementById('ewDisp_'+key);
+  if(el){el.textContent=val;el.style.color=evalScoreColor(parseInt(val));}
+}
+function ewRenderRecap(){
+  const total=Object.values(ewScores).reduce((s,v)=>s+v,0);
+  const m=evalGetMention(total);
+  const sc=document.getElementById('ewRecapScore'); if(sc){sc.textContent=total;sc.style.color=m.color;}
+  const mn=document.getElementById('ewRecapMention'); if(mn){mn.textContent=m.text;mn.style.color=m.color;mn.style.borderColor=m.color+'40';}
+  const bd=document.getElementById('ewRecapBreakdown');
+  if(bd) bd.innerHTML=EVAL_CRIT_DEF.map(c=>`<div style="text-align:center"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:${c.color}">${ewScores[c.key]||0}</div><div style="font-family:'Share Tech Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">${c.label.split(' ')[0]}</div></div>`).join('');
+  const ig=document.getElementById('ewRecapInfoGrid');
+  if(ig) ig.innerHTML=[
+    {lbl:'Agent',val:document.getElementById('ewName')?.value||'—'},
+    {lbl:'Grade',val:document.getElementById('ewRank')?.value||'—'},
+    {lbl:'Évaluateur',val:document.getElementById('ewAuthor')?.value||'—'},
+    {lbl:'Date',val:document.getElementById('ewDate')?.value||'—'},
+    {lbl:'Décision',val:EVAL_DEC_LABELS[document.getElementById('ewDecision')?.value]||'—'},
+    {lbl:'Signataires',val:ewSigs.filter(s=>s.name).map(s=>s.name).join(', ')||'—'},
+  ].map(i=>`<div class="eval-recap-item2"><div class="eval-recap-lbl2">${i.lbl}</div><div class="eval-recap-val2">${esc(i.val)}</div></div>`).join('');
+}
+function ewRenderSigPreview(){
+  const el=document.getElementById('ewSigPreviewGrid'); if(!el) return;
+  el.innerHTML=ewSigs.map(s=>`<div class="eval-sig-card2 eval-sig-card2--pending">
+    <div class="eval-sig-role2">Niveau ${s.level}${s.required?' <span style="color:var(--danger)">— Requis</span>':''}</div>
+    <div class="eval-sig-name2">${esc(s.role||'—')}</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--dept-color);margin-top:2px">${esc(s.name||'Non défini')}</div>
+    <div class="eval-sig-status2 pending">○ EN ATTENTE DE SIGNATURE</div>
+  </div>`).join('');
+}
+function ewUpdateUI(){
+  const wt=document.getElementById('evalWizTitle'); if(wt) wt.textContent=EW_STEP_TITLES[ewStep];
+  const si=document.getElementById('ewStepInfo'); if(si) si.textContent=`Étape ${ewStep+1} / 4`;
+  document.querySelectorAll('.eval-wiz-step').forEach((el,i)=>{el.classList.toggle('active',i===ewStep);el.classList.toggle('done',i<ewStep);});
+  document.querySelectorAll('.eval-step-panel2').forEach((p,i)=>p.classList.toggle('active',i===ewStep));
+  const bb=document.getElementById('ewBackBtn'); if(bb) bb.style.visibility=ewStep>0?'visible':'hidden';
+  const nb=document.getElementById('ewNextBtn');
+  if(nb){
+    if(ewStep===3){nb.textContent='💾 Enregistrer';nb.className='eval-wiz-btn eval-wiz-btn--save';}
+    else{nb.textContent='Suivant →';nb.className='eval-wiz-btn eval-wiz-btn--next';}
+  }
+  if(ewStep===2) ewRenderRecap();
+  if(ewStep===3) ewRenderSigPreview();
+}
+document.getElementById('ewNextBtn')?.addEventListener('click',async()=>{
+  if(!requireAuth('créer une évaluation')) return;
+  if(ewStep===0){
+    if(!document.getElementById('ewName')?.value.trim()||!document.getElementById('ewAuthor')?.value.trim()||!document.getElementById('ewDate')?.value){alert('Nom de l\'agent, évaluateur et date requis.');return;}
+  }
+  if(ewStep<3){ewStep++;ewUpdateUI();}
+  else await ewSaveEvaluation();
+});
+document.getElementById('ewBackBtn')?.addEventListener('click',()=>{if(ewStep>0){ewStep--;ewUpdateUI();}});
+async function ewSaveEvaluation(){
+  if(!requireAuth('sauvegarder une évaluation')) return;
+  const total=Object.values(ewScores).reduce((s,v)=>s+v,0);
+  const data={
+    name:document.getElementById('ewName').value.trim(),
+    username:document.getElementById('ewUser').value.trim(),
+    rank:document.getElementById('ewRank').value.trim(),
+    author:document.getElementById('ewAuthor').value.trim(),
+    date:document.getElementById('ewDate').value,
+    decision:document.getElementById('ewDecision').value,
+    context:document.getElementById('ewContext').value.trim(),
+    comments:document.getElementById('ewComments').value.trim(),
+    scores:{...ewScores},
+    total,
+    signataires:ewSigs.map(s=>({...s,status:'pending',signedAt:null})),
+    finalized:false,
+  };
+  await fbAdd('sec_evals',data);
+  SCPIntranet.closeModal('modalEvalForm');
+  SCPIntranet.addHistory('Évaluation enregistrée: '+data.name);
+}
+document.getElementById('btnNewEval')?.addEventListener('click',()=>{
+  if(!requireAuth('créer une évaluation')) return;
+  ewResetForm();
+  SCPIntranet.openModal('modalEvalForm');
 });
 
 // ══════════════════════════════════════════
 // RAPPORTS
 // ══════════════════════════════════════════
+
 function renderRapports() {
   const el = document.getElementById('rapportList'); if (!el) return;
   let list = activeRapportFilter==='all' ? rapports : rapports.filter(r=>r.type===activeRapportFilter);
@@ -2284,7 +2915,6 @@ SCPIntranet.initTabs('.nav-tab','view-');
 SCPIntranet.initModalClose();
 SCPIntranet.fillSelect('rType', SCPIntranet.RAPPORT_TYPES);
 SCPIntranet.fillSelect('rSev',  SCPIntranet.RAPPORT_SEV);
-SCPIntranet.initEvalSliders();
 renderLRC();
 updateStats();
 SCPIntranet.addHistory('Intranet Sécurité chargé.');
