@@ -1053,6 +1053,74 @@
     .scp-tag.confined { color: var(--safe);   border-color: var(--safe); }
     .scp-tag.partial  { color: var(--euclid); border-color: var(--euclid); }
     .scp-tag.breach   { color: var(--danger); border-color: var(--danger); animation: blink 0.7s step-end infinite; }
+
+    /* ══ BROADCAST OVERLAY ══ */
+.bc-overlay {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9997;
+  transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1);
+  pointer-events: none;
+}
+.bc-overlay.visible { transform: translateY(0); pointer-events: auto; }
+
+.bc-bar {
+  margin: 0 auto;
+  background: #080a0c;
+  border-top: 2px solid var(--accent);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 18px 28px 18px 24px;
+  display: flex; align-items: center; gap: 20px;
+  max-width: 900px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.8);
+  position: relative;
+}
+.bc-bar.warn   { border-top-color: var(--euclid); }
+.bc-bar.critical { border-top-color: var(--danger); animation: bcPulse 1.2s ease-in-out infinite; }
+@keyframes bcPulse { 0%,100%{box-shadow:0 -8px 40px rgba(0,0,0,0.8)} 50%{box-shadow:0 -8px 60px rgba(192,57,43,0.4)} }
+
+.bc-logo-wrap {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid rgba(232,200,74,0.4);
+  background: rgba(232,200,74,0.06);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
+}
+.bc-logo-wrap svg { width: 32px; height: 32px; }
+
+.bc-body { flex: 1; min-width: 0; }
+.bc-level-badge {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  padding: 2px 8px; border: 1px solid; display: inline-block; margin-bottom: 6px;
+}
+.bc-bar.info     .bc-level-badge { color: var(--safe);   border-color: var(--safe); }
+.bc-bar.warn     .bc-level-badge { color: var(--euclid); border-color: var(--euclid); }
+.bc-bar.critical .bc-level-badge { color: var(--danger); border-color: var(--danger); animation: blink 0.8s step-end infinite; }
+
+.bc-author {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700;
+  color: var(--white); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.bc-message {
+  font-family: 'Courier Prime', monospace; font-size: 13px;
+  color: var(--text); line-height: 1.5; margin-top: 4px;
+}
+.bc-time {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  color: var(--text-dim); letter-spacing: 0.1em; margin-top: 6px;
+}
+.bc-close {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer;
+  font-family: 'Share Tech Mono', monospace; font-size: 11px;
+  padding: 6px 12px; flex-shrink: 0; transition: all 0.2s;
+}
+.bc-close:hover { border-color: var(--danger); color: var(--danger); }
+.bc-ticker {
+  position: absolute; top: 0; left: 0; height: 2px;
+  background: rgba(255,255,255,0.15); animation: bcTicker 30s linear forwards;
+}
+@keyframes bcTicker { from{width:0%} to{width:100%} }
   </style>
 </head>
 <body>
@@ -1525,6 +1593,96 @@
     ];
   </script>
   <script type="module">
+
+// ── BROADCAST LISTENER ──
+const levelMeta = {
+  info:     { label: 'INFORMATION', barClass: 'info',     freqs: [440, 523] },
+  warn:     { label: 'AVERTISSEMENT', barClass: 'warn',   freqs: [587, 440, 587] },
+  critical: { label: 'CRITIQUE — BRÈCHE', barClass: 'critical', freqs: [880, 698, 880, 698, 1047] },
+};
+
+function playBroadcastSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const freqs = levelMeta[type]?.freqs || [440];
+    freqs.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type === 'critical' ? 'sawtooth' : 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.22);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.32);
+      osc.start(ctx.currentTime + i * 0.22);
+      osc.stop(ctx.currentTime  + i * 0.22 + 0.34);
+    });
+    // Brèche → boucle d'alarme
+    if (type === 'breach') {
+      [0,0.4,0.8].forEach(t => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'square'; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.12, ctx.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.35);
+        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.36);
+      });
+    }
+    if (type === 'allclear') {
+      [523, 659, 784].forEach((f,i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.28);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.28 + 0.5);
+        o.start(ctx.currentTime + i * 0.28); o.stop(ctx.currentTime + i * 0.28 + 0.55);
+      });
+    }
+  } catch(e) { console.warn('Audio:', e); }
+}
+
+function showBroadcast(data) {
+  const overlay  = document.getElementById('bcOverlay');
+  const bar      = document.getElementById('bcBar');
+  const badge    = document.getElementById('bcLevelBadge');
+  const author   = document.getElementById('bcAuthorDisplay');
+  const message  = document.getElementById('bcMessageDisplay');
+  const timeEl   = document.getElementById('bcTimeDisplay');
+  const ticker   = document.getElementById('bcTicker');
+  if (!overlay) return;
+
+  const meta = levelMeta[data.level] || levelMeta.info;
+  bar.className   = 'bc-bar ' + meta.barClass;
+  badge.textContent = meta.label;
+  author.textContent  = data.author  || '—';
+  message.textContent = data.message || '—';
+  timeEl.textContent  = 'Émis le ' + new Date(data.sentAt).toLocaleString('fr-FR') + ' par ' + (data.sentBy || '—');
+
+  // Réinitialiser ticker
+  ticker.style.animation = 'none'; ticker.offsetHeight;
+  ticker.style.animation = 'bcTicker 30s linear forwards';
+
+  overlay.classList.add('visible');
+
+  // Son
+  if (data.sound && data.sound !== 'none') playBroadcastSound(data.sound);
+
+  // Fermeture auto après 30s
+  clearTimeout(window._bcTimer);
+  window._bcTimer = setTimeout(() => overlay.classList.remove('visible'), 30000);
+}
+
+window.dismissBroadcast = function() {
+  document.getElementById('bcOverlay')?.classList.remove('visible');
+  clearTimeout(window._bcTimer);
+};
+
+onSnapshot(doc(db, 'broadcast', 'current'), snap => {
+  if (!snap.exists()) return;
+  const d = snap.data();
+  if (d.active) showBroadcast(d);
+  else document.getElementById('bcOverlay')?.classList.remove('visible');
+});
+
   // ══════════════════════════════════════════════
   // SERVER STATUS — FIREBASE REALTIME (FULL)
   // ══════════════════════════════════════════════

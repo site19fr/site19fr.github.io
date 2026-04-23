@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SCP — Modération | Site-19</title>
+  <title>SCP — Espace Modération | Site-19</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="shared.css" />
   <style>
@@ -326,7 +326,7 @@
       </div>
       <div class="sec-hdr">
         <div>
-          <div class="sec-tag">// Registre Firebase — Temps réel</div>
+          <div class="sec-tag">// Registre de Modération — Temps réel</div>
           <div class="sec-title">SANCTIONS <span>ACTIVES</span></div>
           <div class="sec-sub" id="liveIndicator" style="color:var(--text-dim);">⬤ CONNEXION…</div>
         </div>
@@ -549,6 +549,43 @@
       </div>
 
       <div class="admin-section">
+        <!-- ══ BROADCAST ══ -->
+<div class="admin-section" style="border-top-color:#aa66ff;border-color:rgba(170,102,255,0.3);background:rgba(170,102,255,0.03);">
+  <div class="admin-section-title" style="color:#aa66ff;">📡 Broadcast — Alerte Site-19</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+    <div class="form-field">
+      <label>Auteur (personnage RP) *</label>
+      <input type="text" id="bcAuthor" placeholder="Ex: Directeur A.MAX, O5-7…" />
+    </div>
+    <div class="form-field">
+      <label>Niveau d'alerte</label>
+      <select id="bcLevel">
+        <option value="info">ℹ️  Information</option>
+        <option value="warn">⚠️  Avertissement</option>
+        <option value="critical">🔴  Critique — Brèche</option>
+      </select>
+    </div>
+    <div class="form-field" style="grid-column:1/-1;">
+      <label>Message *</label>
+      <textarea id="bcMessage" rows="3" placeholder="Contenu de l'alerte diffusée sur le site public…" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Courier Prime',monospace;font-size:12px;padding:10px 14px;outline:none;resize:vertical;box-sizing:border-box;line-height:1.6;"></textarea>
+    </div>
+    <div class="form-field" style="grid-column:1/-1;">
+      <label>Son d'alerte</label>
+      <select id="bcSound">
+        <option value="alarm">🔔  Alarme générale</option>
+        <option value="breach">🚨  Brèche de confinement</option>
+        <option value="lockdown">🔒  Confinement — Lockdown</option>
+        <option value="allclear">✅  Fin d'alerte — All Clear</option>
+        <option value="none">🔇  Aucun son</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-actions" style="display:flex;align-items:center;gap:12px;">
+    <button class="btn btn-sm" onclick="sendBroadcast()" style="background:rgba(170,102,255,0.12);border:1px solid #aa66ff;color:#aa66ff;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;padding:10px 24px;cursor:pointer;transition:all 0.2s;">📡 Diffuser l'alerte</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearBroadcast()">✕ Effacer</button>
+  </div>
+  <div id="bcMsg" style="font-family:'Share Tech Mono',monospace;font-size:11px;margin-top:10px;min-height:16px;"></div>
+</div>
         <div class="admin-section-title">⚙ Créer un compte</div>
         <div class="form-grid">
           <div class="form-field"><label>Nom d'utilisateur *</label><input type="text" id="newUserUsername" placeholder="Agent_Nom" autocomplete="off" /></div>
@@ -1034,6 +1071,56 @@ function startListen() {
     document.getElementById('liveIndicator').style.color = 'var(--danger)';
   });
 }
+
+// ══════════════════════════════════════════════
+// ── BROADCAST ──
+// ══════════════════════════════════════════════
+
+window.sendBroadcast = async function() {
+  const author  = document.getElementById('bcAuthor').value.trim();
+  const message = document.getElementById('bcMessage').value.trim();
+  const level   = document.getElementById('bcLevel').value;
+  const sound   = document.getElementById('bcSound').value;
+  const msgEl   = document.getElementById('bcMsg');
+  msgEl.textContent = ''; msgEl.style.color = '';
+
+  if (!author || !message) {
+    msgEl.style.color = 'var(--danger)';
+    msgEl.textContent = '⚠ Auteur et message obligatoires.';
+    return;
+  }
+
+  try {
+    await setDoc(doc(db, 'broadcast', 'current'), {
+      author,
+      message,
+      level,
+      sound,
+      active: true,
+      sentBy: currentUser?.displayName || currentUser?.username || '—',
+      sentAt: new Date().toISOString(),
+    });
+    msgEl.style.color = 'var(--safe)';
+    msgEl.textContent = '✓ Alerte diffusée sur le site public.';
+    SCPIntranet.addHistory('Broadcast envoyé : [' + level.toUpperCase() + '] ' + author);
+    setTimeout(() => { msgEl.textContent = ''; }, 4000);
+  } catch(e) {
+    msgEl.style.color = 'var(--danger)';
+    msgEl.textContent = '⚠ ' + e.message;
+  }
+};
+
+window.clearBroadcast = async function() {
+  if (!confirm('Retirer l\'alerte du site public ?')) return;
+  try {
+    await setDoc(doc(db, 'broadcast', 'current'), { active: false, clearedAt: new Date().toISOString() });
+    document.getElementById('bcMsg').style.color = 'var(--safe)';
+    document.getElementById('bcMsg').textContent = '✓ Alerte retirée du site.';
+    SCPIntranet.addHistory('Broadcast effacé');
+  } catch(e) {
+    alert('Erreur : ' + e.message);
+  }
+};
 
 // ── SAVE SANCTION ──
 window.saveSanction = async function() {
