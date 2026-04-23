@@ -1447,6 +1447,30 @@
     </div>
   </section>
 
+  <!-- ══ BROADCAST OVERLAY ══ -->
+<div class="bc-overlay" id="bcOverlay">
+  <div class="bc-bar info" id="bcBar">
+    <div class="bc-logo-wrap">
+      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="90" stroke="#e8c84a" stroke-width="2" stroke-dasharray="4 4"/>
+        <circle cx="100" cy="100" r="70" stroke="#e8c84a" stroke-width="0.8" opacity="0.5"/>
+        <path d="M100 30 L118 64 L155 70 L128 97 L135 134 L100 116 L65 134 L72 97 L45 70 L82 64 Z" stroke="#e8c84a" stroke-width="2" fill="none"/>
+        <circle cx="100" cy="100" r="15" stroke="#e8c84a" stroke-width="2" fill="none"/>
+        <circle cx="100" cy="100" r="4" fill="#e8c84a"/>
+      </svg>
+    </div>
+    <div class="bc-body">
+      <div class="bc-level-badge" id="bcLevelBadge">Information</div>
+      <div class="bc-author" id="bcAuthorDisplay">—</div>
+      <div class="bc-message" id="bcMessageDisplay">—</div>
+      <div class="bc-time" id="bcTimeDisplay">—</div>
+    </div>
+    <button class="bc-close" onclick="dismissBroadcast()">✕ FERMER</button>
+    <div class="bc-ticker" id="bcTicker"></div>
+  </div>
+</div>
+
+
   <div class="sep">
     <div class="sep-line"></div>
     <span class="sep-label">ACCÈS INTRANET</span>
@@ -1594,94 +1618,7 @@
   </script>
   <script type="module">
 
-// ── BROADCAST LISTENER ──
-const levelMeta = {
-  info:     { label: 'INFORMATION', barClass: 'info',     freqs: [440, 523] },
-  warn:     { label: 'AVERTISSEMENT', barClass: 'warn',   freqs: [587, 440, 587] },
-  critical: { label: 'CRITIQUE — BRÈCHE', barClass: 'critical', freqs: [880, 698, 880, 698, 1047] },
-};
 
-function playBroadcastSound(type) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const freqs = levelMeta[type]?.freqs || [440];
-    freqs.forEach((freq, i) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = type === 'critical' ? 'sawtooth' : 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.22);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.32);
-      osc.start(ctx.currentTime + i * 0.22);
-      osc.stop(ctx.currentTime  + i * 0.22 + 0.34);
-    });
-    // Brèche → boucle d'alarme
-    if (type === 'breach') {
-      [0,0.4,0.8].forEach(t => {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.type = 'square'; o.frequency.value = 880;
-        g.gain.setValueAtTime(0.12, ctx.currentTime + t);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.35);
-        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.36);
-      });
-    }
-    if (type === 'allclear') {
-      [523, 659, 784].forEach((f,i) => {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.type = 'sine'; o.frequency.value = f;
-        g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.28);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.28 + 0.5);
-        o.start(ctx.currentTime + i * 0.28); o.stop(ctx.currentTime + i * 0.28 + 0.55);
-      });
-    }
-  } catch(e) { console.warn('Audio:', e); }
-}
-
-function showBroadcast(data) {
-  const overlay  = document.getElementById('bcOverlay');
-  const bar      = document.getElementById('bcBar');
-  const badge    = document.getElementById('bcLevelBadge');
-  const author   = document.getElementById('bcAuthorDisplay');
-  const message  = document.getElementById('bcMessageDisplay');
-  const timeEl   = document.getElementById('bcTimeDisplay');
-  const ticker   = document.getElementById('bcTicker');
-  if (!overlay) return;
-
-  const meta = levelMeta[data.level] || levelMeta.info;
-  bar.className   = 'bc-bar ' + meta.barClass;
-  badge.textContent = meta.label;
-  author.textContent  = data.author  || '—';
-  message.textContent = data.message || '—';
-  timeEl.textContent  = 'Émis le ' + new Date(data.sentAt).toLocaleString('fr-FR') + ' par ' + (data.sentBy || '—');
-
-  // Réinitialiser ticker
-  ticker.style.animation = 'none'; ticker.offsetHeight;
-  ticker.style.animation = 'bcTicker 30s linear forwards';
-
-  overlay.classList.add('visible');
-
-  // Son
-  if (data.sound && data.sound !== 'none') playBroadcastSound(data.sound);
-
-  // Fermeture auto après 30s
-  clearTimeout(window._bcTimer);
-  window._bcTimer = setTimeout(() => overlay.classList.remove('visible'), 30000);
-}
-
-window.dismissBroadcast = function() {
-  document.getElementById('bcOverlay')?.classList.remove('visible');
-  clearTimeout(window._bcTimer);
-};
-
-onSnapshot(doc(db, 'broadcast', 'current'), snap => {
-  if (!snap.exists()) return;
-  const d = snap.data();
-  if (d.active) showBroadcast(d);
-  else document.getElementById('bcOverlay')?.classList.remove('visible');
-});
 
   // ══════════════════════════════════════════════
   // SERVER STATUS — FIREBASE REALTIME (FULL)
@@ -1794,5 +1731,95 @@ onSnapshot(doc(db, 'broadcast', 'current'), snap => {
     const lu = $('statusLastUpdate');
     if (lu) { lu.style.color = 'var(--danger)'; lu.textContent = '⚠ Erreur Firebase'; }
   });
+
+
+  // ── BROADCAST LISTENER ──
+const levelMeta = {
+  info:     { label: 'INFORMATION', barClass: 'info',     freqs: [440, 523] },
+  warn:     { label: 'AVERTISSEMENT', barClass: 'warn',   freqs: [587, 440, 587] },
+  critical: { label: 'CRITIQUE — BRÈCHE', barClass: 'critical', freqs: [880, 698, 880, 698, 1047] },
+};
+
+function playBroadcastSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const freqs = levelMeta[type]?.freqs || [440];
+    freqs.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type === 'critical' ? 'sawtooth' : 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.22);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.32);
+      osc.start(ctx.currentTime + i * 0.22);
+      osc.stop(ctx.currentTime  + i * 0.22 + 0.34);
+    });
+    // Brèche → boucle d'alarme
+    if (type === 'breach') {
+      [0,0.4,0.8].forEach(t => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'square'; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.12, ctx.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.35);
+        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.36);
+      });
+    }
+    if (type === 'allclear') {
+      [523, 659, 784].forEach((f,i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.28);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.28 + 0.5);
+        o.start(ctx.currentTime + i * 0.28); o.stop(ctx.currentTime + i * 0.28 + 0.55);
+      });
+    }
+  } catch(e) { console.warn('Audio:', e); }
+}
+
+function showBroadcast(data) {
+  const overlay  = document.getElementById('bcOverlay');
+  const bar      = document.getElementById('bcBar');
+  const badge    = document.getElementById('bcLevelBadge');
+  const author   = document.getElementById('bcAuthorDisplay');
+  const message  = document.getElementById('bcMessageDisplay');
+  const timeEl   = document.getElementById('bcTimeDisplay');
+  const ticker   = document.getElementById('bcTicker');
+  if (!overlay) return;
+
+  const meta = levelMeta[data.level] || levelMeta.info;
+  bar.className   = 'bc-bar ' + meta.barClass;
+  badge.textContent = meta.label;
+  author.textContent  = data.author  || '—';
+  message.textContent = data.message || '—';
+  timeEl.textContent  = 'Émis le ' + new Date(data.sentAt).toLocaleString('fr-FR') + ' par ' + (data.sentBy || '—');
+
+  // Réinitialiser ticker
+  ticker.style.animation = 'none'; ticker.offsetHeight;
+  ticker.style.animation = 'bcTicker 30s linear forwards';
+
+  overlay.classList.add('visible');
+
+  // Son
+  if (data.sound && data.sound !== 'none') playBroadcastSound(data.sound);
+
+  // Fermeture auto après 30s
+  clearTimeout(window._bcTimer);
+  window._bcTimer = setTimeout(() => overlay.classList.remove('visible'), 30000);
+}
+
+window.dismissBroadcast = function() {
+  document.getElementById('bcOverlay')?.classList.remove('visible');
+  clearTimeout(window._bcTimer);
+};
+
+onSnapshot(doc(db, 'broadcast', 'current'), snap => {
+  if (!snap.exists()) return;
+  const d = snap.data();
+  if (d.active) showBroadcast(d);
+  else document.getElementById('bcOverlay')?.classList.remove('visible');
+});
   </script>
 </body>
